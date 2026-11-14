@@ -75,7 +75,28 @@ model-supported claim is refused until the model card contains validation eviden
 The callable adapter is a development and test boundary; it does not validate a model or make a
 prediction outside a registered evidence envelope.
 
-## 3. Quantities carry a status
+## 3. Benchmarking a model against supplied evidence
+
+You can score a model on a set of measured cases when you provide the tolerance and source IDs
+explicitly:
+
+```python
+>>> from pyra.compare import evaluate_model
+>>> observations = [pk.measured(10, "kW", source_ref="doi:10.0000/example|case-1"),
+...                 pk.measured(20, "kW", source_ref="doi:10.0000/example|case-2")]
+>>> predictions = [pk.measured(10.2, "kW", source_ref="model|run-1"),
+...                pk.measured(23, "kW", source_ref="model|run-2")]
+>>> evaluation = evaluate_model(observations, predictions, tolerance=1.0, source_ids=["BASS-II", "SAFFIRE-I"])
+>>> evaluation.score, evaluation.passed_cases, evaluation.status.name
+(50.0, 1, 'INTERPRETATION')
+
+```
+
+This is a benchmark score for the supplied cases and tolerance. It is not a universal AI reliability
+rating, a fire-safety certification, or evidence that a model generalizes beyond the supplied
+investigations.
+
+## 4. Quantities carry a status
 
 ```python
 >>> from pyra import Quantity, Status

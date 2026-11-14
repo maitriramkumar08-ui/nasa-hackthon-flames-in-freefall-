@@ -202,8 +202,12 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
 
 ## Module `pyra.compare`
 
+* class `ModelEvaluation`
+  A benchmark result, never a universal reliability guarantee.
 * `bias(measured: Quantity, simulated: Quantity) -> Quantity`
   Return ``simulated - measured`` in the measured unit.
+* `evaluate_model(observations: Sequence[Quantity], predictions: Sequence[Quantity], *, tolerance: float, source_ids: Sequence[str] | None = None) -> ModelEvaluation`
+  Score predictions by the percentage within an explicit absolute tolerance.
 * `first_order_lag(signal: Sequence[float], *, dt: float, tau: float) -> tuple[float, ...]`
   Apply the exact piecewise-constant first-order sensor lag recurrence.
 * `relative_difference(measured: Quantity, simulated: Quantity) -> Quantity`
