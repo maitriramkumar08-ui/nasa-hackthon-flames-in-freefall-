@@ -211,6 +211,11 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
 * `require_validated(card: ModelCard) -> None`
   Refuse a model-supported claim when its envelope is empty.
 
+## Module `pyra.report`
+
+* `build_report(items: Iterable[Any], out: Path, *, title: str = 'PYRA report') -> Path`
+  Write a self-contained HTML report and return its path.
+
 ## Module `pyra.service`
 
 * `heat_release(o2_in: float, o2_out: float, mass_flow: float, energy_per_kg_o2: float, *, source_ref: str, o2_uncertainty: float = 0.0, mass_flow_uncertainty: float = 0.0, energy_uncertainty: float = 0.0, n: int = 1024, seed: int = 0) -> Quantity`
