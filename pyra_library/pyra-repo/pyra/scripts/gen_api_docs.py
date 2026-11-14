@@ -19,6 +19,7 @@ import pyra.physics.calorimetry as calorimetry  # noqa: E402
 import pyra.io as io  # noqa: E402
 import pyra.matching as matching  # noqa: E402
 import pyra.compare as compare  # noqa: E402
+import pyra.adapters as adapters  # noqa: E402
 import pyra.service as service  # noqa: E402
 import pyra.schema as schema  # noqa: E402
 import pyra.units as units  # noqa: E402
@@ -93,6 +94,7 @@ def render() -> str:
         (io, "pyra.io"),
         (matching, "pyra.matching"),
         (compare, "pyra.compare"),
+        (adapters, "pyra.adapters"),
         (service, "pyra.service"),
         (calorimetry, "pyra.physics.calorimetry"),
         (uq, "pyra.uq"),

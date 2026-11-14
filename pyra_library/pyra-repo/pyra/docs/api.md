@@ -200,6 +200,17 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
 * `z_score(measured: Quantity, simulated: Quantity, *, discrepancy: float = 0.0) -> Quantity`
   Return a z-score using combined measurement, simulation and discrepancy uncertainty.
 
+## Module `pyra.adapters`
+
+* class `CallableAdapter`
+  Run a user-supplied function without importing any simulator package.
+* class `ClaimGateError`
+  Raised when a model-supported claim lacks validation evidence.
+* class `SimulationResult`
+  A simulator output bundle with an explicit SIMULATED status.
+* `require_validated(card: ModelCard) -> None`
+  Refuse a model-supported claim when its envelope is empty.
+
 ## Module `pyra.service`
 
 * `heat_release(o2_in: float, o2_out: float, mass_flow: float, energy_per_kg_o2: float, *, source_ref: str, o2_uncertainty: float = 0.0, mass_flow_uncertainty: float = 0.0, energy_uncertainty: float = 0.0, n: int = 1024, seed: int = 0) -> Quantity`

@@ -50,7 +50,32 @@ pyra simulate --initial 2 --rate 0.5 --duration 10 --steps 100
 pyra simulate --window
 ```
 
-## 2. Quantities carry a status
+## 2. Running a callable model safely
+
+Small Python models can run behind a `CallableAdapter`. The result is marked `SIMULATED`, and a
+model-supported claim is refused until the model card contains validation evidence:
+
+```python
+>>> from pyra.adapters import CallableAdapter
+>>> from pyra.schema import Conditions, ModelCard, Scenario
+>>> card = ModelCard(name="toy", version="1", code_hash="local", licence="MIT", physics_summary="demo")
+>>> adapter = CallableAdapter(card, lambda scenario: {"answer": 42})
+>>> result = adapter.run(Scenario(scenario_id="demo", conditions=Conditions.model_validate({
+...     "gravity_g": {"value": 1e-5, "unit": "dimensionless"},
+...     "pressure": {"value": 101, "unit": "kPa"},
+...     "o2_mole_fraction": {"value": 0.21, "unit": "dimensionless"},
+...     "diluent": "nitrogen", "flow_mode": "forced", "fuel": {"material": "PMMA"},
+...     "configuration": "concurrent", "length_scale": {"value": 0.02, "unit": "m"},
+... })))
+>>> result.status.name, result.outputs["answer"]
+('SIMULATED', 42)
+
+```
+
+The callable adapter is a development and test boundary; it does not validate a model or make a
+prediction outside a registered evidence envelope.
+
+## 3. Quantities carry a status
 
 ```python
 >>> from pyra import Quantity, Status
