@@ -1,0 +1,67 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyra"
+version = "0.0.0"
+description = "Predictive Hazard & Reliability Atlas: spacecraft fire safety evidence library"
+readme = "README.md"
+requires-python = ">=3.11"
+# Licence deliberately unset: choose it at P14 after checking dependency licences (fdsreader is LGPL).
+# TODO(verify): confirm each package name, minimum version and licence before release.
+dependencies = [
+    "numpy",
+    "scipy",
+    "pydantic",
+    "pint",
+    "xarray",
+]
+
+[project.optional-dependencies]
+uq = ["emcee", "SALib"]          # TODO(verify)
+gp = ["scikit-learn"]            # TODO(verify): GP package choice is open
+vision = []                      # TODO(verify): decide at the data audit
+report = ["jinja2", "typer"]     # TODO(verify)
+fds = ["fdsreader"]              # TODO(verify): LGPL; pyfdstools is the alternative
+edu = []
+service = []
+dev = ["pytest", "hypothesis", "ruff", "mypy", "nox", "pre-commit", "mkdocs"]
+
+[project.scripts]
+pyra = "pyra.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pyra", "src/pyra_edu"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_unused_ignores = true
+warn_redundant_casts = true
+mypy_path = "src"
+
+# Strict on provenance and schema (prompt P0). Per-module overrides cannot use `strict`,
+# so the strict flags are spelled out.
+[[tool.mypy.overrides]]
+module = ["pyra.provenance.*", "pyra.schema.*"]
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+disallow_any_generics = true
+no_implicit_optional = true
+warn_return_any = true
+strict_equality = true
