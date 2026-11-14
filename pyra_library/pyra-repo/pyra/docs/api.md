@@ -177,6 +177,18 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
 * `write_manifest(path: Path, entries: list[ManifestEntry]) -> None`
   Write a stable, human-readable JSON manifest.
 
+## Module `pyra.matching`
+
+* class `MatchPolicy`
+  Tolerances and weights used by the mismatch engine.
+* class `MismatchVector`
+* `match(scenario: Scenario, experiment: ExperimentRecord, policy: MatchPolicy) -> MismatchVector`
+  Match one scenario to one experiment record.
+* `match_conditions(scenario: Conditions, experiment: Conditions, policy: MatchPolicy) -> MismatchVector`
+  Compare two condition records while retaining every dimension's distance.
+* `pareto_front(vectors: Sequence[MismatchVector]) -> list[int]`
+  Return non-dominated vector indexes, preserving input order.
+
 ## Module `pyra.physics.calorimetry`
 
 * `hrr_enthalpy_balance(t_in: Quantity, t_out: Quantity, mass_flow: Quantity, cp: Quantity, loss_model: Callable[[float], float] | None = None) -> Quantity`
