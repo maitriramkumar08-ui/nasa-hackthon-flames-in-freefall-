@@ -1,0 +1,33 @@
+# PYRA command cheat sheet
+
+Run these from the PYRA repository root after installing the package in editable mode.
+
+```text
+python -m pip install -e ".[dev]"
+python -m pyra.cli demo
+python -m pyra.cli simulate --initial 2 --rate 0.5 --duration 10 --steps 100
+python -m pyra.cli simulate --window
+python -m pyra.cli replay path/to/ledger.jsonl
+python scripts/gen_api_docs.py
+ruff check src tests
+mypy src
+pytest
+git status --short --branch
+git log -5 --oneline
+```
+
+Python first-program commands:
+
+```python
+import pyra as pk
+
+hrr = pk.heat_release(0.21, 0.20, 0.01, 13_100_000, source_ref="doi:10.0000/example|synthetic")
+trace = pk.simulate_decay(1.0, 0.5, 4.0)
+pk.show_simulation(trace)
+```
+
+The simulation trace is fictional and for UI learning. The heat-release helper is provenance-aware
+and requires a source reference. `replay` checks that a JSONL provenance ledger can be read; it does
+not rerun an external simulator.
+
+Keep this document command-only and copy-pasteable. Put explanations in `docs/usage.md`.

@@ -255,5 +255,8 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
 
 ## Module `pyra.uq`
 
+* class `BootstrapSummary`
+* `bootstrap_mean(values: Sequence[float], *, n_resamples: int = 2000, seed: int = 0, confidence: float = 0.95) -> BootstrapSummary`
+  Estimate a mean and percentile interval by explicit-seed bootstrap resampling.
 * `propagate(function: Callable[[tuple[float, ...]], float], inputs: Sequence[Quantity], *, output_unit: str, n: int = 4096, seed: int = 0, activity: str = 'uq.propagate') -> Quantity`
   Propagate independent normal uncertainties through ``function``.
