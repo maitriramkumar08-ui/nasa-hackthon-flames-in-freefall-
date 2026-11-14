@@ -35,6 +35,10 @@ print(hrr.value, hrr.unit, hrr.status.name)   # 1310 W DERIVED
 For a local visual demo, run `pyra simulate --window`. For machine-readable output, run
 `pyra simulate --steps 20`; it prints JSON and does not open a window.
 
+For an explicitly simplified concentration exercise, use `pk.simulate_zone()` from Python.
+For classroom examples, `pyra_edu.decay_activity()` returns a fictional trace labelled as a
+concept sketch. Neither is a validated fire-safety simulation.
+
 ## Install and explore
 
 PYRA is not published on PyPI. Install from a checkout with `pip install -e .`; see

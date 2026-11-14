@@ -11,6 +11,8 @@
   example and beginner API reference.
 - Added an explicitly limited well-mixed zone concentration simulation and a PSI-159 condition
   record that preserves raw fields until calibration and mappings are verified.
+- Replaced education-layer placeholders with a fictional trace activity, plain-language status
+  labels and a small evidence-or-concept-sketch lesson check.
 - Added executable usage examples and 90+ tests covering the implemented layers.
 
 The project remains pre-alpha. Calibrated investigation readers, external simulator adapters, and

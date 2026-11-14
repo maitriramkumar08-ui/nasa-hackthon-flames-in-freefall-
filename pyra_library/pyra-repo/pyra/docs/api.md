@@ -158,6 +158,8 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
   A scalar value with a Pint-parsable unit and explicit uncertainty.
 * class `ModelCard`
   Identity, limitations and validation evidence for a simulation model.
+* class `PSIConditionRecord`
+  Raw PSI condition fields plus optional reviewed, normalized common conditions.
 * class `Scenario`
   A hypothetical or proposed set of fire conditions.
 * class `SourceRef`
@@ -179,6 +181,8 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
   Explicit, hand-curated reader registry; there is no auto-discovery.
 * `fetch(entry: ManifestEntry, destination: Path, *, transport: Callable[[str], bytes]) -> Path`
   Fetch one entry through an injected transport and verify its SHA-256.
+* `psi159_condition_record(setpoints: PSI159Setpoints, *, row_index: int, source_id: str, source_uri: str | None = None) -> PSIConditionRecord`
+  Wrap one PSI-159 setpoint row as raw conditions, without voltage calibration.
 * `read_manifest(path: Path) -> list[ManifestEntry]`
   Read a JSON manifest and validate every entry.
 * `read_psi159_setpoints(path: Path) -> PSI159Setpoints`
@@ -241,7 +245,7 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
   Create one explicitly hypothetical scenario quantity.
 * `show_simulation(points: Sequence[tuple[float, float]], *, title: str = 'PYRA simulation') -> None`
   Open a tiny Tkinter line plot for a sequence of ``(time, value)`` points.
-* `simulate_decay(initial: float, rate: float, duration: float, *, steps: int = 100) -> tuple[tuple[float, float], ...]`
+* `simulate_decay(initial: float = 1.0, rate: float = 0.5, duration: float = 10.0, *, steps: int = 100) -> tuple[tuple[float, float], ...]`
   Return a fictional exponential trace for learning and UI experiments.
 
 ## Module `pyra.physics.calorimetry`

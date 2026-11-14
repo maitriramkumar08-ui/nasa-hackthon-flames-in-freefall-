@@ -18,6 +18,8 @@ PYRA is a Python library for spacecraft and habitat fire-safety evidence.
 - Reports: self-contained HTML with statuses and IDs.
 - Beginner API: `import pyra as pk`, `heat_release`, `simulate_decay` (works with defaults),
   `show_simulation`, `measured`, `scenario`.
+- Education helpers: a fictional decay activity, plain-language status labels, and a small lesson
+  check for an evidence ID or an explicit concept-sketch label.
 - CLI: `demo`, `simulate`, and `replay` commands.
 
 Limits: calibrated investigation readers, external CFD adapters, Bayesian calibration, surrogate

@@ -24,6 +24,10 @@ import pyra as pk
 hrr = pk.heat_release(0.21, 0.20, 0.01, 13_100_000, source_ref="doi:10.0000/example|synthetic")
 trace = pk.simulate_decay(1.0, 0.5, 4.0)
 pk.show_simulation(trace)
+zone = pk.simulate_zone()  # simplified single-zone concentration exercise
+
+from pyra_edu import decay_activity
+lesson_example = decay_activity()  # fictional trace, clearly labelled
 ```
 
 The simulation trace is fictional and for UI learning. The heat-release helper is provenance-aware

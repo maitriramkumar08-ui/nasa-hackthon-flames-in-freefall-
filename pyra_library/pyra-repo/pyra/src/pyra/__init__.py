@@ -8,6 +8,7 @@ Everything else lives in the sub-packages (see the API reference in ``docs/api.m
 Only dependency-free modules are imported here, so ``import pyra`` stays fast.
 """
 
+from pyra.physics.zone import simulate_zone
 from pyra.provenance import (
     Ledger,
     LedgerEntry,
@@ -19,7 +20,6 @@ from pyra.provenance import (
     sha256_hex,
 )
 from pyra.service.simple import heat_release, measured, scenario, show_simulation, simulate_decay
-from pyra.physics.zone import simulate_zone
 
 __version__ = "0.0.0"
 

@@ -40,6 +40,7 @@ For a transparent single-zone concentration exercise, use the exact constant-inp
 ...                        duration_s=10, steps=3)
 >>> zone.status, len(zone.time_s), round(zone.concentration[-1], 4)
 ('SIMULATED', 3, 0.2163)
+
 ```
 
 This model evolves `dC/dt = k * (C_in - C) + S` and assumes one well-mixed zone, constant
@@ -278,3 +279,19 @@ True
 * `docs/api.md`: every public name in `pyra.provenance` with its signature.
 * `examples/quickstart.py`: this page as a runnable script.
 * `docs/architecture.md`: what PYRA will and will not claim.
+
+## 12. Small education helpers
+
+The education package stays deliberately small: a fictional trace, readable result labels, and a
+check that lesson material either cites an evidence ID or labels itself as a concept sketch.
+
+```python
+>>> from pyra_edu import decay_activity, check_lesson, status_badge
+>>> decay_activity(steps=3)["label"]
+'FICTIONAL TEACHING EXAMPLE — NOT A FIRE MODEL'
+>>> check_lesson(title="Exponential curves", concept_sketch=True).ok
+True
+>>> status_badge("SIMULATED")
+'SIMULATED: Simulation output'
+
+```

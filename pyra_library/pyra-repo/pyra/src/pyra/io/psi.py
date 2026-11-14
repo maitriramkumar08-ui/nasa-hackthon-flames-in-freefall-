@@ -48,12 +48,15 @@ def read_psi_metadata_zip(path: Path) -> PSIMetadata:
         )
         if len(metadata_files) != 1:
             raise ValueError(
-                f"Expected exactly one investigation metadata file (i_*); found {len(metadata_files)}"
+                "Expected exactly one investigation metadata file (i_*); "
+                f"found {len(metadata_files)}"
             )
         investigation_name = metadata_files[0]
         fields = _fields(archive.read(investigation_name).decode("utf-8", "replace"))
     if not fields:
-        raise ValueError(f"Investigation metadata file {investigation_name!r} contains no tab fields")
+        raise ValueError(
+            f"Investigation metadata file {investigation_name!r} contains no tab fields"
+        )
     return PSIMetadata(
         investigation_id=fields.get("Study Identifier", ""),
         title=fields.get("Study Title", ""),
@@ -95,7 +98,9 @@ def psi159_condition_record(
     try:
         row = setpoints.rows[row_index]
     except IndexError as error:
-        raise IndexError(f"PSI-159 row_index {row_index} is outside the available setpoint rows") from error
+        raise IndexError(
+            f"PSI-159 row_index {row_index} is outside the available setpoint rows"
+        ) from error
     raw_fields = {f"metadata.{key}": value for key, value in setpoints.metadata.items()}
     raw_fields.update({f"setpoint.{key}": value for key, value in row.items() if value is not None})
     return PSIConditionRecord(
@@ -105,7 +110,9 @@ def psi159_condition_record(
         test_point_id=setpoints.metadata.get("Test Point"),
         raw_fields=raw_fields,
         mapping_status="raw",
-        mapping_note="Controller setpoints are preserved in source units; calibration is unavailable.",
+        mapping_note=(
+            "Controller setpoints are preserved in source units; calibration is unavailable."
+        ),
     )
 
 
