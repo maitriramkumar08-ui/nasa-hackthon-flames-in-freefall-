@@ -1,0 +1,8 @@
+site_name: PYRA
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Usage: usage.md
+  - API reference: api.md
+  - Architecture: architecture.md
+  - Mapping guide: mapping_guide.md

@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+dist/
+site/
+*.egg-info/
+# Evidence is never committed; only manifests (DOIs and hashes) live in data_manifests/.
+data/
