@@ -97,7 +97,10 @@ def test_education_package_uses_only_the_service_layer() -> None:
     for path in _files("pyra_edu"):
         module, _ = _module_name(path)
         for target in _imports(path):
-            if target == "pyra" or target.startswith("pyra."):
-                if target != "pyra" and not target.startswith("pyra.service"):
-                    violations.append(f"{module} imports {target}")
+            if (
+                (target == "pyra" or target.startswith("pyra."))
+                and target != "pyra"
+                and not target.startswith("pyra.service")
+            ):
+                violations.append(f"{module} imports {target}")
     assert not violations, violations
