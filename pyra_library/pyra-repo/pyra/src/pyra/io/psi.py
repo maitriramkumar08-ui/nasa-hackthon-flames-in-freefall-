@@ -12,6 +12,8 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
+from pyra.schema.psi import PSIConditionRecord
+
 
 @dataclass(frozen=True)
 class PSIMetadata:
@@ -80,4 +82,37 @@ def read_psi159_setpoints(path: Path) -> PSI159Setpoints:
     return PSI159Setpoints(metadata=metadata, rows=rows)
 
 
-__all__ = ["PSI159Setpoints", "PSIMetadata", "read_psi159_setpoints", "read_psi_metadata_zip"]
+def psi159_condition_record(
+    setpoints: PSI159Setpoints,
+    *,
+    row_index: int,
+    source_id: str,
+    source_uri: str | None = None,
+) -> PSIConditionRecord:
+    """Wrap one PSI-159 setpoint row as raw conditions, without voltage calibration."""
+    if row_index < 0:
+        raise IndexError("row_index must be non-negative")
+    try:
+        row = setpoints.rows[row_index]
+    except IndexError as error:
+        raise IndexError(f"PSI-159 row_index {row_index} is outside the available setpoint rows") from error
+    raw_fields = {f"metadata.{key}": value for key, value in setpoints.metadata.items()}
+    raw_fields.update({f"setpoint.{key}": value for key, value in row.items() if value is not None})
+    return PSIConditionRecord(
+        investigation_id="PSI-159",
+        source_id=source_id,
+        source_uri=source_uri,
+        test_point_id=setpoints.metadata.get("Test Point"),
+        raw_fields=raw_fields,
+        mapping_status="raw",
+        mapping_note="Controller setpoints are preserved in source units; calibration is unavailable.",
+    )
+
+
+__all__ = [
+    "PSI159Setpoints",
+    "PSIMetadata",
+    "psi159_condition_record",
+    "read_psi159_setpoints",
+    "read_psi_metadata_zip",
+]

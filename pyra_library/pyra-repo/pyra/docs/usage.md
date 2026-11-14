@@ -32,6 +32,20 @@ For a simple visual experiment, make a fictional trace with sensible defaults an
 `simulate_decay` is deliberately a toy UI example; it is not a fire model and carries no scientific
 claim. `show_simulation` uses the standard-library Tkinter window for local desktop programs.
 
+For a transparent single-zone concentration exercise, use the exact constant-input solution:
+
+```python
+>>> zone = pk.simulate_zone(initial_concentration=0.21, inlet_concentration=0.21,
+...                        exchange_rate_per_s=0.1, source_rate_per_s=0.001,
+...                        duration_s=10, steps=3)
+>>> zone.status, len(zone.time_s), round(zone.concentration[-1], 4)
+('SIMULATED', 3, 0.2163)
+```
+
+This model evolves `dC/dt = k * (C_in - C) + S` and assumes one well-mixed zone, constant
+ventilation and a constant source. It omits chemistry, heat transfer, buoyancy and spatial
+gradients; it is a learning and sensitivity tool, not a validated fire simulation.
+
 For small scripts, the shorter constructors keep the status choice visible:
 
 ```python

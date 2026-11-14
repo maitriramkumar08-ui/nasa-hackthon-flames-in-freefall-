@@ -46,6 +46,8 @@ The readers currently implemented are:
 
 - metadata extraction from the four supplied PSI ZIP archives;
 - raw PSI-159 setpoint parsing;
+- PSI-159 raw condition records that preserve per-row metadata and controller values without
+  treating voltages as calibrated flow rates;
 - generic local CSV parsing;
 - manifest hash verification and explicit reader registration.
 

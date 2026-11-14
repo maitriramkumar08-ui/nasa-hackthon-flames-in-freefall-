@@ -7,7 +7,9 @@ PYRA is a Python library for spacecraft and habitat fire-safety evidence.
 - Units: Pint registry and dimensional validation.
 - Schemas: pydantic models for conditions, fuels, experiments, scenarios, sources, and model cards.
 - S0 physics: oxygen-consumption HRR, enthalpy balance, species generation, uncertainty propagation.
-- PSI I/O: metadata ZIP reader, raw PSI-159 setpoint reader, CSV reader, hash-checked manifests.
+- Simulation: exact single-zone scalar concentration trace with visible assumptions and SIMULATED status.
+- PSI I/O: metadata ZIP reader, raw PSI-159 setpoint reader and condition-record wrapper that
+  preserves original labels and voltages without applying unavailable calibration.
 - Data audit: supplied BASS-II, FLEX, SAFFIRE-I, SPICE, and PSI-159 files documented with limits.
 - Matching: configuration/fuel/flow gates, gravity/pressure log distances, mismatch vectors, Pareto fronts.
 - Coverage: nearest evidence, independent-source counts, explicit `none` coverage result.
