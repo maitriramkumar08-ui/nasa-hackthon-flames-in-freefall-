@@ -22,6 +22,9 @@ hrr = pk.heat_release(
 print(hrr.value, hrr.unit, hrr.status.name)   # 1310 W DERIVED
 ```
 
+For a local visual demo, run `pyra simulate --window`. For machine-readable output, run
+`pyra simulate --steps 20`; it prints JSON and does not open a window.
+
 Install from a checkout with `pip install -e .` (not on PyPI). Docs: `docs/installation.md`,
 `docs/usage.md` (every example is run by the tests), `docs/api.md`. Design: `docs/architecture.md`.
 Project rules for AI-assisted work: `AGENTS.md`.

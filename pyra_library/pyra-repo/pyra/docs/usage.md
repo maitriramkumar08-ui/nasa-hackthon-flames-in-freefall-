@@ -32,6 +32,24 @@ For a simple visual experiment, generate a fictional learning trace and open a s
 `simulate_decay` is deliberately a toy UI example; it is not a fire model and carries no scientific
 claim. `show_simulation` uses the standard-library Tkinter window for local desktop programs.
 
+For small scripts, the shorter constructors keep the status choice visible:
+
+```python
+>>> pk.measured(21.0, "percent", source_ref="doi:10.0000/example|synthetic").status.name
+'MEASURED'
+>>> pk.scenario(0.5, "dimensionless").status.name
+'SCENARIO'
+
+```
+
+The same toy trace is available from a terminal:
+
+```text
+pyra demo
+pyra simulate --initial 2 --rate 0.5 --duration 10 --steps 100
+pyra simulate --window
+```
+
 ## 2. Quantities carry a status
 
 ```python

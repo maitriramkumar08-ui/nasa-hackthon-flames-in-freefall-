@@ -9,6 +9,30 @@ from pyra.physics.calorimetry import hrr_oxygen_consumption
 from pyra.provenance import Quantity
 
 
+def measured(
+    value: float,
+    unit: str,
+    *,
+    source_ref: str,
+    uncertainty: float | None = None,
+    u_kind: str = "unknown",
+) -> Quantity:
+    """Create one traceable measured quantity with a short signature."""
+    return Quantity.measured(value, unit, uncertainty, u_kind, source_ref=source_ref)
+
+
+def scenario(
+    value: float,
+    unit: str,
+    *,
+    uncertainty: float | None = None,
+    u_kind: str = "unknown",
+    activity: str = "user_input",
+) -> Quantity:
+    """Create one explicitly hypothetical scenario quantity."""
+    return Quantity.scenario(value, unit, uncertainty, u_kind, activity=activity)
+
+
 def heat_release(
     o2_in: float,
     o2_out: float,
@@ -84,4 +108,4 @@ def show_simulation(
     root.mainloop()
 
 
-__all__ = ["heat_release", "show_simulation", "simulate_decay"]
+__all__ = ["heat_release", "measured", "scenario", "show_simulation", "simulate_decay"]

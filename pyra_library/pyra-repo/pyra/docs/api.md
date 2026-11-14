@@ -204,6 +204,10 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
 
 * `heat_release(o2_in: float, o2_out: float, mass_flow: float, energy_per_kg_o2: float, *, source_ref: str, o2_uncertainty: float = 0.0, mass_flow_uncertainty: float = 0.0, energy_uncertainty: float = 0.0, n: int = 1024, seed: int = 0) -> Quantity`
   Compute a simple oxygen-consumption HRR from SI-valued numbers.
+* `measured(value: float, unit: str, *, source_ref: str, uncertainty: float | None = None, u_kind: str = 'unknown') -> Quantity`
+  Create one traceable measured quantity with a short signature.
+* `scenario(value: float, unit: str, *, uncertainty: float | None = None, u_kind: str = 'unknown', activity: str = 'user_input') -> Quantity`
+  Create one explicitly hypothetical scenario quantity.
 * `show_simulation(points: Sequence[tuple[float, float]], *, title: str = 'PYRA simulation') -> None`
   Open a tiny Tkinter line plot for a sequence of ``(time, value)`` points.
 * `simulate_decay(initial: float, rate: float, duration: float, *, steps: int = 100) -> tuple[tuple[float, float], ...]`

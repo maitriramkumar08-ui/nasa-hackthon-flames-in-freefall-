@@ -18,7 +18,7 @@ from pyra.provenance import (
     join,
     sha256_hex,
 )
-from pyra.service.simple import heat_release, show_simulation, simulate_decay
+from pyra.service.simple import heat_release, measured, scenario, show_simulation, simulate_decay
 
 __version__ = "0.0.0"
 
@@ -32,6 +32,8 @@ __all__ = [
     "__version__",
     "join",
     "heat_release",
+    "measured",
+    "scenario",
     "show_simulation",
     "simulate_decay",
     "sha256_hex",
