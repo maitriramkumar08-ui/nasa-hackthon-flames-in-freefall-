@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 
+from pyra.provenance import inspect_ledger
 from pyra.service.simple import show_simulation, simulate_decay
 
 
@@ -20,12 +21,18 @@ def _parser() -> argparse.ArgumentParser:
     simulate.add_argument("--duration", type=float, default=4.0)
     simulate.add_argument("--steps", type=int, default=25)
     simulate.add_argument("--window", action="store_true", help="open the Tkinter plot window")
+    replay = commands.add_parser("replay", help="parse a JSONL provenance ledger")
+    replay.add_argument("ledger")
     return parser
 
 
 def main(argv: list[str] | None = None) -> None:
     """Run the CLI; no external services are required for the demo commands."""
     args = _parser().parse_args(argv)
+    if args.command == "replay":
+        result = inspect_ledger(args.ledger)
+        print(json.dumps({"checked": result.checked, "ok": result.ok}))
+        return
     if args.command in {None, "demo"}:
         args = argparse.Namespace(initial=1.0, rate=0.5, duration=4.0, steps=5, window=False)
     points = simulate_decay(args.initial, args.rate, args.duration, steps=args.steps)

@@ -92,6 +92,9 @@ construction is for deserialization. Quantities are immutable.
 * `Quantity.verify(self) -> bool`
   True if the stored artifact id matches the current content (detects tampering).
 
+## class `ReplayResult(checked: int, invalid_artifacts: tuple[str, ...])`
+
+
 ## class `Status(*values)`
 
 Epistemic status, ordered by distance from direct observation (higher = weaker).
@@ -115,9 +118,17 @@ Canonical JSON bytes of ``obj`` (ASCII, sorted keys, compact separators).
 
 Raise StatusInputError if any input is above ``max_allowed`` (call-time method guard).
 
+## `inspect_ledger(path: str) -> ReplayResult`
+
+Parse a ledger and report how many provenance entries were readable.
+
 ## `join(*statuses: Status) -> Status`
 
 Status of a result: never more certain than the weakest input.
+
+## `replay_quantities(quantities: Iterable[Quantity]) -> ReplayResult`
+
+Recompute artifact identities for quantities already loaded in memory.
 
 ## `sha256_hex(obj: Any) -> str`
 

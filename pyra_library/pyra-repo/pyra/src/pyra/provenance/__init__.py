@@ -8,6 +8,7 @@ from pyra.provenance.ledger import (
     LedgerEntry,
 )
 from pyra.provenance.lineage import LineageCycleError, LineageGraph, LineageIssue
+from pyra.provenance.replay import ReplayResult, inspect_ledger, replay_quantities
 from pyra.provenance.status import (
     Provenance,
     Quantity,
@@ -27,6 +28,7 @@ __all__ = [
     "LineageGraph",
     "LineageIssue",
     "Provenance",
+    "ReplayResult",
     "Quantity",
     "Status",
     "StatusError",
@@ -34,5 +36,7 @@ __all__ = [
     "canonical_bytes",
     "enforce_max_input_status",
     "join",
+    "inspect_ledger",
+    "replay_quantities",
     "sha256_hex",
 ]

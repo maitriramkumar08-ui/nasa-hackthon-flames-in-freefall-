@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+title: "PYRA: Predictive Hazard & Reliability Atlas"
+message: "If you use PYRA, please cite the repository and the underlying NASA source investigation."
+type: software
+authors:
+  - family-names: Shantagiri
+    given-names: Pranav
+    email: shantagiripranav@gmail.com
+repository-code: https://github.com/maitriramkumar08-ui/nasa-hackthon-flames-in-freefall-
+license: "NOASSERTION"
+version: 0.0.0

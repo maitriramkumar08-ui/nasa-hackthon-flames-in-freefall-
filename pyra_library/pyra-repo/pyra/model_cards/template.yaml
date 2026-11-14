@@ -1,0 +1,9 @@
+schema_version: "1"
+name: "replace-me"
+version: "replace-me"
+code_hash: "sha256:replace-me"
+licence: "replace-me"
+physics_summary: "Describe the implemented physics without claiming validation."
+limitations:
+  - "List conditions or observables outside the model's evidence."
+envelope: []
