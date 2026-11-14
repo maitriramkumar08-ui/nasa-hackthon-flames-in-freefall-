@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added a beginner Fire Playground with presets, editable environment fields, a static flame
+  illustration and an explicitly limited oxygen trace.
+- Added `compare_values` as a same-unit scalar shortcut while retaining all evidence-aware
+  comparison functions.
+- Added guided learning steps from interactive exploration through evidence handling to advanced
+  analysis.
 - Added Pint and pydantic schemas, S0 calorimetry, uncertainty propagation, and manifest-driven I/O.
 - Added PSI metadata/raw-file audit readers, matching, coverage, comparison metrics, callable adapters,
   status-aware HTML reports, replay inspection, and beginner CLI helpers.

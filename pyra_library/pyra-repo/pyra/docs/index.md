@@ -9,5 +9,6 @@ from pyra import Quantity, Status, Ledger, LedgerEntry, LineageGraph
 
 * [Installation](installation.md): install from a checkout and check the import.
 * [Usage](usage.md): a tested walk-through of the implemented API.
+* [Fire Playground](usage.md#fire-playground-start-by-exploring): interactive beginner scenario exercise.
 * [API reference](api.md): generated from the code.
 * [Architecture](architecture.md): the design and what PYRA will and will not claim.

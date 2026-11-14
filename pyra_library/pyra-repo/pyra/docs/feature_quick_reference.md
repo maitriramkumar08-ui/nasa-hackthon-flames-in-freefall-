@@ -8,19 +8,22 @@ PYRA is a Python library for spacecraft and habitat fire-safety evidence.
 - Schemas: pydantic models for conditions, fuels, experiments, scenarios, sources, and model cards.
 - S0 physics: oxygen-consumption HRR, enthalpy balance, species generation, uncertainty propagation.
 - Simulation: exact single-zone scalar concentration trace with visible assumptions and SIMULATED status.
+- Fire Playground: beginner GUI with fuel/environment fields, presets, static flame schematic and
+  oxygen-trace graph. Only oxygen, ventilation, sink rate and duration drive the simplified graph.
 - PSI I/O: metadata ZIP reader, raw PSI-159 setpoint reader and condition-record wrapper that
   preserves original labels and voltages without applying unavailable calibration.
 - Data audit: supplied BASS-II, FLEX, SAFFIRE-I, SPICE, and PSI-159 files documented with limits.
 - Matching: configuration/fuel/flow gates, gravity/pressure log distances, mismatch vectors, Pareto fronts.
 - Coverage: nearest evidence, independent-source counts, explicit `none` coverage result.
 - Comparison: sensor lag, bias, relative difference, z-score, benchmark model score.
+- Quick comparison: same-unit scalar comparison with a user-set tolerance, alongside advanced tools.
 - Adapters: callable simulator boundary, model-card validation gate, hindcast scenarios.
 - Reports: self-contained HTML with statuses and IDs.
 - Beginner API: `import pyra as pk`, `heat_release`, `simulate_decay` (works with defaults),
   `show_simulation`, `measured`, `scenario`.
 - Education helpers: a fictional decay activity, plain-language status labels, and a small lesson
   check for an evidence ID or an explicit concept-sketch label.
-- CLI: `demo`, `simulate`, and `replay` commands.
+- CLI: `demo`, `simulate`, `zone`, `playground`, and `replay` commands.
 
 Limits: calibrated investigation readers, external CFD adapters, Bayesian calibration, surrogate
 models, and universal reliability claims are not implemented. Results are evidence-bounded.

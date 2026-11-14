@@ -4,6 +4,40 @@ Every example on this page is executed by the test suite (`tests/unit/test_docs.
 the code. The data below is **illustrative only**: the reference strings are placeholders, not real
 datasets, and nothing here is a physical claim.
 
+## Fire Playground: start by exploring
+
+After installing PYRA and opening a VS Code terminal in the project folder, run:
+
+```text
+pyra playground
+```
+
+The window lets you change a fuel label, gravity, oxygen fraction, pressure, temperature, air
+exchange, oxygen sink and duration. Choose a preset or edit the boxes and click **Run scenario**.
+The drawing is a static flame illustration. The graph shows the oxygen-only, well-mixed zone
+equation; only starting oxygen, air exchange, oxygen sink and duration affect that graph. Fuel,
+gravity, pressure and temperature are displayed for scenario context but do not change the
+calculation. This is a guided learning exercise, not a validated fire simulation or safety
+prediction.
+
+When you want to save or repeat an exercise in a Python file, use the same model directly:
+
+```python
+import pyra as pk
+
+scenario = pk.FireScenario(
+    fuel="PMMA (example fuel)",
+    gravity_g=1.0,
+    oxygen_fraction=0.21,
+    pressure_kpa=101.3,
+    temperature_k=293.15,
+)
+trace = pk.simulate_fire_scenario(scenario)
+pk.show_simulation(tuple(zip(trace.time_s, trace.concentration, strict=True)))
+```
+
+Start with the GUI. Move to the code version when you want to save or repeat an experiment.
+
 ## Start here: what the numbers mean
 
 The first example estimates heat-release rate from oxygen use. It multiplies three ideas:
@@ -206,6 +240,19 @@ This is a benchmark score for the supplied cases and tolerance. It is not a univ
 rating, a fire-safety certification, or evidence that a model generalizes beyond the supplied
 investigations.
 
+For a first comparison of two scalar values already in the same unit, use the quick helper:
+
+```python
+>>> quick = pk.compare_values(observed=100, predicted=104, unit="W", tolerance=5)
+>>> quick.difference, quick.within_tolerance, quick.relative_difference_percent
+(4, True, 4.0)
+
+```
+
+`difference` means predicted minus observed. `tolerance` is a limit you choose for the exercise.
+This shortcut does not handle uncertainty, convert between units, align time series, or validate a
+model. Use the evidence-aware `pyra.compare` tools for scientific comparisons.
+
 ## 4. Quantities carry a status
 
 ```python
@@ -374,6 +421,19 @@ True
 * `docs/api.md`: every public name in `pyra.provenance` with its signature.
 * `examples/quickstart.py`: this page as a runnable script.
 * `docs/architecture.md`: what PYRA will and will not claim.
+
+## Learning path
+
+1. **Explore:** open `pyra playground`, change one setting at a time and distinguish displayed
+   scenario fields from values used in the simple concentration calculation.
+2. **Write a first program:** use `import pyra as pk`, named arguments and `print` in a `.py` file.
+3. **Understand evidence:** learn units, uncertainty, status and source references; then inspect a
+   PSI raw-condition record without assuming its sensor values are calibrated.
+4. **Analyze:** try `compare_values`, then advance to `pyra.compare`, matching and evidence reports
+   with real, sourced records and documented uncertainty.
+
+You can stop after any step and still use the beginner tools. The advanced analysis API remains
+available without making the learning exercises depend on it.
 
 ## 12. Small education helpers
 

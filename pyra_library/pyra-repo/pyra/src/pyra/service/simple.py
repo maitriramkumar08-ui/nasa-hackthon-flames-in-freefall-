@@ -4,9 +4,51 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 from pyra.physics.calorimetry import hrr_oxygen_consumption
 from pyra.provenance import Quantity
+from pyra.units import quantity
+
+
+@dataclass(frozen=True)
+class QuickComparison:
+    """Plain-language scalar comparison for a first comparison exercise."""
+
+    observed: float
+    predicted: float
+    difference: float
+    unit: str
+    tolerance: float
+    within_tolerance: bool
+    relative_difference_percent: float | None
+    status: str = "INTERPRETATION"
+
+
+def compare_values(
+    observed: float, predicted: float, *, unit: str, tolerance: float
+) -> QuickComparison:
+    """Compare two values already expressed in the same unit.
+
+    This is an orientation helper, not the full evidence-aware comparison API. It does
+    not assess uncertainty, align time series or validate a simulator.
+    """
+    if not all(math.isfinite(value) for value in (observed, predicted, tolerance)):
+        raise ValueError("observed, predicted, and tolerance must be finite numbers")
+    if tolerance < 0:
+        raise ValueError("tolerance must be non-negative")
+    quantity(1.0, unit)  # Validate that the unit is recognized.
+    difference = predicted - observed
+    relative = None if observed == 0 else 100.0 * difference / abs(observed)
+    return QuickComparison(
+        observed=observed,
+        predicted=predicted,
+        difference=difference,
+        unit=unit,
+        tolerance=tolerance,
+        within_tolerance=abs(difference) <= tolerance,
+        relative_difference_percent=relative,
+    )
 
 
 def measured(
@@ -116,4 +158,12 @@ def show_simulation(
     root.mainloop()
 
 
-__all__ = ["heat_release", "measured", "scenario", "show_simulation", "simulate_decay"]
+__all__ = [
+    "QuickComparison",
+    "compare_values",
+    "heat_release",
+    "measured",
+    "scenario",
+    "show_simulation",
+    "simulate_decay",
+]

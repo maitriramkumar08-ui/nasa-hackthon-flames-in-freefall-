@@ -2,6 +2,7 @@
 
 import json
 
+import pyra.cli as cli
 from pyra.cli import main
 
 
@@ -24,3 +25,10 @@ def test_zone_command_prints_assumptions_and_trace(capsys) -> None:
     assert output["status"] == "SIMULATED"
     assert output["points"][-1]["time_s"] == 2.0
     assert "well-mixed single zone" in output["assumptions"]
+
+
+def test_playground_command_opens_gui(monkeypatch) -> None:
+    opened = []
+    monkeypatch.setattr(cli, "fire_playground", lambda: opened.append(True))
+    main(["playground"])
+    assert opened == [True]

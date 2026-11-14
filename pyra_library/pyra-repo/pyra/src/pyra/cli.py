@@ -7,6 +7,7 @@ import json
 
 from pyra.physics.zone import simulate_zone
 from pyra.provenance import inspect_ledger
+from pyra.service.playground import fire_playground
 from pyra.service.simple import show_simulation, simulate_decay
 
 
@@ -34,6 +35,7 @@ def _parser() -> argparse.ArgumentParser:
     zone.add_argument("--duration", type=float, default=60.0, help="duration in seconds")
     zone.add_argument("--steps", type=int, default=21)
     zone.add_argument("--window", action="store_true", help="plot the trace in a Tkinter window")
+    commands.add_parser("playground", help="open the interactive Fire Playground")
     replay = commands.add_parser("replay", help="parse a JSONL provenance ledger")
     replay.add_argument("ledger")
     return parser
@@ -45,6 +47,9 @@ def main(argv: list[str] | None = None) -> None:
     if args.command == "replay":
         result = inspect_ledger(args.ledger)
         print(json.dumps({"checked": result.checked, "ok": result.ok}))
+        return
+    if args.command == "playground":
+        fire_playground()
         return
     if args.command == "zone":
         trace = simulate_zone(

@@ -1,6 +1,6 @@
 """Beginner-facing convenience API tests."""
 
-from pyra import heat_release, simulate_decay
+from pyra import compare_values, heat_release, simulate_decay
 
 
 def test_simple_heat_release_keeps_derived_status() -> None:
@@ -22,3 +22,18 @@ def test_toy_simulation_is_deterministic() -> None:
     assert points[0] == (0.0, 1.0)
     assert points[-1][0] == 4.0
     assert points[-1][1] < points[0][1]
+
+
+def test_quick_comparison_is_plain_and_tolerance_based() -> None:
+    result = compare_values(100, 104, unit="W", tolerance=5)
+    assert result.difference == 4
+    assert result.within_tolerance
+    assert result.relative_difference_percent == 4
+    assert result.status == "INTERPRETATION"
+
+
+def test_quick_comparison_rejects_negative_tolerance() -> None:
+    import pytest
+
+    with pytest.raises(ValueError, match="non-negative"):
+        compare_values(1, 2, unit="W", tolerance=-1)
