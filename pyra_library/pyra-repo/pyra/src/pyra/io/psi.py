@@ -41,8 +41,17 @@ def read_psi_metadata_zip(path: Path) -> PSIMetadata:
     """Read the hand-curated metadata text from a PSI ZIP archive."""
     with zipfile.ZipFile(path) as archive:
         members = tuple(archive.namelist())
-        investigation_name = next(name for name in members if name.startswith("i_"))
+        metadata_files = tuple(
+            name for name in members if Path(name).name.startswith("i_") and not name.endswith("/")
+        )
+        if len(metadata_files) != 1:
+            raise ValueError(
+                f"Expected exactly one investigation metadata file (i_*); found {len(metadata_files)}"
+            )
+        investigation_name = metadata_files[0]
         fields = _fields(archive.read(investigation_name).decode("utf-8", "replace"))
+    if not fields:
+        raise ValueError(f"Investigation metadata file {investigation_name!r} contains no tab fields")
     return PSIMetadata(
         investigation_id=fields.get("Study Identifier", ""),
         title=fields.get("Study Title", ""),
@@ -62,7 +71,12 @@ def read_psi159_setpoints(path: Path) -> PSI159Setpoints:
         key, separator, value = item.partition(":")
         if separator:
             metadata[key.strip()] = value.strip()
-    rows = tuple(csv.DictReader(io.StringIO("\n".join(lines[1:]))))
+    reader = csv.DictReader(io.StringIO("\n".join(lines[1:])))
+    if not reader.fieldnames or not any(name.strip() for name in reader.fieldnames):
+        raise ValueError("PSI-159 setpoint file is missing a usable CSV header")
+    rows = tuple(reader)
+    if not rows:
+        raise ValueError("PSI-159 setpoint file contains no setpoint rows")
     return PSI159Setpoints(metadata=metadata, rows=rows)
 
 

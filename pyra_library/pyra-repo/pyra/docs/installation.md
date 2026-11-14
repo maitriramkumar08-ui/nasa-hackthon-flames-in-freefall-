@@ -26,5 +26,8 @@ standard library, so it works before the heavier dependencies are installed.
 
 !!! note "Status"
     Implemented: provenance (P1), Pint and pydantic schemas (P2), S0 calorimetry/UQ primitives (P3),
-    and manifest-driven local I/O (P4 foundation). Investigation-specific readers and catalogue
-    backends remain gated on the data audit described in `docs/architecture.md`.
+    manifest-driven local I/O, PSI metadata ZIP extraction and raw PSI-159 setpoint parsing (P4
+    foundation), plus matching, coverage, comparison, adapters, reports, replay and the beginner
+    API. Readers preserve raw values and do not imply calibration. Catalog backends and calibrated
+    investigation readers remain gated on verified source mappings and calibration evidence; see
+    `docs/data_audit.md`.
