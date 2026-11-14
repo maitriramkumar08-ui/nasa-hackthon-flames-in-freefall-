@@ -189,6 +189,17 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
 * `pareto_front(vectors: Sequence[MismatchVector]) -> list[int]`
   Return non-dominated vector indexes, preserving input order.
 
+## Module `pyra.compare`
+
+* `bias(measured: Quantity, simulated: Quantity) -> Quantity`
+  Return ``simulated - measured`` in the measured unit.
+* `first_order_lag(signal: Sequence[float], *, dt: float, tau: float) -> tuple[float, ...]`
+  Apply the exact piecewise-constant first-order sensor lag recurrence.
+* `relative_difference(measured: Quantity, simulated: Quantity) -> Quantity`
+  Return ``(simulated - measured) / measured`` as a dimensionless result.
+* `z_score(measured: Quantity, simulated: Quantity, *, discrepancy: float = 0.0) -> Quantity`
+  Return a z-score using combined measurement, simulation and discrepancy uncertainty.
+
 ## Module `pyra.service`
 
 * `heat_release(o2_in: float, o2_out: float, mass_flow: float, energy_per_kg_o2: float, *, source_ref: str, o2_uncertainty: float = 0.0, mass_flow_uncertainty: float = 0.0, energy_uncertainty: float = 0.0, n: int = 1024, seed: int = 0) -> Quantity`
