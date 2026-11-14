@@ -1,0 +1,4 @@
+{
+  "_note": "Empty on purpose. Every rule must be copied word for word from a cited standard and carry id, text, source and page. Optional applies_to lists tags such as \"equipment\", \"material\", a compartment kind or an equipment type. Until rules are added, every checklist item says 'no sourced guidance'.",
+  "rules": []
+}

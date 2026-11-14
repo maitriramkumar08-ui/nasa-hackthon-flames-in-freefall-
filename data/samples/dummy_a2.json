@@ -1,0 +1,31 @@
+{
+  "_dummy": "DUMMY - NOT REAL DATA. A second paper about DUMMY-A, to show two sheets sharing one investigation.",
+  "_review": { "extracted_by": "DUMMY", "checked_by": "DUMMY", "prompt12_passed": true },
+  "investigation_name": "DUMMY - NOT REAL DATA: Alpha solid-fuel test",
+  "acronym": "DUMMY-A",
+  "psi_id": null,
+  "source": { "title": "DUMMY - NOT REAL DATA: Alpha paper 2", "url": null, "ntrs_id": "DUMMY-0002" },
+  "pillar": "prevention",
+  "evidence_class": "supporting",
+  "objective": "DUMMY - NOT REAL DATA",
+  "hardware": "DUMMY flow duct",
+  "platform": "DUMMY",
+  "scale": "bench",
+  "fuel": { "phase": "solid", "materials": ["DUMMY fabric"], "geometry": null, "dimensions": null },
+  "conditions": {
+    "gravity": { "value": null, "unit": null, "page": null },
+    "o2_percent": { "min": null, "max": 21, "unit": "%", "page": "p. 4" },
+    "pressure": { "min": null, "max": null, "unit": null, "page": null },
+    "flow_speed": { "min": null, "max": null, "unit": null, "direction": null, "page": null },
+    "temperature": { "value": null, "unit": null },
+    "diluent_or_suppressant": { "type": null, "concentration": null }
+  },
+  "variables_varied": [],
+  "variables_held_constant": [],
+  "sensors_and_measurements": [],
+  "key_findings": [
+    { "text": "DUMMY - NOT REAL DATA: the authors think thicker fuel would behave differently.", "page_or_table": "p. 5", "type": "AUTHOR_INTERPRETATION" }
+  ],
+  "limitations": [],
+  "missing_information": ["minimum O2"]
+}

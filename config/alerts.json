@@ -1,0 +1,22 @@
+{
+  "_note": "Alert limits for the concern engine. Every number here is a PLACEHOLDER we picked so the demo has something to trip. None of them is sourced from NASA or any standard. Replace each one with a cited value before showing it as anything but a demo.",
+
+  "threshold": {
+    "o2_percent":         {"max": 35.0,  "label": "PLACEHOLDER", "note": "not sourced"},
+    "total_pressure_kpa": {"min": 50.0, "max": 62.0, "label": "PLACEHOLDER", "note": "not sourced"},
+    "co_ppm":             {"max": 25.0,  "label": "PLACEHOLDER", "note": "not sourced"},
+    "co2_ppm":            {"max": 5000.0, "label": "PLACEHOLDER", "note": "not sourced"},
+    "smoke_level":        {"max": 0.2,   "label": "PLACEHOLDER", "note": "not sourced"},
+    "temperature_c":      {"max": 30.0,  "label": "PLACEHOLDER", "note": "not sourced"},
+    "flow_cm_s":          {"min": 5.0,   "label": "PLACEHOLDER", "note": "not sourced"}
+  },
+
+  "trend": {
+    "window_s": 60,
+    "o2_percent":    {"rise_per_min": 0.3,  "label": "PLACEHOLDER", "note": "not sourced"},
+    "co_ppm":        {"rise_per_min": 5.0,  "label": "PLACEHOLDER", "note": "not sourced"},
+    "smoke_level":   {"rise_per_min": 0.05, "label": "PLACEHOLDER", "note": "not sourced"},
+    "temperature_c": {"rise_per_min": 1.0,  "label": "PLACEHOLDER", "note": "not sourced"},
+    "flow_cm_s":     {"fall_per_min": 1.0,  "label": "PLACEHOLDER", "note": "not sourced"}
+  }
+}

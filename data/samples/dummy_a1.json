@@ -1,0 +1,41 @@
+{
+  "_dummy": "DUMMY - NOT REAL DATA. Made up to test the loader. Never cite it.",
+  "_review": { "extracted_by": "DUMMY", "checked_by": "DUMMY", "prompt12_passed": true },
+  "investigation_name": "DUMMY - NOT REAL DATA: Alpha solid-fuel test",
+  "acronym": "DUMMY-A",
+  "psi_id": null,
+  "source": { "title": "DUMMY - NOT REAL DATA: Alpha paper 1", "url": "https://example.org/dummy-a1", "ntrs_id": null },
+  "pillar": "prevention",
+  "evidence_class": "supporting",
+  "objective": "DUMMY - NOT REAL DATA",
+  "hardware": "DUMMY flow duct",
+  "platform": "DUMMY",
+  "scale": "bench",
+  "fuel": { "phase": "solid", "materials": ["DUMMY fabric", "DUMMY plastic"], "geometry": "flat sheet", "dimensions": "10 x 2 cm" },
+  "conditions": {
+    "gravity": { "value": "microgravity", "unit": null, "page": "p. 1" },
+    "o2_percent": { "min": 15, "max": 21, "unit": "%", "page": "p. 2" },
+    "pressure": { "min": 70, "max": 101, "unit": "kPa", "page": "p. 2" },
+    "flow_speed": { "min": 1, "max": 25, "unit": "cm/s", "direction": "concurrent", "page": "Table 1" },
+    "temperature": { "value": null, "unit": null },
+    "diluent_or_suppressant": { "type": null, "concentration": null }
+  },
+  "variables_varied": ["O2", "flow speed"],
+  "variables_held_constant": ["fuel thickness"],
+  "sensors_and_measurements": ["DUMMY camera"],
+  "key_findings": [
+    { "text": "DUMMY - NOT REAL DATA: flame spread went up with flow.", "page_or_table": "Figure 3", "type": "MEASURED" }
+  ],
+  "limitations": ["DUMMY - NOT REAL DATA"],
+  "missing_information": ["pressure for each run"],
+  "test_runs": [
+    { "run_id": "A-01", "experiment": "flow sweep", "o2_percent": { "value": 21, "unit": "%" },
+      "pressure": { "value": 101, "unit": "kPa" }, "flow_speed": { "value": 5, "unit": "cm/s" },
+      "gravity": { "value": "microgravity", "unit": null }, "temperature": { "value": null, "unit": null },
+      "outcome": "DUMMY: burned", "page_or_table": "Table 2" },
+    { "run_id": "A-02", "experiment": "flow sweep", "o2_percent": { "value": 17, "unit": "%" },
+      "pressure": { "value": null, "unit": null }, "flow_speed": { "value": 0.2, "unit": "m/s" },
+      "gravity": { "value": "microgravity", "unit": null }, "temperature": { "value": 25, "unit": "C" },
+      "outcome": "DUMMY: went out", "page_or_table": "Table 2" }
+  ]
+}

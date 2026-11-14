@@ -221,3 +221,6 @@ __marimo__/
 
 # SQLite files from the loader
 *.db
+
+# PYRA: the database is rebuilt from the fact sheets, so never commit it
+data/*.db

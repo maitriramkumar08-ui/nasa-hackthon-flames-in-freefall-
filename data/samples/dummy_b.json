@@ -1,0 +1,29 @@
+{
+  "_dummy": "DUMMY - NOT REAL DATA. Uses psi and m/s to show unit conversion.",
+  "_review": { "extracted_by": "DUMMY", "checked_by": "DUMMY", "prompt12_passed": true },
+  "investigation_name": "DUMMY - NOT REAL DATA: Beta droplet test",
+  "acronym": "DUMMY-B",
+  "psi_id": null,
+  "source": { "title": "DUMMY - NOT REAL DATA: Beta paper", "url": "https://example.org/dummy-b", "ntrs_id": null },
+  "pillar": "suppression",
+  "evidence_class": null,
+  "objective": "DUMMY - NOT REAL DATA",
+  "hardware": "DUMMY droplet rig",
+  "platform": "DUMMY",
+  "scale": "bench",
+  "fuel": { "phase": "liquid", "materials": ["DUMMY fuel"], "geometry": "droplet", "dimensions": "3 mm" },
+  "conditions": {
+    "gravity": { "value": 0, "unit": "g", "page": "p. 1" },
+    "o2_percent": { "min": 20, "max": 40, "unit": "%", "page": "p. 3" },
+    "pressure": { "min": 7, "max": 14.7, "unit": "psi", "page": "p. 3" },
+    "flow_speed": { "min": 0, "max": 0.05, "unit": "m/s", "direction": null, "page": "p. 3" },
+    "temperature": { "value": 300, "unit": "K" },
+    "diluent_or_suppressant": { "type": "DUMMY gas", "concentration": "DUMMY" }
+  },
+  "variables_varied": ["diluent concentration"],
+  "variables_held_constant": [],
+  "sensors_and_measurements": ["DUMMY radiometer"],
+  "key_findings": [],
+  "limitations": [],
+  "missing_information": []
+}

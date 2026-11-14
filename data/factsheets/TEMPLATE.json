@@ -1,0 +1,47 @@
+{
+  "_review": {
+    "extracted_by": "who ran Prompt 1 (person + model)",
+    "checked_by": "",
+    "prompt12_passed": false
+  },
+  "investigation_name": "",
+  "acronym": "",
+  "psi_id": null,
+  "source": { "title": "", "url": null, "ntrs_id": null },
+  "pillar": "unknown",
+  "evidence_class": null,
+  "objective": "",
+  "hardware": null,
+  "platform": null,
+  "scale": "unknown",
+  "fuel": { "phase": "unknown", "materials": [], "geometry": null, "dimensions": null },
+  "conditions": {
+    "gravity": { "value": null, "unit": null, "page": null },
+    "o2_percent": { "min": null, "max": null, "unit": "%", "page": null },
+    "pressure": { "min": null, "max": null, "unit": null, "page": null },
+    "flow_speed": { "min": null, "max": null, "unit": null, "direction": null, "page": null },
+    "temperature": { "value": null, "unit": null },
+    "diluent_or_suppressant": { "type": null, "concentration": null }
+  },
+  "variables_varied": [],
+  "variables_held_constant": [],
+  "sensors_and_measurements": [],
+  "key_findings": [
+    { "text": "", "page_or_table": "", "type": "MEASURED" }
+  ],
+  "limitations": [],
+  "missing_information": [],
+  "test_runs": [
+    {
+      "run_id": "",
+      "experiment": null,
+      "o2_percent": { "value": null, "unit": "%" },
+      "pressure": { "value": null, "unit": null },
+      "flow_speed": { "value": null, "unit": null },
+      "gravity": { "value": null, "unit": null },
+      "temperature": { "value": null, "unit": null },
+      "outcome": null,
+      "page_or_table": ""
+    }
+  ]
+}
