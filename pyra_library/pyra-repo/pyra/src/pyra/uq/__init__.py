@@ -1,1 +1,5 @@
-"""pyra.uq (architecture section 8)."""
+"""Uncertainty quantification helpers."""
+
+from pyra.uq.propagate import propagate
+
+__all__ = ["propagate"]

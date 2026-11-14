@@ -8,7 +8,9 @@ with simulations, labelling every output as Measured, Derived, Simulated, Scenar
 **What it is not:** a predictor. It never emits an unqualified prediction (architecture section 1).
 Not endorsed or adopted by NASA or any programme named in the architecture document.
 
-Status: pre-alpha. Implemented: P0 (scaffold) and P1 (status, provenance, hashing, ledger, lineage).
+Status: pre-alpha. Implemented: P0/P1 provenance foundations, P2 Pint and pydantic schemas, and the
+P3 S0 calorimetry/UQ foundation. External readers, matching and simulation adapters remain gated on
+their documented data and validation decisions.
 
 ```python
 from pyra import Quantity, Status

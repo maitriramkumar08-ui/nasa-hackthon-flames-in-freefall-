@@ -122,3 +122,48 @@ Status of a result: never more certain than the weakest input.
 ## `sha256_hex(obj: Any) -> str`
 
 SHA-256 hex digest of the canonical bytes of ``obj``.
+
+## Module `pyra.units`
+
+* class `Q_`
+* `quantity(value: Any, unit_name: str) -> pint.Quantity`
+  Construct a quantity through the shared registry.
+* `require_compatible(unit_name: str, expected: str) -> None`
+  Require two unit expressions to have compatible dimensionality.
+* `unit(unit_name: str) -> pint.Unit`
+  Return a parsed unit, raising ``ValueError`` with a useful message.
+* `ureg(input_string: str, case_sensitive: bool | None = None, **values: QuantityArgument) -> QuantityT`
+  The unit registry stores the definitions and relationships between units.
+
+## Module `pyra.schema`
+
+* class `Conditions`
+  Experimental or scenario conditions used for matching and reporting.
+* class `ExperimentRecord`
+  A schema-validated experiment metadata record.
+* class `FuelSpec`
+  Material and geometry metadata for a tested fuel sample.
+* class `Measure`
+  A scalar value with a Pint-parsable unit and explicit uncertainty.
+* class `ModelCard`
+  Identity, limitations and validation evidence for a simulation model.
+* class `Scenario`
+  A hypothetical or proposed set of fire conditions.
+* class `SourceRef`
+  Stable pointer to the evidence used for a measured record.
+* class `ValidationEvidence`
+  One comparison result supporting a model's declared validity envelope.
+
+## Module `pyra.physics.calorimetry`
+
+* `hrr_enthalpy_balance(t_in: Quantity, t_out: Quantity, mass_flow: Quantity, cp: Quantity, loss_model: Callable[[float], float] | None = None) -> Quantity`
+  Return ``m_dot * cp * (T_out - T_in)`` minus an optional loss term.
+* `hrr_oxygen_consumption(o2_in: Quantity, o2_out: Quantity, mass_flow: Quantity, e_per_kg_o2: Quantity, *, n: int = 4096, seed: int = 0) -> Quantity`
+  Return heat-release rate from oxygen consumption.
+* `species_generation(c_in: Quantity, c_out: Quantity, mass_flow: Quantity) -> Quantity`
+  Return a species mass source rate: ``(c_out - c_in) * m_dot``.
+
+## Module `pyra.uq`
+
+* `propagate(function: Callable[[tuple[float, ...]], float], inputs: Sequence[Quantity], *, output_unit: str, n: int = 4096, seed: int = 0, activity: str = 'uq.propagate') -> Quantity`
+  Propagate independent normal uncertainties through ``function``.

@@ -15,6 +15,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 import pyra.provenance as prov  # noqa: E402
+import pyra.physics.calorimetry as calorimetry  # noqa: E402
+import pyra.schema as schema  # noqa: E402
+import pyra.units as units  # noqa: E402
+import pyra.uq as uq  # noqa: E402
 
 OUT = ROOT / "docs" / "api.md"
 
@@ -79,6 +83,25 @@ def render() -> str:
             doc = _doc(obj)
             if doc:
                 lines += [doc, ""]
+    for module, title in (
+        (units, "pyra.units"),
+        (schema, "pyra.schema"),
+        (calorimetry, "pyra.physics.calorimetry"),
+        (uq, "pyra.uq"),
+    ):
+        lines += [f"## Module `{title}`", ""]
+        for name in sorted(module.__all__):
+            obj = getattr(module, name)
+            if inspect.isclass(obj):
+                lines += [f"* class `{name}`"]
+            elif callable(obj):
+                lines += [f"* `{name}{_sig(obj)}`"]
+            else:
+                lines += [f"* `{name}`"]
+            first = _first_paragraph(_doc(obj))
+            if first:
+                lines += [f"  {first}"]
+        lines.append("")
     return "\n".join(lines).rstrip() + "\n"
 
 

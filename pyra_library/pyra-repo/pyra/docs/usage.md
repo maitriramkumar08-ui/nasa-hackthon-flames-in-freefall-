@@ -107,7 +107,45 @@ True
 The ledger is append-only JSON Lines, one record per line, so it can be inspected with any text
 tool. A corrupt line raises `LedgerCorruptError` with the file and line number.
 
-## 5. Where to go next
+## 5. Conditions are schema-validated
+
+Metadata models use Pint-compatible unit strings and keep microgravity as a measured residual in
+units of `g0` or a dimensionless multiple of it. The example uses a placeholder source and
+fictional conditions:
+
+```python
+>>> from pyra.schema import Conditions, FuelSpec, Measure, Scenario
+>>> c = Conditions(
+...     gravity_g=Measure(value=1e-5, unit="dimensionless", u=1e-6, u_kind="type_a"),
+...     pressure=Measure(value=101.3, unit="kPa", u=0.1, u_kind="type_b"),
+...     o2_mole_fraction=Measure(value=0.21, unit="mole_fraction", u=0.001, u_kind="type_b"),
+...     diluent="nitrogen", fuel=FuelSpec(material="PMMA"),
+...     configuration="concurrent", length_scale=Measure(value=2, unit="cm"),
+... )
+>>> Scenario(scenario_id="synthetic-1", conditions=c).conditions.pressure.unit
+'kPa'
+
+```
+
+## 6. S0 calorimetry keeps the energy equivalence explicit
+
+The oxygen-consumption transform takes the energy per mass of oxygen as an input. This keeps the
+choice of literature value visible in provenance; PYRA does not silently choose one:
+
+```python
+>>> from pyra.physics.calorimetry import hrr_oxygen_consumption
+>>> src = "doi:10.0000/example|sha256:00|synthetic"
+>>> m = lambda value, unit, u: Quantity.measured(value, unit, u, "type_b", source_ref=src)
+>>> hrr = hrr_oxygen_consumption(m(0.21, "dimensionless", 1e-6), m(0.20, "dimensionless", 1e-6),
+...     m(0.01, "kg/s", 1e-6), m(13_100_000, "J/kg", 100), n=256, seed=0)
+>>> hrr.status.name
+'DERIVED'
+>>> round(hrr.value)
+1310
+
+```
+
+## 7. Where to go next
 
 * `docs/api.md`: every public name in `pyra.provenance` with its signature.
 * `examples/quickstart.py`: this page as a runnable script.
