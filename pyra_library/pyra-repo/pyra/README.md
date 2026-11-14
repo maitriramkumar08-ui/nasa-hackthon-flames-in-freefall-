@@ -27,4 +27,4 @@ For a local visual demo, run `pyra simulate --window`. For machine-readable outp
 
 Install from a checkout with `pip install -e .` (not on PyPI). Docs: `docs/installation.md`,
 `docs/usage.md` (every example is run by the tests), `docs/api.md`. Design: `docs/architecture.md`.
-Project rules for AI-assisted work: `AGENTS.md`.
+Development conventions: `docs/development.md`.

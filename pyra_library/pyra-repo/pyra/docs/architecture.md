@@ -12,7 +12,7 @@ PYRA is a fire-only library: its value is a trustworthy bridge between NASA micr
 2. **Physics and simulation come first.** The engine verifies the physics it implements itself (calorimetry, scaling, reduced-order models) and delegates flame-resolved and vehicle-scale simulation to external codes that carry validation evidence (section 17).
 3. **The library is the core.** The CLI, notebooks, education web app and educator kit are thin interfaces that call the library through a public interface and never modify evidence (sections 18 and 19).
 4. **No unqualified predictions.** Every output is typed Measured, Derived, Simulated, Scenario or Interpretation. A model-supported statement requires a validated model whose envelope covers the scenario (sections 1, 3 and 9).
-5. **The library is built with an AI-assisted, test-first workflow** using the project rules and prompt library in section 20.
+5. **The library is built with a documented, test-first workflow** using the review checklist in section 20.
 
 | If you want to... | Read |
 | --- | --- |
@@ -20,7 +20,7 @@ PYRA is a fire-only library: its value is a trustworthy bridge between NASA micr
 | Implement the core library | 4 to 14, 19, 20 |
 | Understand the physics and external simulation coupling | 7, 9, 17 |
 | Plan the education and outreach layer | 18, 19 |
-| Build it with an AI coding assistant | 20 |
+| Build and review the library | 20 |
 | Check the research basis and sources | 21 |
 | See the combined plan | 15 (core phases) and 19 (consolidated roadmap) |
 
@@ -636,19 +636,19 @@ pyproject extras:     uq gp vision report fds edu service
 | 5 (v1.0) | ModelCards with validation envelopes, claim gate, docs, packaging | Optional `spread` model, flagged experimental | Missions and challenges after teacher testing | Independent user reproduces a case study; teacher pilots reported |
 | 6 (later) | Remote execution, more investigations | Additional validated external models | Dashboards, LMS export, peer-reviewed student challenges | Privacy and accessibility review passed |
 
-## 20. Build guide: prompting an AI coding assistant
+## 20. Build and review guide
 
-Use one prompt per module, tests first, in the order below. The assistant writes code; you decide the science, the tolerances and what counts as validated.
+Use one focused change per module, tests first, in the order below. The author implements the change; the reviewer decides the science, the tolerances and what counts as validated.
 
 ### 20.1 Workflow
 
-1. Put the project rules file (20.2) at the repository root before the first prompt.
-2. Run one prompt from 20.4 per session or branch. Paste the prompt, the relevant section number of this document, and any fixtures.
-3. Require tests before implementation, then run them yourself. Never accept a module whose tests the assistant did not run or could not run.
+1. Read `docs/development.md` before changing a layer.
+2. Work through one item from 20.4 per session or branch, including the relevant section number and fixtures.
+3. Require tests before implementation, then run them yourself. Do not accept a module whose tests were not run or could not run.
 4. Review the diff against the review checklist (20.5). Merge only when CI is green.
 5. Record every scientific decision (tolerances, thresholds, formulas) as a short ADR in `docs/adr/`.
 
-### 20.2 Project rules file (AGENTS.md or CLAUDE.md)
+### 20.2 Development conventions
 
 ```text
 Project: PYRA, a Python library for spacecraft and habitat fire safety evidence.
@@ -670,10 +670,10 @@ Rules:
 11. If a requirement is ambiguous or a scientific choice is needed, stop and ask. Do not invent.
 ```
 
-### 20.3 Prompt template
+### 20.3 Change template
 
 ```text
-Context: PYRA architecture document, section <n>. Rules file applies.
+Context: PYRA architecture document, section <n>. Development conventions apply.
 Goal: <one sentence>.
 Inputs and fixtures: <files, sample data, synthetic generators>.
 Deliverables: <files, classes, function signatures>.
@@ -683,7 +683,7 @@ Done when: tests, ruff and mypy pass, and you list every TODO(verify) you left.
 Do not: <explicit non-goals>.
 ```
 
-### 20.4 Prompt library
+### 20.4 Work items
 
 ```text
 P0 Scaffold. Create src-layout package pyra with hatchling, extras (uq, gp, vision, report, fds, edu, service),
@@ -742,9 +742,9 @@ P14 Docs and release. Generate README, ARCHITECTURE.md from this document, mappi
 Check dependency licences (fdsreader is LGPL-licensed) before choosing the project licence. Done when no TODO(verify) remains in released code.
 ```
 
-### 20.5 Review checklist and anti-hallucination rules
+### 20.5 Review checklist and evidence rules
 
-- Every physical constant and formula has a source you have opened yourself. Ask the assistant to list them and check each.
+- Every physical constant and formula has a source you have opened yourself. List the sources and check each.
 - No invented dataset ids, file layouts or API fields. Real files drive readers.
 - Synthetic-truth tests exist for every derivation and calibration, and they would fail if the code were wrong.
 - Status never decreases through any code path; grep for manual status assignment.

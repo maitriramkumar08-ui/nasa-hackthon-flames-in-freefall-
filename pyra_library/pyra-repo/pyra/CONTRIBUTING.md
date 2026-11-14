@@ -1,7 +1,7 @@
 # Contributing to PYRA
 
-Keep changes small and explain the scientific boundary they touch. Read `AGENTS.md` and the
-architecture document before changing a layer.
+Keep changes small and explain the scientific boundary they touch. Read `docs/development.md`
+and the architecture document before changing a layer.
 
 Every public API addition needs an executable example in `docs/usage.md`, tests, and regenerated
 `docs/api.md`. Do not invent PSI file formats, calibration constants, or validation claims. Put

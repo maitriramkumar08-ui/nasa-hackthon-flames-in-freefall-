@@ -92,7 +92,7 @@ explicitly:
 
 ```
 
-This is a benchmark score for the supplied cases and tolerance. It is not a universal AI reliability
+This is a benchmark score for the supplied cases and tolerance. It is not a universal model reliability
 rating, a fire-safety certification, or evidence that a model generalizes beyond the supplied
 investigations.
 
