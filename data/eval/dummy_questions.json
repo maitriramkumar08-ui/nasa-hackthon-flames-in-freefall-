@@ -1,0 +1,20 @@
+{
+  "_note": "DUMMY - NOT REAL DATA. Hand-written questions about the DUMMY documents in docs/, only for checking that retrieval works. Each expected key is file name#page, so it does not change when chunk ids do.",
+  "questions": [
+    {"question": "What fuel did the flow tunnel burn?", "expected": ["dummy_flame_spread.txt#1"]},
+    {"question": "What oxygen concentration range was tested on the paper strips?", "expected": ["dummy_flame_spread.txt#2"]},
+    {"question": "How did flame spread rate change with air flow speed?", "expected": ["dummy_flame_spread.txt#3"]},
+    {"question": "Were thicker fuel sheets measured?", "expected": ["dummy_flame_spread.txt#4"]},
+    {"question": "How is the heptane droplet held and ignited?", "expected": ["dummy_droplet.txt#1"]},
+    {"question": "What happened to droplet diameter squared and the burning rate constant?", "expected": ["dummy_droplet.txt#2"]},
+    {"question": "Did a cool flame appear after the visible flame went out?", "expected": ["dummy_droplet.txt#3"]},
+    {"question": "How were soot shells imaged?", "expected": ["dummy_droplet.txt#4"]},
+    {"question": "What fuel and nozzle were used for the jet diffusion flames?", "expected": ["dummy_gas_jet.txt#1"]},
+    {"question": "How did jet flame length depend on fuel flow rate?", "expected": ["dummy_gas_jet.txt#2"]},
+    {"question": "What did the radiometers show about radiant heat loss?", "expected": ["dummy_gas_jet.txt#3"]},
+    {"question": "Where did extinction start when the nitrogen diluted stream was lowered?", "expected": ["dummy_gas_jet.txt#4"]},
+    {"question": "Which cabin materials were screened?", "expected": ["dummy_materials.md#1"]},
+    {"question": "Was opposed flow spread over PMMA rods slower than concurrent flow?", "expected": ["dummy_materials.md#2"]},
+    {"question": "What did the thermocouples in the foam coupons record?", "expected": ["dummy_materials.md#3"]}
+  ]
+}

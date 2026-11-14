@@ -1,0 +1,17 @@
+DUMMY - NOT REAL DATA. Invented text for testing the retrieval pipeline only.
+
+--- page 1 ---
+# Overview
+DUMMY - NOT REAL DATA. The DUMMY-A investigation burned thin cotton-paper strips inside a small flow tunnel to watch how a flame creeps along a solid fuel sheet in microgravity.
+
+--- page 2 ---
+# Test conditions
+DUMMY - NOT REAL DATA. Oxygen concentration was varied between 17 and 21 percent by volume. Chamber pressure was held near 101 kPa for every run.
+
+--- page 3 ---
+# Results
+DUMMY - NOT REAL DATA. Flame spread rate increased as the imposed air flow speed went up from 5 to 20 cm/s. At the lowest flow the flame shrank and went out.
+
+--- page 4 ---
+# Limitations
+DUMMY - NOT REAL DATA. Only one fuel thickness was tested, so thicker sheets were not directly measured. Camera frame rate limited timing precision.
