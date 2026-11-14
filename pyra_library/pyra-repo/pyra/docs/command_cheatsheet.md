@@ -4,10 +4,13 @@ Run these from the PYRA repository root after installing the package in editable
 
 ```text
 python -m pip install -e ".[dev]"
-python -m pyra.cli demo
-python -m pyra.cli simulate --initial 2 --rate 0.5 --duration 10 --steps 100
-python -m pyra.cli simulate --window
-python -m pyra.cli replay path/to/ledger.jsonl
+pyra demo
+pyra simulate --initial 2 --rate 0.5 --duration 10 --steps 100
+pyra simulate --window
+pyra zone
+pyra zone --initial 0.21 --inlet 0.21 --exchange-rate 0.1 --source-rate 0.001 --duration 60
+pyra zone --window
+pyra replay path/to/ledger.jsonl
 python scripts/gen_api_docs.py
 ruff check src tests
 mypy src

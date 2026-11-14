@@ -4,6 +4,86 @@ Every example on this page is executed by the test suite (`tests/unit/test_docs.
 the code. The data below is **illustrative only**: the reference strings are placeholders, not real
 datasets, and nothing here is a physical claim.
 
+## Start here: what the numbers mean
+
+The first example estimates heat-release rate from oxygen use. It multiplies three ideas:
+
+1. Oxygen fraction went down from `0.21` to `0.20`. Those are fractions, so this means 21% in and
+   20% out. The difference is `0.01`, or one percentage point.
+2. Gas mass flow is `0.01 kg/s`: one hundredth of a kilogram of gas passes each second.
+3. `13_100_000 J/kg` is the example's assumed energy released per kilogram of oxygen consumed.
+   It is an input, not a universal constant chosen by PYRA.
+
+The basic arithmetic is `0.01 × 0.01 × 13,100,000 = 1,310`. The result unit is watts because
+`(kg/s) × (J/kg) = J/s`, and one joule per second is one watt. `hrr` is just a variable name for
+the result. `hrr.value` is its numerical value, `hrr.unit` says what that value measures, and
+`hrr.status` says it was calculated (`DERIVED`) rather than directly measured.
+
+The source string in this example is deliberately fake and says `synthetic`. Replace it with the
+real DOI, file hash and row location when using actual data. The example leaves uncertainty at
+zero to keep the first calculation simple; real analysis should pass the measurement and
+calibration uncertainties. `n=128` controls the number of uncertainty-propagation samples, while
+`seed=0` makes those samples repeatable. These do not change the basic arithmetic above.
+
+Python's `>>>` and `...` marks below are interactive-shell prompts. **Do not type those marks into
+a `.py` file.** In a regular file, keep only the Python code, such as the complete example below.
+
+Save this as `first.py` in your project folder and click **Run Python File** in VS Code:
+
+```python
+import pyra as pk
+
+hrr = pk.heat_release(
+    o2_in=0.21,
+    o2_out=0.20,
+    mass_flow=0.01,
+    energy_per_kg_o2=13_100_000,
+    source_ref="synthetic-example",
+)
+
+print(f"Estimated heat release: {hrr.value:.0f} {hrr.unit}")
+print(f"Result kind: {hrr.status.name}")
+```
+
+If you are typing directly at Python's `>>>` prompt instead of running a file, first type the
+import line. That line creates the short name `pk`; Python does not know `pk` until you create it:
+
+```pycon
+>>> import pyra as pk
+>>> hrr = pk.heat_release(0.21, 0.20, 0.01, 13_100_000, source_ref="synthetic-example")
+>>> round(hrr.value), hrr.unit, hrr.status.name
+(1310, 'W', 'DERIVED')
+
+```
+
+If you see `NameError: name 'pk' is not defined`, run `import pyra as pk` first. In a `.py` file,
+keep that import at the top of the file. When copying from examples that show `>>>` or `...`, those
+symbols are shell prompts and should not be copied into the file.
+
+The named arguments (`o2_in=...`) make each number's purpose easier to recognize. In actual
+research, replace the sample values and source with verified measurements and document
+uncertainties; this short example is for learning the API.
+
+## Basic terms
+
+| Term | Plain meaning in PYRA |
+| --- | --- |
+| Quantity | A value stored with a unit, uncertainty, status and source history. |
+| Unit | What a number measures, such as `kPa`, `kg/s` or `W`. |
+| Uncertainty | A stated range of doubt around a value; `unknown` means it has not been provided. |
+| Source reference | Where a value came from, such as a DOI, file hash and row. |
+| Provenance | The recorded source and calculation history for a result. |
+| Status | Whether a value was measured, calculated, simulated, hypothetical or interpreted. |
+| Scenario | A set of hypothetical inputs to explore; it is not an observation. |
+| Simulation | A calculation that steps or solves a model; its result depends on model assumptions. |
+| Calibration | Connecting instrument readings to physical values using a documented reference. |
+| Validation | Checking model results against independent evidence within a stated range of conditions. |
+| Evidence envelope | The conditions where a model has supporting validation evidence. |
+
+PYRA uses `MEASURED`, `DERIVED`, `SIMULATED`, `SCENARIO` and `INTERPRETATION`. These labels are
+not grades: they tell you what kind of support a result has. A simulation does not become a
+measurement just because its output looks precise.
+
 ## 1. Your first small PYRA program
 
 You can start with a normal Python file and use a short alias. The heat-release helper keeps the
@@ -64,6 +144,21 @@ pyra demo
 pyra simulate --initial 2 --rate 0.5 --duration 10 --steps 100
 pyra simulate --window
 ```
+
+These `simulate` commands make a fictional exponential curve for learning the plotting tools;
+they do **not** model a fire. For a simple fire-related concentration exercise, use the separate
+single-zone model:
+
+```powershell
+pyra zone
+pyra zone --initial 0.21 --inlet 0.21 --exchange-rate 0.1 --source-rate 0.001 --duration 60
+pyra zone --initial 0.21 --inlet 0.21 --exchange-rate 0.1 --source-rate 0.001 --duration 60 --window
+```
+
+`exchange-rate` and `source-rate` are in `1/s`; concentrations are fractions from 0 to 1. The
+program prints a JSON trace or opens a plot window. This is a deliberately small, well-mixed
+teaching model; it leaves out combustion, heat transfer, buoyancy, walls and spatial differences.
+Treat it as a way to see how simple inputs affect a curve, not as a fire-safety prediction.
 
 ## 2. Running a callable model safely
 

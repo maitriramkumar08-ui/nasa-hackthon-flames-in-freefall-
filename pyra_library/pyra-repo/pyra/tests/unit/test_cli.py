@@ -16,3 +16,11 @@ def test_simulate_command_accepts_parameters(capsys) -> None:
     main(["simulate", "--initial", "2", "--rate", "1", "--duration", "2", "--steps", "3"])
     output = json.loads(capsys.readouterr().out)
     assert output[-1]["time"] == 2.0
+
+
+def test_zone_command_prints_assumptions_and_trace(capsys) -> None:
+    main(["zone", "--duration", "2", "--steps", "3"])
+    output = json.loads(capsys.readouterr().out)
+    assert output["status"] == "SIMULATED"
+    assert output["points"][-1]["time_s"] == 2.0
+    assert "well-mixed single zone" in output["assumptions"]
