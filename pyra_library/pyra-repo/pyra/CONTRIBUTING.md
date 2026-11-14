@@ -7,6 +7,9 @@ Every public API addition needs an executable example in `docs/usage.md`, tests,
 `docs/api.md`. Do not invent PSI file formats, calibration constants, or validation claims. Put
 scientific choices in a short ADR under `docs/adr/`.
 
+Keep `docs/feature_quick_reference.md` and `docs/command_cheatsheet.md` updated whenever a public
+feature or supported command changes.
+
 Before opening a change, run:
 
 ```text

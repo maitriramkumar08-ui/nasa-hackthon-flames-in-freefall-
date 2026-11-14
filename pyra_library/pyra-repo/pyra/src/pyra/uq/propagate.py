@@ -47,9 +47,7 @@ def propagate(
         return float(item.value) + float(item.u) * float(ndtri(probability))
 
     samples: list[list[float]] = [
-        [
-            sample_value(item, float(p)) for item, p in zip(inputs, row, strict=False)
-        ]
+        [sample_value(item, float(p)) for item, p in zip(inputs, row, strict=False)]
         for row in unit_cube
     ]
     values = np.asarray(
