@@ -189,6 +189,15 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
 * `pareto_front(vectors: Sequence[MismatchVector]) -> list[int]`
   Return non-dominated vector indexes, preserving input order.
 
+## Module `pyra.service`
+
+* `heat_release(o2_in: float, o2_out: float, mass_flow: float, energy_per_kg_o2: float, *, source_ref: str, o2_uncertainty: float = 0.0, mass_flow_uncertainty: float = 0.0, energy_uncertainty: float = 0.0, n: int = 1024, seed: int = 0) -> Quantity`
+  Compute a simple oxygen-consumption HRR from SI-valued numbers.
+* `show_simulation(points: Sequence[tuple[float, float]], *, title: str = 'PYRA simulation') -> None`
+  Open a tiny Tkinter line plot for a sequence of ``(time, value)`` points.
+* `simulate_decay(initial: float, rate: float, duration: float, *, steps: int = 100) -> tuple[tuple[float, float], ...]`
+  Return a fictional exponential trace for learning and UI experiments.
+
 ## Module `pyra.physics.calorimetry`
 
 * `hrr_enthalpy_balance(t_in: Quantity, t_out: Quantity, mass_flow: Quantity, cp: Quantity, loss_model: Callable[[float], float] | None = None) -> Quantity`

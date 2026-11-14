@@ -18,6 +18,7 @@ import pyra.provenance as prov  # noqa: E402
 import pyra.physics.calorimetry as calorimetry  # noqa: E402
 import pyra.io as io  # noqa: E402
 import pyra.matching as matching  # noqa: E402
+import pyra.service as service  # noqa: E402
 import pyra.schema as schema  # noqa: E402
 import pyra.units as units  # noqa: E402
 import pyra.uq as uq  # noqa: E402
@@ -90,6 +91,7 @@ def render() -> str:
         (schema, "pyra.schema"),
         (io, "pyra.io"),
         (matching, "pyra.matching"),
+        (service, "pyra.service"),
         (calorimetry, "pyra.physics.calorimetry"),
         (uq, "pyra.uq"),
     ):

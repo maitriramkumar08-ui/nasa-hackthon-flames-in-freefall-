@@ -4,7 +4,35 @@ Every example on this page is executed by the test suite (`tests/unit/test_docs.
 the code. The data below is **illustrative only**: the reference strings are placeholders, not real
 datasets, and nothing here is a physical claim.
 
-## 1. Quantities carry a status
+## 1. Your first small PYRA program
+
+You can start with a normal Python file and use a short alias. The heat-release helper keeps the
+source reference and returns a provenance-aware `Quantity` immediately:
+
+```python
+>>> import pyra as pk
+>>> hrr = pk.heat_release(
+...     0.21, 0.20, 0.01, 13_100_000,
+...     source_ref="doi:10.0000/example|synthetic", n=128, seed=0,
+... )
+>>> round(hrr.value), hrr.unit, hrr.status.name
+(1310, 'W', 'DERIVED')
+
+```
+
+For a simple visual experiment, generate a fictional learning trace and open a small window:
+
+```python
+>>> trace = pk.simulate_decay(1.0, 0.5, 4.0, steps=5)
+>>> trace[0], trace[-1][0]
+((0.0, 1.0), 4.0)
+>>> # In a desktop script, call: pk.show_simulation(trace, title="Decay example")
+```
+
+`simulate_decay` is deliberately a toy UI example; it is not a fire model and carries no scientific
+claim. `show_simulation` uses the standard-library Tkinter window for local desktop programs.
+
+## 2. Quantities carry a status
 
 ```python
 >>> from pyra import Quantity, Status

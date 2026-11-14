@@ -13,10 +13,13 @@ P3 S0 calorimetry/UQ foundation. External readers, matching and simulation adapt
 their documented data and validation decisions.
 
 ```python
-from pyra import Quantity, Status
+import pyra as pk
 
-p = Quantity.measured(101.3, "kPa", 0.5, "type_b", source_ref="doi:10.0000/example|sha256:00|row 12")
-print(p.status.name)   # MEASURED
+hrr = pk.heat_release(
+    0.21, 0.20, 0.01, 13_100_000,
+    source_ref="doi:10.0000/example|synthetic",
+)
+print(hrr.value, hrr.unit, hrr.status.name)   # 1310 W DERIVED
 ```
 
 Install from a checkout with `pip install -e .` (not on PyPI). Docs: `docs/installation.md`,
