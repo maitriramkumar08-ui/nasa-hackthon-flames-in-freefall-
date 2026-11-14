@@ -1,16 +1,26 @@
 # PYRA
 
-Predictive Hazard & Reliability Atlas for spacecraft fire safety.
+**Predictive Hazard & Reliability Atlas** is an educational and professional Python library for
+spacecraft and habitat fire-safety work. Its goal is to make experimental evidence easier to
+organize, inspect and compare, while keeping the assumptions and limits visible.
 
-**What it is:** a fire-only Python library that organizes NASA microgravity combustion evidence and compares it
-with simulations, labelling every output as Measured, Derived, Simulated, Scenario or Interpretation.
+PYRA provides reusable building blocks for evidence provenance, units and uncertainty, heat-release
+calculations, investigation data review, scenario matching, model comparison, reports and simple
+interactive demonstrations. It is designed to support learning and research workflows—from a
+first Python experiment to structured analysis—not to replace expert review or validated safety
+engineering tools.
 
-**What it is not:** a predictor. It never emits an unqualified prediction (architecture section 1).
-Not endorsed or adopted by NASA or any programme named in the architecture document.
+## What PYRA can and cannot say
 
-Status: pre-alpha. Implemented: P0/P1 provenance foundations, P2 Pint and pydantic schemas, and the
-P3 S0 calorimetry/UQ foundation. External readers, matching and simulation adapters remain gated on
-their documented data and validation decisions.
+Results are labelled Measured, Derived, Simulated, Scenario or Interpretation. PYRA does not make
+unqualified fire-safety predictions or certify a design. A comparison or score applies only to the
+cases, sources and assumptions supplied to it; it is not proof of general reliability.
+
+This project is pre-alpha. Investigation-specific readers and external simulator integrations
+depend on verified source formats and validation evidence. The software is not endorsed or adopted
+by NASA or any programme named in its materials.
+
+## A first calculation
 
 ```python
 import pyra as pk
@@ -25,6 +35,11 @@ print(hrr.value, hrr.unit, hrr.status.name)   # 1310 W DERIVED
 For a local visual demo, run `pyra simulate --window`. For machine-readable output, run
 `pyra simulate --steps 20`; it prints JSON and does not open a window.
 
-Install from a checkout with `pip install -e .` (not on PyPI). Docs: `docs/installation.md`,
-`docs/usage.md` (every example is run by the tests), `docs/api.md`. Design: `docs/architecture.md`.
-Development conventions: `docs/development.md`.
+## Install and explore
+
+PYRA is not published on PyPI. Install from a checkout with `pip install -e .`; see
+[`docs/installation.md`](docs/installation.md), [`docs/usage.md`](docs/usage.md), and
+[`docs/api.md`](docs/api.md). The feature overview is in
+[`docs/feature_quick_reference.md`](docs/feature_quick_reference.md), and design details are in
+[`docs/architecture.md`](docs/architecture.md). Development conventions are in
+[`docs/development.md`](docs/development.md).
