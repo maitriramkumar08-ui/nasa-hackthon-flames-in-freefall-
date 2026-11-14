@@ -62,9 +62,15 @@ def heat_release(
 
 
 def simulate_decay(
-    initial: float, rate: float, duration: float, *, steps: int = 100
+    initial: float = 1.0, rate: float = 0.5, duration: float = 10.0, *, steps: int = 100
 ) -> tuple[tuple[float, float], ...]:
-    """Return a fictional exponential trace for learning and UI experiments."""
+    """Return a fictional exponential trace for learning and UI experiments.
+
+    With no arguments this makes a ready-to-plot example trace. It is a mathematical
+    demonstration, not a fire model or a calibrated physical result.
+    """
+    if not all(math.isfinite(value) for value in (initial, rate, duration)):
+        raise ValueError("initial, rate, and duration must be finite numbers")
     if initial < 0 or rate < 0 or duration <= 0 or steps < 2:
         raise ValueError("initial/rate must be non-negative, duration positive, steps >= 2")
     return tuple(
@@ -82,6 +88,8 @@ def show_simulation(
     """Open a tiny Tkinter line plot for a sequence of ``(time, value)`` points."""
     if not points:
         raise ValueError("points must not be empty")
+    if any(not math.isfinite(x) or not math.isfinite(y) for x, y in points):
+        raise ValueError("simulation points must contain only finite numbers")
     import tkinter as tk
 
     width, height, margin = 760, 420, 45

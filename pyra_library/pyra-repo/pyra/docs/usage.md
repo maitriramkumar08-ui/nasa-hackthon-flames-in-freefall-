@@ -20,12 +20,12 @@ source reference and returns a provenance-aware `Quantity` immediately:
 
 ```
 
-For a simple visual experiment, generate a fictional learning trace and open a small window:
+For a simple visual experiment, make a fictional trace with sensible defaults and open a small window:
 
 ```python
->>> trace = pk.simulate_decay(1.0, 0.5, 4.0, steps=5)
+>>> trace = pk.simulate_decay(steps=5)
 >>> trace[0], trace[-1][0]
-((0.0, 1.0), 4.0)
+((0.0, 1.0), 10.0)
 >>> # In a desktop script, call: pk.show_simulation(trace, title="Decay example")
 ```
 
@@ -123,7 +123,7 @@ ValueError: MEASURED requires a source_ref (DOI/URL, file hash, location)
 
 ```
 
-## 2. Status can only get weaker down a chain
+## 5. Status can only get weaker down a chain
 
 `Quantity.derive` computes the status of a result as the maximum over its inputs (the order is
 `MEASURED < DERIVED < SIMULATED < SCENARIO < INTERPRETATION`). Mixing in a hypothetical scenario
@@ -155,7 +155,7 @@ pyra.provenance.status.StatusInputError: heat_release@1: input status SCENARIO e
 
 ```
 
-## 3. Identity and tamper detection
+## 6. Identity and tamper detection
 
 An artifact id hashes the content, the parents, the activity, its parameters and the source
 reference. It does not include timestamps or environment details, so it is reproducible:
@@ -178,7 +178,7 @@ True
 
 ```
 
-## 4. Record everything in a ledger and check the lineage
+## 7. Record everything in a ledger and check the lineage
 
 ```python
 >>> import pathlib, tempfile
@@ -199,7 +199,7 @@ True
 The ledger is append-only JSON Lines, one record per line, so it can be inspected with any text
 tool. A corrupt line raises `LedgerCorruptError` with the file and line number.
 
-## 5. Conditions are schema-validated
+## 8. Conditions are schema-validated
 
 Metadata models use Pint-compatible unit strings and keep microgravity as a measured residual in
 units of `g0` or a dimensionless multiple of it. The example uses a placeholder source and
@@ -219,7 +219,7 @@ fictional conditions:
 
 ```
 
-## 6. S0 calorimetry keeps the energy equivalence explicit
+## 9. S0 calorimetry keeps the energy equivalence explicit
 
 The oxygen-consumption transform takes the energy per mass of oxygen as an input. This keeps the
 choice of literature value visible in provenance; PYRA does not silently choose one:
@@ -237,7 +237,7 @@ choice of literature value visible in provenance; PYRA does not silently choose 
 
 ```
 
-## 7. Evidence files are manifest-driven
+## 10. Evidence files are manifest-driven
 
 The ingestion layer records a URL or DOI, access date, and SHA-256 before a file is accepted. A
 transport is injected for offline tests; no PSI file format is guessed by the generic reader:
@@ -259,7 +259,7 @@ True
 
 ```
 
-## 8. Where to go next
+## 11. Where to go next
 
 * `docs/api.md`: every public name in `pyra.provenance` with its signature.
 * `examples/quickstart.py`: this page as a runnable script.

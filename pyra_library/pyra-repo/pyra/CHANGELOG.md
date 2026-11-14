@@ -7,6 +7,8 @@
   status-aware HTML reports, replay inspection, and beginner CLI helpers.
 - Improved PSI reader errors for archives with missing or ambiguous metadata and for empty or
   malformed PSI-159 setpoint files.
+- Made the learning trace helper usable with defaults, reject non-finite inputs, and clarified its
+  example and beginner API reference.
 - Added executable usage examples and 90+ tests covering the implemented layers.
 
 The project remains pre-alpha. Calibrated investigation readers, external simulator adapters, and
