@@ -177,6 +177,42 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
 * `write_manifest(path: Path, entries: list[ManifestEntry]) -> None`
   Write a stable, human-readable JSON manifest.
 
+## Module `pyra.matching`
+
+* class `MatchPolicy`
+  Tolerances and weights used by the mismatch engine.
+* class `MismatchVector`
+* `match(scenario: Scenario, experiment: ExperimentRecord, policy: MatchPolicy) -> MismatchVector`
+  Match one scenario to one experiment record.
+* `match_conditions(scenario: Conditions, experiment: Conditions, policy: MatchPolicy) -> MismatchVector`
+  Compare two condition records while retaining every dimension's distance.
+* `pareto_front(vectors: Sequence[MismatchVector]) -> list[int]`
+  Return non-dominated vector indexes, preserving input order.
+
+## Module `pyra.compare`
+
+* `bias(measured: Quantity, simulated: Quantity) -> Quantity`
+  Return ``simulated - measured`` in the measured unit.
+* `first_order_lag(signal: Sequence[float], *, dt: float, tau: float) -> tuple[float, ...]`
+  Apply the exact piecewise-constant first-order sensor lag recurrence.
+* `relative_difference(measured: Quantity, simulated: Quantity) -> Quantity`
+  Return ``(simulated - measured) / measured`` as a dimensionless result.
+* `z_score(measured: Quantity, simulated: Quantity, *, discrepancy: float = 0.0) -> Quantity`
+  Return a z-score using combined measurement, simulation and discrepancy uncertainty.
+
+## Module `pyra.service`
+
+* `heat_release(o2_in: float, o2_out: float, mass_flow: float, energy_per_kg_o2: float, *, source_ref: str, o2_uncertainty: float = 0.0, mass_flow_uncertainty: float = 0.0, energy_uncertainty: float = 0.0, n: int = 1024, seed: int = 0) -> Quantity`
+  Compute a simple oxygen-consumption HRR from SI-valued numbers.
+* `measured(value: float, unit: str, *, source_ref: str, uncertainty: float | None = None, u_kind: str = 'unknown') -> Quantity`
+  Create one traceable measured quantity with a short signature.
+* `scenario(value: float, unit: str, *, uncertainty: float | None = None, u_kind: str = 'unknown', activity: str = 'user_input') -> Quantity`
+  Create one explicitly hypothetical scenario quantity.
+* `show_simulation(points: Sequence[tuple[float, float]], *, title: str = 'PYRA simulation') -> None`
+  Open a tiny Tkinter line plot for a sequence of ``(time, value)`` points.
+* `simulate_decay(initial: float, rate: float, duration: float, *, steps: int = 100) -> tuple[tuple[float, float], ...]`
+  Return a fictional exponential trace for learning and UI experiments.
+
 ## Module `pyra.physics.calorimetry`
 
 * `hrr_enthalpy_balance(t_in: Quantity, t_out: Quantity, mass_flow: Quantity, cp: Quantity, loss_model: Callable[[float], float] | None = None) -> Quantity`
