@@ -17,7 +17,7 @@ Nothing goes into the database until a person has checked it.
 | `docs/TEAM.md` | Roles and the scope freeze | Put your name next to your role |
 | `sources/sources.csv` | Every source we need to check (23 rows) | Take some rows, open each source, fill in the empty columns |
 | `config/decisions.json` | Tech and number choices (database, weights, tolerances...) | Discuss as a team, change values if needed, add your name to `confirmed_by` |
-| `tools/check_phase0.py` | Tells you what's still missing | Run it until it says "Phase 0 done" |
+| `tools/check_phase0.py` | Tells you what's still missing (the checks are in `tools/phase0/`) | Run it until it says "Phase 0 done" |
 
 ## How to check a source (sources.csv)
 
