@@ -161,6 +161,8 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
 * class `LocalCSVReader`
   Read a CSV into records without guessing scientific channel semantics.
 * class `ManifestEntry`
+* class `PSI159Setpoints`
+* class `PSIMetadata`
 * class `ReaderKey`
 * class `ReaderRegistry`
   Explicit, hand-curated reader registry; there is no auto-discovery.
@@ -168,6 +170,10 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
   Fetch one entry through an injected transport and verify its SHA-256.
 * `read_manifest(path: Path) -> list[ManifestEntry]`
   Read a JSON manifest and validate every entry.
+* `read_psi159_setpoints(path: Path) -> PSI159Setpoints`
+  Read PSI-159's metadata row and raw setpoint rows without calibration.
+* `read_psi_metadata_zip(path: Path) -> PSIMetadata`
+  Read the hand-curated metadata text from a PSI ZIP archive.
 * `write_manifest(path: Path, entries: list[ManifestEntry]) -> None`
   Write a stable, human-readable JSON manifest.
 
