@@ -25,5 +25,6 @@ The provenance layer (`pyra.provenance`, everything in the quickstart) uses only
 standard library, so it works before the heavier dependencies are installed.
 
 !!! note "Status"
-    Implemented: `pyra.provenance` (prompt P1). Everything else is a stub that imports but does
-    nothing. Units and schemas are drafted on the `p2-draft` branch and not yet verified.
+    Implemented: provenance (P1), Pint and pydantic schemas (P2), S0 calorimetry/UQ primitives (P3),
+    and manifest-driven local I/O (P4 foundation). Investigation-specific readers and catalogue
+    backends remain gated on the data audit described in `docs/architecture.md`.

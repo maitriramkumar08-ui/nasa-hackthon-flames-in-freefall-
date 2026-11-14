@@ -154,6 +154,23 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
 * class `ValidationEvidence`
   One comparison result supporting a model's declared validity envelope.
 
+## Module `pyra.io`
+
+* class `FileHashMismatch`
+  Raised when fetched bytes do not match a manifest hash.
+* class `LocalCSVReader`
+  Read a CSV into records without guessing scientific channel semantics.
+* class `ManifestEntry`
+* class `ReaderKey`
+* class `ReaderRegistry`
+  Explicit, hand-curated reader registry; there is no auto-discovery.
+* `fetch(entry: ManifestEntry, destination: Path, *, transport: Callable[[str], bytes]) -> Path`
+  Fetch one entry through an injected transport and verify its SHA-256.
+* `read_manifest(path: Path) -> list[ManifestEntry]`
+  Read a JSON manifest and validate every entry.
+* `write_manifest(path: Path, entries: list[ManifestEntry]) -> None`
+  Write a stable, human-readable JSON manifest.
+
 ## Module `pyra.physics.calorimetry`
 
 * `hrr_enthalpy_balance(t_in: Quantity, t_out: Quantity, mass_flow: Quantity, cp: Quantity, loss_model: Callable[[float], float] | None = None) -> Quantity`

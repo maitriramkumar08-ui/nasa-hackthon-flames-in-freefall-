@@ -16,6 +16,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 import pyra.provenance as prov  # noqa: E402
 import pyra.physics.calorimetry as calorimetry  # noqa: E402
+import pyra.io as io  # noqa: E402
 import pyra.schema as schema  # noqa: E402
 import pyra.units as units  # noqa: E402
 import pyra.uq as uq  # noqa: E402
@@ -86,6 +87,7 @@ def render() -> str:
     for module, title in (
         (units, "pyra.units"),
         (schema, "pyra.schema"),
+        (io, "pyra.io"),
         (calorimetry, "pyra.physics.calorimetry"),
         (uq, "pyra.uq"),
     ):

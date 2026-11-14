@@ -145,7 +145,29 @@ choice of literature value visible in provenance; PYRA does not silently choose 
 
 ```
 
-## 7. Where to go next
+## 7. Evidence files are manifest-driven
+
+The ingestion layer records a URL or DOI, access date, and SHA-256 before a file is accepted. A
+transport is injected for offline tests; no PSI file format is guessed by the generic reader:
+
+```python
+>>> import hashlib
+>>> from datetime import date
+>>> from pyra.io import ManifestEntry, fetch
+>>> payload = b"time,value\\n0,1\\n"
+>>> entry = ManifestEntry(
+...     investigation="synthetic", file_pattern="trace.csv", version="1",
+...     sha256=hashlib.sha256(payload).hexdigest(), access_date=date(2026, 11, 15),
+...     url="https://example.invalid/trace.csv",
+... )
+>>> path = fetch(entry, __import__("pathlib").Path(__import__("tempfile").mkdtemp()) / "trace.csv",
+...              transport=lambda _: payload)
+>>> path.read_bytes() == payload
+True
+
+```
+
+## 8. Where to go next
 
 * `docs/api.md`: every public name in `pyra.provenance` with its signature.
 * `examples/quickstart.py`: this page as a runnable script.
