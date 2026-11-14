@@ -1,0 +1,17 @@
+DUMMY - NOT REAL DATA. Invented text for testing the retrieval pipeline only.
+
+--- page 1 ---
+# Apparatus
+DUMMY - NOT REAL DATA. The DUMMY-B droplet rig tethers a single heptane droplet on a quartz fibre and ignites it with a hot wire igniter.
+
+--- page 2 ---
+# Burning rate
+DUMMY - NOT REAL DATA. The droplet diameter squared shrank linearly in time, giving a burning rate constant that fell slightly at reduced pressure.
+
+--- page 3 ---
+# Cool flames
+DUMMY - NOT REAL DATA. After the visible flame went out, a dim low temperature cool flame kept burning the droplet for several seconds.
+
+--- page 4 ---
+# Soot
+DUMMY - NOT REAL DATA. Soot shells formed around larger droplets and were imaged with a backlit camera.

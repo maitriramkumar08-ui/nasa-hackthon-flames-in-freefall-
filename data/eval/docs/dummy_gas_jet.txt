@@ -1,0 +1,10 @@
+DUMMY - NOT REAL DATA. Invented text for testing the retrieval pipeline only.
+
+# Gas jet flames
+DUMMY - NOT REAL DATA. DUMMY-C studied laminar methane jet diffusion flames issuing from a round nozzle into still air.
+# Flame length
+DUMMY - NOT REAL DATA. Flame length grew with fuel flow rate and the flames were longer and wider than in normal gravity.
+# Radiation
+DUMMY - NOT REAL DATA. Radiometers measured radiant heat loss, which was a larger share of the heat release for the slow, wide flames.
+# Extinction
+DUMMY - NOT REAL DATA. Lowering the nitrogen-diluted fuel stream below a threshold led to flame extinction at the tip first.
