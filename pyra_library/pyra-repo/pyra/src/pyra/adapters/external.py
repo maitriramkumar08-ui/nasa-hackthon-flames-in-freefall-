@@ -26,10 +26,13 @@ inside the model card's recorded validation envelope.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import subprocess
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
+from threading import Event
 
 from pyra.adapters.base import require_in_envelope
 from pyra.adapters.envelope import EnvelopeCheck, EnvelopeGatePolicy
@@ -37,6 +40,9 @@ from pyra.schema import Conditions, ModelCard, Scenario
 from pyra.simulation import SimulationOutput
 
 CONTRACT_VERSION = "1"
+
+# How long each poll slice waits before re-checking cancellation and the deadline.
+_POLL_SECONDS = 0.1
 
 
 class EngineError(RuntimeError):
@@ -53,6 +59,10 @@ class EngineFailedError(EngineError):
 
 class EngineOutputError(EngineError):
     """The engine finished but did not return a usable simulation output."""
+
+
+class EngineCancelled(EngineError):
+    """The caller cancelled the run before the engine finished."""
 
 
 @dataclass(frozen=True)
@@ -113,18 +123,16 @@ class ExternalEngineAdapter:
     def model_card_id(self) -> str:
         return f"{self.card.name}:{self.card.version}"
 
-    def _invoke(self, scenario: Scenario) -> str:
-        payload = json.dumps(scenario_payload(scenario))
+    def _start(self) -> subprocess.Popen[str]:
         try:
-            completed = subprocess.run(
+            return subprocess.Popen(
                 self.command.argv(),
-                input=payload,
-                capture_output=True,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 text=True,
-                timeout=self.command.timeout_s,
                 cwd=self.command.cwd,
                 env={**self.command.env} or None,
-                check=False,
             )
         except FileNotFoundError as error:
             raise EngineNotFoundError(
@@ -135,19 +143,49 @@ class ExternalEngineAdapter:
             raise EngineNotFoundError(
                 f"could not start engine {self.command.executable!r}: {error}"
             ) from error
-        except subprocess.TimeoutExpired as error:
-            raise EngineFailedError(
-                f"engine {self.command.executable!r} did not finish within "
-                f"{self.command.timeout_s:g} s"
-            ) from error
 
-        if completed.returncode != 0:
-            diagnostics = (completed.stderr or "").strip() or "(no stderr)"
+    def _invoke(self, scenario: Scenario, cancel: Event | None = None) -> str:
+        """Run the engine, honouring a cancellation request while it works.
+
+        The child is polled in short slices rather than waited on in one block, so a GUI
+        can stop a long solve promptly. A cancelled or timed-out engine is killed and
+        reaped, never left running in the background.
+        """
+        payload: str | None = json.dumps(scenario_payload(scenario))
+        process = self._start()
+        deadline = time.monotonic() + self.command.timeout_s
+
+        while True:
+            if cancel is not None and cancel.is_set():
+                self._terminate(process)
+                raise EngineCancelled(f"engine {self.command.executable!r} was cancelled")
+            if time.monotonic() > deadline:
+                self._terminate(process)
+                raise EngineFailedError(
+                    f"engine {self.command.executable!r} did not finish within "
+                    f"{self.command.timeout_s:g} s"
+                )
+            try:
+                stdout, stderr = process.communicate(input=payload, timeout=_POLL_SECONDS)
+                break
+            except subprocess.TimeoutExpired:
+                payload = None  # stdin was already written on the first attempt
+                continue
+
+        if process.returncode != 0:
+            diagnostics = (stderr or "").strip() or "(no stderr)"
             raise EngineFailedError(
                 f"engine {self.command.executable!r} exited with code "
-                f"{completed.returncode}. Engine diagnostics: {diagnostics}"
+                f"{process.returncode}. Engine diagnostics: {diagnostics}"
             )
-        return completed.stdout
+        return stdout
+
+    @staticmethod
+    def _terminate(process: subprocess.Popen[str]) -> None:
+        """Stop a child process and reap it, so no engine is left running."""
+        process.kill()
+        with contextlib.suppress(subprocess.TimeoutExpired):
+            process.communicate(timeout=_POLL_SECONDS * 10)
 
     def _parse(self, raw: str, scenario: Scenario) -> SimulationOutput:
         if not raw.strip():
@@ -182,15 +220,17 @@ class ExternalEngineAdapter:
             )
         return output
 
-    def run(self, scenario: Scenario) -> SimulationOutput:
+    def run(self, scenario: Scenario, *, cancel: Event | None = None) -> SimulationOutput:
         """Run the engine for exploration, with no claim of validity attached.
 
         The result is a model output. It is not evidence, and it is not checked against
         the model's validation envelope; use :meth:`run_supported` for that.
         """
-        return self._parse(self._invoke(scenario), scenario)
+        return self._parse(self._invoke(scenario, cancel), scenario)
 
-    def run_supported(self, scenario: Scenario) -> tuple[SimulationOutput, EnvelopeCheck]:
+    def run_supported(
+        self, scenario: Scenario, *, cancel: Event | None = None
+    ) -> tuple[SimulationOutput, EnvelopeCheck]:
         """Run the engine only when its recorded evidence covers this scenario.
 
         The envelope is checked first, so an unsupported scenario fails immediately
@@ -198,7 +238,7 @@ class ExternalEngineAdapter:
         permitted it, so a caller can record which evidence backed the claim.
         """
         check = require_in_envelope(self.card, scenario, policy=self.policy)
-        return self.run(scenario), check
+        return self.run(scenario, cancel=cancel), check
 
     def at(self, conditions: Conditions, base: Scenario) -> Scenario:
         """Create a hindcast scenario that replays measured conditions through the engine."""
@@ -222,6 +262,7 @@ def python_engine_command(script: str | Path, **kwargs: object) -> EngineCommand
 
 __all__ = [
     "CONTRACT_VERSION",
+    "EngineCancelled",
     "EngineCommand",
     "EngineError",
     "EngineFailedError",

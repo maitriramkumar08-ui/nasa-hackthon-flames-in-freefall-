@@ -198,3 +198,31 @@ def test_engine_command_rejects_nonsense_configuration() -> None:
         EngineCommand(executable="   ")
     with pytest.raises(ValueError, match="timeout_s must be positive"):
         EngineCommand(executable="engine", timeout_s=0)
+
+
+def test_a_cancelled_run_stops_promptly_instead_of_waiting_for_the_timeout() -> None:
+    """Cancel must beat the timeout, or a GUI stop button would do nothing useful."""
+    import threading
+    import time
+
+    from pyra.adapters import EngineCancelled
+
+    gated = adapter(None, "--hang", timeout_s=30.0)
+    cancel = threading.Event()
+    threading.Timer(0.5, cancel.set).start()
+
+    started = time.monotonic()
+    with pytest.raises(EngineCancelled, match="was cancelled"):
+        gated.run(scenario(), cancel=cancel)
+    assert time.monotonic() - started < 10.0
+
+
+def test_a_run_cancelled_before_it_starts_never_reaches_the_engine() -> None:
+    import threading
+
+    from pyra.adapters import EngineCancelled
+
+    cancel = threading.Event()
+    cancel.set()
+    with pytest.raises(EngineCancelled):
+        adapter(None, "--hang", timeout_s=30.0).run(scenario(), cancel=cancel)

@@ -227,6 +227,8 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
   Run a user-supplied function without importing any simulator package.
 * class `ClaimGateError`
   Raised when a model-supported claim lacks validation evidence.
+* class `EngineCancelled`
+  The caller cancelled the run before the engine finished.
 * class `EngineCommand`
   How to invoke one locally installed engine.
 * class `EngineError`

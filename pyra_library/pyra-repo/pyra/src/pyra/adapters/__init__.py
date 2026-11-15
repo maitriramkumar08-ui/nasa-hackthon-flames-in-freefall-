@@ -22,6 +22,7 @@ from pyra.adapters.envelope import (
     parse_envelope,
 )
 from pyra.adapters.external import (
+    EngineCancelled,
     EngineCommand,
     EngineError,
     EngineFailedError,
@@ -36,6 +37,7 @@ __all__ = [
     "AxisCheck",
     "CallableAdapter",
     "ClaimGateError",
+    "EngineCancelled",
     "EngineCommand",
     "EngineError",
     "EngineFailedError",
