@@ -16,6 +16,7 @@
     <button data-view="mission">Mission control</button>
     <button data-view="builders">Builders</button>
     <button data-view="researchers">Researchers</button>
+    <button data-view="assistant">Assistant</button>
   </nav>
   <div class="actions">
     <a class="btn" href="/api/export?format=csv" download="pyra_export.csv">Export CSV</a>
@@ -123,8 +124,38 @@
     <p class="note">Where the corpus is thin. The Coverage Map is in the Explorer view.</p>
     <div id="weakness"></div>
     <h3>Ask the evidence</h3>
-    <form id="ask" class="row"><input name="question" aria-label="Question" placeholder="Which runs used low pressure?"><button type="submit">Ask</button></form>
-    <div id="ask-out"></div>
+    <p class="note">Questions go to the research assistant, which searches these findings and runs the ranking and gap engines for you.</p>
+    <button type="button" data-view="assistant">Open the assistant</button>
+  </section>
+
+  <section id="view-assistant" class="view assistant" hidden>
+    <div class="row">
+      <h2>Research assistant <span class="badge int">INTERPRETATION</span></h2>
+      <span id="planner-info" class="note"></span>
+    </div>
+    <p class="note">The assistant chooses which PYRA tools to run, then writes an answer from what they return. Every number comes from a tool result or a cited passage. The answer is checked against the rules before it is shown, and withheld if it fails.</p>
+    <form id="agent-form" class="agent-form">
+      <textarea name="question" rows="2" aria-label="Question" placeholder="How does flow speed change flame spread at low pressure?" required></textarea>
+      <div class="row">
+        <label>Audience <select name="audience"><option>student</option><option>researcher</option><option>engineer</option></select></label>
+        <label><input type="checkbox" name="use_scenario" checked> Use the Scenario Lab values <span class="badge hyp">HYPOTHETICAL</span></label>
+        <label>Planner <select name="planner"><option value="">server default</option><option value="offline">offline templates</option><option value="claude">Claude</option></select></label>
+        <button type="submit">Ask</button>
+      </div>
+      <div id="agent-examples" class="row examples"></div>
+    </form>
+    <div class="agent-grid">
+      <article class="agent-answer">
+        <div id="agent-check" class="check" hidden></div>
+        <div id="agent-answer"><p class="note">Ask a question to start.</p></div>
+      </article>
+      <aside class="agent-side">
+        <h3>Steps <span class="badge der">DERIVED</span></h3>
+        <ol id="agent-steps" class="steps"></ol>
+        <h3>Cited passages <span class="badge mea">MEASURED</span></h3>
+        <ol id="agent-sources" class="sources"></ol>
+      </aside>
+    </div>
   </section>
 
   <section id="view-report" class="view" hidden>
@@ -140,6 +171,7 @@
   <span class="badge sim">SIMULATED</span> generated live values
   <span class="badge ph">PLACEHOLDER</span> limits not yet sourced
   <span class="badge ill">ILLUSTRATIVE</span> example, not procedure
+  <span class="badge int">INTERPRETATION</span> written by the assistant
 </footer>
 <script src="app.js"></script>
 </body>
