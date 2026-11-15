@@ -22,11 +22,26 @@ def test_usage_page_examples_run() -> None:
 def test_quickstart_script_runs_and_prints_expected_lines() -> None:
     res = subprocess.run(
         [sys.executable, str(ROOT / "examples" / "quickstart.py")],
-        capture_output=True, text=True, check=True,
+        capture_output=True,
+        text=True,
+        check=True,
         env={"PYTHONPATH": str(ROOT / "src"), "PATH": ""},
     )
     assert "ratio status: SCENARIO" in res.stdout
     assert "lineage problems: []" in res.stdout
+
+
+def test_complete_fire_test_example_runs_and_saves_output(tmp_path: Path) -> None:
+    res = subprocess.run(
+        [sys.executable, str(ROOT / "examples" / "complete_fire_test.py")],
+        capture_output=True,
+        text=True,
+        check=True,
+        cwd=tmp_path,
+        env={"PYTHONPATH": str(ROOT / "src"), "PATH": ""},
+    )
+    assert "PYRA single-zone learning model (SIMULATED)" in res.stdout
+    assert (tmp_path / "fire_test_result.json").exists()
 
 
 def test_generated_api_page_is_up_to_date() -> None:

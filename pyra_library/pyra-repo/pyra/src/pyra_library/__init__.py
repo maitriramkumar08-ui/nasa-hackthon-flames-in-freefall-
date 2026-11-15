@@ -9,10 +9,12 @@ from __future__ import annotations
 import pyra as advanced
 from pyra import (
     FireScenario,
+    FireTestRun,
     compare_values,
     fire_playground,
     heat_release,
     measured,
+    run_fire_test,
     scenario,
     show_simulation,
     simulate_decay,
@@ -28,6 +30,7 @@ compare = compare_values
 
 __all__ = [
     "FireScenario",
+    "FireTestRun",
     "advanced",
     "compare",
     "compare_values",
@@ -36,6 +39,7 @@ __all__ = [
     "measured",
     "playground",
     "scenario",
+    "run_fire_test",
     "show_simulation",
     "simulate_decay",
     "simulate_fire_scenario",

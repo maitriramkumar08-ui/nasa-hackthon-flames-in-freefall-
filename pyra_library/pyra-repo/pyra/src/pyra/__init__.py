@@ -19,7 +19,13 @@ from pyra.provenance import (
     join,
     sha256_hex,
 )
-from pyra.service.playground import FireScenario, fire_playground, simulate_fire_scenario
+from pyra.service.playground import (
+    FireScenario,
+    FireTestRun,
+    fire_playground,
+    run_fire_test,
+    simulate_fire_scenario,
+)
 from pyra.service.simple import (
     compare_values,
     heat_release,
@@ -36,6 +42,7 @@ __all__ = [
     "LedgerEntry",
     "LineageGraph",
     "FireScenario",
+    "FireTestRun",
     "Provenance",
     "Quantity",
     "Status",
@@ -43,6 +50,7 @@ __all__ = [
     "join",
     "compare_values",
     "fire_playground",
+    "run_fire_test",
     "heat_release",
     "measured",
     "scenario",

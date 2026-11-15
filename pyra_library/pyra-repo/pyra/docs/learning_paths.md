@@ -30,6 +30,8 @@ above are illustrative, not research data.
 ## 2. Explorer: use the small interactive tools
 
 - `pk.playground()` opens the same Fire Playground as `pyra playground`.
+- `pk.run_fire_test(...)` runs the built-in oxygen-only learning simulation and returns a summary
+  plus a `run.show()` graph.
 - `pk.compare(...)` compares two values already in the same unit using a tolerance you choose.
 - `pk.simulate_zone()` returns the simple, assumption-labeled concentration exercise.
 - `from pyra_edu import decay_activity` creates a fictional trace for a classroom exercise.

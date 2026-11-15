@@ -1,6 +1,6 @@
 import pytest
 
-from pyra import FireScenario, simulate_fire_scenario
+from pyra import FireScenario, run_fire_test, simulate_fire_scenario
 
 
 def test_playground_scenario_outputs_oxygen_trace_and_keeps_scope_explicit() -> None:
@@ -21,3 +21,10 @@ def test_playground_validates_environment_and_fuel() -> None:
         simulate_fire_scenario(FireScenario(pressure_kpa=0))
     with pytest.raises(ValueError, match="fuel label"):
         simulate_fire_scenario(FireScenario(fuel=" "))
+
+
+def test_run_fire_test_returns_trace_and_plain_summary() -> None:
+    run = run_fire_test(fuel="PMMA", gravity_g=0.0, duration_s=5)
+    assert run.status == "SIMULATED"
+    assert "PMMA" in run.summary()
+    assert "not a flame solver" in run.summary()

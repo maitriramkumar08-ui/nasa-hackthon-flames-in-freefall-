@@ -7,10 +7,13 @@ exploration but are not inputs to that simplified concentration equation.
 
 from __future__ import annotations
 
+import json
 import math
 from dataclasses import dataclass
+from pathlib import Path
 
 from pyra.physics.zone import ZoneTrace, simulate_zone
+from pyra.service.simple import show_simulation
 
 
 @dataclass(frozen=True)
@@ -32,6 +35,66 @@ PRESETS: dict[str, FireScenario] = {
     "Microgravity thought experiment": FireScenario(gravity_g=0.00001),
     "Low-oxygen thought experiment": FireScenario(oxygen_fraction=0.17),
 }
+
+
+@dataclass(frozen=True)
+class FireTestRun:
+    """One reproducible learning run with inputs, trace and scope notes."""
+
+    scenario: FireScenario
+    trace: ZoneTrace
+    model_name: str = "PYRA single-zone learning model"
+
+    @property
+    def status(self) -> str:
+        return self.trace.status
+
+    def summary(self) -> str:
+        """Return a short plain-text summary for a beginner script."""
+        return (
+            f"{self.model_name} ({self.status})\n"
+            f"Fuel label: {self.scenario.fuel}\n"
+            f"Environment: gravity={self.scenario.gravity_g:g} g, "
+            f"oxygen={self.scenario.oxygen_fraction:g}, "
+            f"pressure={self.scenario.pressure_kpa:g} kPa, "
+            f"temperature={self.scenario.temperature_k:g} K\n"
+            f"Oxygen fraction: {self.trace.concentration[0]:.4f} to "
+            f"{self.trace.concentration[-1]:.4f}\n"
+            "Scope: simplified well-mixed oxygen balance; not a flame solver or safety prediction."
+        )
+
+    def show(self) -> None:
+        """Open the oxygen trace in a graph window."""
+        show_simulation(
+            tuple(zip(self.trace.time_s, self.trace.concentration, strict=True)),
+            title="PYRA learning simulation",
+        )
+
+    def save(self, path: str | Path) -> Path:
+        """Save inputs, assumptions, and the simulated trace as readable JSON."""
+        destination = Path(path)
+        payload = {
+            "model": self.model_name,
+            "status": self.status,
+            "scope": "educational oxygen balance; not a flame solver or safety prediction",
+            "scenario": {
+                "fuel": self.scenario.fuel,
+                "gravity_g": self.scenario.gravity_g,
+                "oxygen_fraction": self.scenario.oxygen_fraction,
+                "pressure_kpa": self.scenario.pressure_kpa,
+                "temperature_k": self.scenario.temperature_k,
+                "air_exchange_per_s": self.scenario.air_exchange_per_s,
+                "oxygen_sink_per_s": self.scenario.oxygen_sink_per_s,
+                "duration_s": self.scenario.duration_s,
+            },
+            "assumptions": list(self.trace.assumptions),
+            "points": [
+                {"time_s": time_s, "oxygen_fraction": oxygen}
+                for time_s, oxygen in zip(self.trace.time_s, self.trace.concentration, strict=True)
+            ],
+        }
+        destination.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        return destination
 
 
 def simulate_fire_scenario(scenario: FireScenario) -> ZoneTrace:
@@ -64,6 +127,35 @@ def simulate_fire_scenario(scenario: FireScenario) -> ZoneTrace:
         duration_s=scenario.duration_s,
         steps=61,
     )
+
+
+def run_fire_test(
+    *,
+    fuel: str = "PMMA (example fuel)",
+    gravity_g: float = 1.0,
+    oxygen_fraction: float = 0.21,
+    pressure_kpa: float = 101.3,
+    temperature_k: float = 293.15,
+    air_exchange_per_s: float = 0.02,
+    oxygen_sink_per_s: float = 0.001,
+    duration_s: float = 60.0,
+) -> FireTestRun:
+    """Run PYRA's built-in learning simulation in one call.
+
+    This is a convenience wrapper around the simple oxygen-zone equation, not a
+    flame-resolved fire model. It does not run an external or friend-provided engine.
+    """
+    scenario = FireScenario(
+        fuel=fuel,
+        gravity_g=gravity_g,
+        oxygen_fraction=oxygen_fraction,
+        pressure_kpa=pressure_kpa,
+        temperature_k=temperature_k,
+        air_exchange_per_s=air_exchange_per_s,
+        oxygen_sink_per_s=oxygen_sink_per_s,
+        duration_s=duration_s,
+    )
+    return FireTestRun(scenario=scenario, trace=simulate_fire_scenario(scenario))
 
 
 def fire_playground() -> None:
@@ -195,4 +287,11 @@ def fire_playground() -> None:
     root.mainloop()
 
 
-__all__ = ["FireScenario", "PRESETS", "fire_playground", "simulate_fire_scenario"]
+__all__ = [
+    "FireScenario",
+    "FireTestRun",
+    "PRESETS",
+    "fire_playground",
+    "run_fire_test",
+    "simulate_fire_scenario",
+]

@@ -35,9 +35,11 @@ print(hrr.value, hrr.unit, hrr.status.name)   # 1310 W DERIVED
 For a local visual demo, run `pyra simulate --window`. For machine-readable output, run
 `pyra simulate --steps 20`; it prints JSON and does not open a window.
 
-For an explicitly simplified concentration exercise, use `pk.simulate_zone()` from Python.
+For an explicitly simplified run that returns a summary and can save its results, use
+`pk.run_fire_test(...)`. `run.show()` opens its graph and `run.save("fire_run.json")` saves inputs,
+assumptions, and the trace. This remains an educational oxygen-balance model, not a flame solver.
 For classroom examples, `pyra_edu.decay_activity()` returns a fictional trace labelled as a
-concept sketch. Neither is a validated fire-safety simulation.
+concept sketch.
 
 For the friendly import surface, use `pyra_library`; the complete advanced API remains available
 as `pyra` (for example, `from pyra.compare import evaluate_model`).

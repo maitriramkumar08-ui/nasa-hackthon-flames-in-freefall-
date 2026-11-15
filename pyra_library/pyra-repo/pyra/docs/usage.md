@@ -39,6 +39,36 @@ trace = pk.simulate_fire_scenario(scenario)
 pk.show_simulation(tuple(zip(trace.time_s, trace.concentration, strict=True)))
 ```
 
+For the same built-in learning model in one function call:
+
+```python
+import pyra_library as pk
+
+run = pk.run_fire_test(
+    fuel="PMMA",
+    gravity_g=0.0,
+    oxygen_fraction=0.21,
+    pressure_kpa=101.3,
+    temperature_k=293.15,
+)
+print(run.summary())
+run.show()
+```
+
+`run_fire_test` runs PYRA's built-in oxygen-balance learning model only. It does not connect to
+an external or friend-provided fire engine; that requires the engine's interface and validation
+details.
+
+For a complete run that prints a summary, saves a JSON record and performs a quick comparison,
+run this copyable example from the PYRA repository folder:
+
+```text
+python examples/complete_fire_test.py
+```
+
+It writes `fire_test_result.json` in the current directory. To open the result graph, uncomment
+`run.show()` in the example. The JSON preserves the inputs and model assumptions with the output.
+
 Start with the GUI. Move to the code version when you want to save or repeat an experiment.
 
 ## Start here: what the numbers mean
