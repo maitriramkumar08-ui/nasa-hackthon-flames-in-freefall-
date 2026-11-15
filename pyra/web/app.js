@@ -463,15 +463,146 @@ async function loadWeakness() {
   } catch (err) { showError(err); }
 }
 
-async function runAsk(event) {
+/* ---------- Research assistant ---------- */
+
+const EXAMPLES = [
+  "How does flow speed change flame spread?",
+  "Is my scenario covered by the tests?",
+  "Which investigations are closest to my scenario?",
+];
+const HEADINGS = /^\s*(?:\(?[abc]\)\s*)?(?:what the sources report\s*)?\(?(MEASURED|INTERPRETATION|Limits(?: and gaps)?)\)?:?\s*$/i;
+
+// One line of answer text, with every [S1, S2] turned into buttons that light up the passage.
+function withCitations(line) {
+  const p = el("p");
+  line.split(/(\[S\d+(?:\s*,\s*S\d+)*\])/).forEach((part) => {
+    const ids = part.match(/^\[(S\d+(?:\s*,\s*S\d+)*)\]$/);
+    if (!ids) return p.append(part);
+    ids[1].split(",").map((id) => id.trim()).forEach((id) => {
+      const cite = el("button", { type: "button", class: "cite", "data-source": id }, `[${id}]`);
+      cite.addEventListener("click", () => lightSource(id));
+      p.append(cite);
+    });
+  });
+  return p;
+}
+
+function lightSource(id) {
+  document.querySelectorAll("#agent-sources li").forEach((li) => li.classList.toggle("lit", li.dataset.source === id));
+  const target = document.querySelector(`#agent-sources li[data-source="${id}"]`);
+  if (target) target.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+
+function drawAnswer(text) {
+  const box = $("#agent-answer");
+  box.replaceChildren();
+  text.split("\n").filter((line) => line.trim()).forEach((line) => {
+    const heading = line.match(HEADINGS);
+    if (heading) return box.appendChild(el("h4", {}, heading[1].toUpperCase()));
+    const node = withCitations(line);
+    if (/^\s*Confidence:/i.test(line)) node.className = "confidence";
+    box.appendChild(node);
+  });
+}
+
+function drawCheck(found) {
+  const box = $("#agent-check");
+  box.hidden = false;
+  box.className = found.passed ? "check" : "check failed";
+  box.replaceChildren();
+  if (found.passed) {
+    box.textContent = `Passed the answer checks${found.revised ? " after one rewrite" : ""}. Planner: ${found.planner}.`;
+    return;
+  }
+  box.append(`Answer withheld: it broke ${found.problems.length} rule(s) even after a rewrite.`);
+  const list = el("ul");
+  found.problems.forEach((problem) => list.appendChild(el("li", {}, problem)));
+  const draft = el("details");
+  draft.append(el("summary", {}, "Show the rejected draft"), el("pre", {}, found.draft || ""));
+  box.append(list, draft);
+}
+
+function stepSummary(step) {
+  const out = step.output || {};
+  if (step.error) return out.error;
+  if (out.passages) return out.passages.length ? `${out.passages.length} passage(s): ${out.passages.map((p) => p.id).join(", ")}` : out.note;
+  if (out.investigations) return `${out.investigations.length} investigation(s)`;
+  if (out.ranked) return out.ranked.map((r) => `${r.acronym} ${show(r.total)}`).join(", ");
+  if (out.axes) return Object.entries(out.axes).filter(([, a]) => a.class !== "NOT_SPECIFIED").map(([axis, a]) => `${axis} ${a.class}`).join(", ");
+  if ("comparable" in out) return out.comparable ? "comparable" : "not directly comparable";
+  return "";
+}
+
+function drawSteps(found) {
+  const list = $("#agent-steps");
+  list.replaceChildren();
+  found.steps.forEach((step) => {
+    const li = el("li", { class: step.error ? "error" : "" });
+    const args = Object.keys(step.input || {}).length ? JSON.stringify(step.input) : "";
+    li.append(el("code", {}, `${step.tool}(${args})`), el("div", { class: "note" }, stepSummary(step)));
+    const raw = el("details");
+    raw.append(el("summary", {}, "result"), el("pre", {}, JSON.stringify(step.output, null, 2)));
+    li.appendChild(raw);
+    list.appendChild(li);
+  });
+  if (found.stopped) list.appendChild(el("li", { class: "error" }, found.stopped));
+  if (!found.steps.length) list.appendChild(el("li", { class: "note" }, "No tools were called."));
+}
+
+function drawSources(found) {
+  const list = $("#agent-sources");
+  list.replaceChildren();
+  (found.context || []).forEach((p) => {
+    const li = el("li", { "data-source": p.id });
+    li.append(el("strong", {}, `[${p.id}] ${p.investigation || "source"}`),
+      el("span", { class: "note" }, ` ${p.page || "page not given"}, ${p.section || ""}`),
+      el("div", {}, p.text));
+    list.appendChild(li);
+  });
+  if (!list.children.length) list.appendChild(el("li", { class: "note" }, "No passage was retrieved."));
+}
+
+async function runAgent(event) {
   event.preventDefault();
-  const question = new FormData($("#ask")).get("question");
+  const form = new FormData($("#agent-form"));
+  const body = { question: form.get("question"), audience: form.get("audience") };
+  if (form.get("use_scenario")) body.scenario = scenarioBody();
+  if (form.get("planner")) body.planner = form.get("planner");
+  const button = $("#agent-form button[type=submit]");
+  button.disabled = true;
+  $("#agent-check").hidden = true;
+  $("#agent-answer").replaceChildren(el("p", { class: "busy" }, "Planning and running tools..."));
   try {
-    const found = await api("/api/ask", { question });
-    const text = found.text || "No model is connected, so PYRA shows the retrieved passages only.";
-    $("#ask-out").replaceChildren(el("p", {}, `${text} [${found.label}]`), table(found.context));
+    const found = await api("/api/agent", body);
     showError(null);
-  } catch (err) { showError(err); }
+    drawCheck(found);
+    if (found.answer) drawAnswer(found.answer);
+    else $("#agent-answer").replaceChildren(el("p", { class: "note" }, "Nothing is shown because the answer failed its checks. The steps and passages are still listed."));
+    drawSteps(found);
+    drawSources(found);
+  } catch (err) {
+    $("#agent-answer").replaceChildren(el("p", { class: "note" }, "No answer."));
+    showError(err);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function loadAgentStatus() {
+  const info = $("#planner-info");
+  try {
+    const status = await api("/api/agent/status");
+    const claude = status.claude_ready ? `Claude ready (${status.model})` : "Claude not configured, so answers come from the offline templates";
+    info.textContent = `Default planner: ${status.default}. ${claude}.`;
+  } catch (err) {
+    info.textContent = `Assistant unavailable: ${err.message}`;
+  }
+  const examples = $("#agent-examples");
+  EXAMPLES.forEach((text) => {
+    const chip = el("button", { type: "button" }, text);
+    chip.addEventListener("click", () => { $("#agent-form [name=question]").value = text; });
+    examples.appendChild(chip);
+  });
 }
 
 /* ---------- start ---------- */
@@ -488,7 +619,7 @@ async function start() {
   $("#report-btn").addEventListener("click", openReport);
   $("#compare-btn").addEventListener("click", runCompare);
   $("#builder").addEventListener("submit", runBuilder);
-  $("#ask").addEventListener("submit", runAsk);
+  $("#agent-form").addEventListener("submit", runAgent);
   document.querySelectorAll(".tele-scenario").forEach((s) => s.addEventListener("change", (e) => {
     document.querySelectorAll(".tele-scenario").forEach((o) => { o.value = e.target.value; });
     startTelemetry();
@@ -508,6 +639,7 @@ async function start() {
   drawPicks();
   drawMap();
   runCoverage();
+  loadAgentStatus();
 }
 
 start();

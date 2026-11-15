@@ -32,6 +32,10 @@ class BadRequest(Exception):
     pass
 
 
+class PlannerFailed(Exception):
+    pass
+
+
 def engine(name):
     """Import pyra.<name> now, or say clearly which module is not there yet."""
     try:
@@ -139,11 +143,33 @@ def ask(corpus, body, query):
     return dict(reply, context=chunks)
 
 
+def agent_reply(corpus, body, query):
+    """The research agent: plans tool calls, writes an answer and checks it. See pyra/agent.py."""
+    agent = engine("agent")
+    question = (body.get("question") or "").strip()
+    if not question:
+        raise BadRequest("agent needs a 'question'")
+    try:
+        planner = agent.make_planner(body.get("planner") or Handler.planner_kind)
+        return agent.run(question, corpus, body.get("scenario") or {}, body.get("audience") or "student", planner)
+    except ValueError as err:
+        raise BadRequest(str(err)) from err
+    except agent.PlannerError as err:
+        raise PlannerFailed(str(err)) from err
+
+
+def agent_status(corpus, body, query):
+    agent = engine("agent")
+    return {"default": Handler.planner_kind, "claude_ready": agent.claude_ready(),
+            "model": agent.claude_model(), "tools": agent.TOOL_SPECS}
+
+
 GET_ROUTES = {
     "/api/investigations": lambda corpus, body, query: corpus["investigations"],
     "/api/runs": lambda corpus, body, query: corpus["runs"],
     "/api/telemetry": telemetry,
     "/api/research/weakness": weakness,
+    "/api/agent/status": agent_status,
 }
 POST_ROUTES = {
     "/api/coverage": coverage,
@@ -152,11 +178,13 @@ POST_ROUTES = {
     "/api/concern": concern,
     "/api/builder/match": builder_match,
     "/api/ask": ask,
+    "/api/agent": agent_reply,
 }
 
 
 class Handler(BaseHTTPRequestHandler):
     corpus = None
+    planner_kind = "auto"
 
     def log_message(self, format, *args):
         pass
@@ -183,6 +211,8 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(503, {"error": str(err)})
         except BadRequest as err:
             self.send_json(400, {"error": str(err)})
+        except PlannerFailed as err:
+            self.send_json(502, {"error": str(err)})
 
     def do_GET(self):
         url = urlparse(self.path)
@@ -226,7 +256,8 @@ def make_server(corpus, port=8000, host="127.0.0.1"):
     return ThreadingHTTPServer((host, port), handler)
 
 
-def serve(dummy=False, port=8000):
+def serve(dummy=False, port=8000, planner="auto"):
+    Handler.planner_kind = planner
     server = make_server(load_corpus(dummy), port)
     print(f"PYRA on http://127.0.0.1:{server.server_address[1]}  ({'DUMMY' if dummy else paths.DATABASE.name})")
     try:
@@ -239,8 +270,10 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog="python -m pyra.server", description="PYRA web app")
     parser.add_argument("--dummy", action="store_true", help="use the DUMMY sample data")
     parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--planner", default="auto", choices=("auto", "offline", "claude"),
+                        help="who drives the research agent (auto picks Claude when a key is set)")
     args = parser.parse_args(argv)
-    serve(args.dummy, args.port)
+    serve(args.dummy, args.port, args.planner)
 
 
 if __name__ == "__main__":
