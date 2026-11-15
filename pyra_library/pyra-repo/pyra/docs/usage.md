@@ -60,11 +60,19 @@ most but not all of the way, reaching about **0.175**:
 > Python prompt. Start `python` in a terminal and type after the prompt, or copy the code
 > **without** those symbols into a `.py` file.
 >
-> One difference catches everyone once. At the `>>>` prompt, a line that is just an
-> expression prints its value automatically. In a `.py` file it does not: the value is
-> computed and thrown away, and the script exits silently having printed nothing. So the
-> last line below prints at the prompt, but in a file you must wrap it in `print(...)`.
-> Seeing no output usually means this, not that something failed.
+> Two things catch everyone once.
+>
+> **The expression on its own prints nothing in a file.** At the `>>>` prompt, a line that
+> is just an expression prints its value automatically. In a `.py` file it does not: the
+> value is computed and thrown away, and the script exits silently. So the last line below
+> prints at the prompt, but in a file you must wrap it in `print(...)`. Seeing no output
+> usually means this, not that something failed.
+>
+> **The line after the code is the answer, not more code.** In the example below,
+> `(0.21, 0.1751)` is what Python *replies*. It has no `>>>` in front of it for exactly
+> that reason. Copying it into your file is harmless but pointless, since it just builds a
+> tuple and discards it. Copy only the lines that start with `>>>` or `...`, without those
+> symbols.
 
 ```python
 >>> import pyrakit as pk
