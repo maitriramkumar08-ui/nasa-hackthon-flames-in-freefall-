@@ -1,0 +1,274 @@
+{
+  "model": "PYRA single-zone learning model",
+  "status": "SIMULATED",
+  "view_source": "learning model",
+  "scope": "educational oxygen balance; not a flame solver or safety prediction",
+  "scenario": {
+    "fuel": "PMMA (example label)",
+    "gravity_g": 0.0,
+    "oxygen_fraction": 0.21,
+    "pressure_kpa": 101.3,
+    "temperature_k": 293.15,
+    "air_exchange_per_s": 0.02,
+    "oxygen_sink_per_s": 0.001,
+    "duration_s": 60,
+    "diluent": "nitrogen",
+    "flow_mode": "quiescent",
+    "flow_velocity_m_s": null,
+    "configuration": "concurrent",
+    "length_scale_m": 0.02,
+    "source_note": "teaching example; not taken from a cited experiment"
+  },
+  "assumptions": [
+    "well-mixed single zone",
+    "constant ventilation rate",
+    "constant concentration source rate",
+    "no chemistry, heat transfer, or spatial gradients"
+  ],
+  "points": [
+    {
+      "time_s": 0.0,
+      "oxygen_fraction": 0.21
+    },
+    {
+      "time_s": 1.0,
+      "oxygen_fraction": 0.20900993366533777
+    },
+    {
+      "time_s": 2.0,
+      "oxygen_fraction": 0.20803947195761616
+    },
+    {
+      "time_s": 3.0,
+      "oxygen_fraction": 0.20708822667921242
+    },
+    {
+      "time_s": 4.0,
+      "oxygen_fraction": 0.20615581731933177
+    },
+    {
+      "time_s": 5.0,
+      "oxygen_fraction": 0.20524187090179796
+    },
+    {
+      "time_s": 6.0,
+      "oxygen_fraction": 0.20434602183585787
+    },
+    {
+      "time_s": 7.0,
+      "oxygen_fraction": 0.20346791176994028
+    },
+    {
+      "time_s": 8.0,
+      "oxygen_fraction": 0.20260718944831055
+    },
+    {
+      "time_s": 9.0,
+      "oxygen_fraction": 0.20176351057056358
+    },
+    {
+      "time_s": 10.0,
+      "oxygen_fraction": 0.20093653765389907
+    },
+    {
+      "time_s": 11.0,
+      "oxygen_fraction": 0.2001259398981239
+    },
+    {
+      "time_s": 12.0,
+      "oxygen_fraction": 0.19933139305332767
+    },
+    {
+      "time_s": 13.0,
+      "oxygen_fraction": 0.1985525792901783
+    },
+    {
+      "time_s": 14.0,
+      "oxygen_fraction": 0.19778918707278625
+    },
+    {
+      "time_s": 15.0,
+      "oxygen_fraction": 0.19704091103408589
+    },
+    {
+      "time_s": 16.0,
+      "oxygen_fraction": 0.19630745185368453
+    },
+    {
+      "time_s": 17.0,
+      "oxygen_fraction": 0.19558851613813047
+    },
+    {
+      "time_s": 18.0,
+      "oxygen_fraction": 0.19488381630355153
+    },
+    {
+      "time_s": 19.0,
+      "oxygen_fraction": 0.1941930704606178
+    },
+    {
+      "time_s": 20.0,
+      "oxygen_fraction": 0.19351600230178195
+    },
+    {
+      "time_s": 21.0,
+      "oxygen_fraction": 0.19285234099075282
+    },
+    {
+      "time_s": 22.0,
+      "oxygen_fraction": 0.19220182105415706
+    },
+    {
+      "time_s": 23.0,
+      "oxygen_fraction": 0.19156418227534627
+    },
+    {
+      "time_s": 24.0,
+      "oxygen_fraction": 0.19093916959030702
+    },
+    {
+      "time_s": 25.0,
+      "oxygen_fraction": 0.19032653298563165
+    },
+    {
+      "time_s": 26.0,
+      "oxygen_fraction": 0.1897260273985097
+    },
+    {
+      "time_s": 27.0,
+      "oxygen_fraction": 0.18913741261869946
+    },
+    {
+      "time_s": 28.0,
+      "oxygen_fraction": 0.18856045319244072
+    },
+    {
+      "time_s": 29.0,
+      "oxygen_fraction": 0.1879949183282701
+    },
+    {
+      "time_s": 30.0,
+      "oxygen_fraction": 0.1874405818047013
+    },
+    {
+      "time_s": 31.0,
+      "oxygen_fraction": 0.1868972218797337
+    },
+    {
+      "time_s": 32.0,
+      "oxygen_fraction": 0.18636462120215241
+    },
+    {
+      "time_s": 33.0,
+      "oxygen_fraction": 0.18584256672458493
+    },
+    {
+      "time_s": 34.0,
+      "oxygen_fraction": 0.18533084961827945
+    },
+    {
+      "time_s": 35.0,
+      "oxygen_fraction": 0.18482926518957046
+    },
+    {
+      "time_s": 36.0,
+      "oxygen_fraction": 0.18433761279799857
+    },
+    {
+      "time_s": 37.0,
+      "oxygen_fraction": 0.1838556957760517
+    },
+    {
+      "time_s": 38.0,
+      "oxygen_fraction": 0.18338332135049545
+    },
+    {
+      "time_s": 39.0,
+      "oxygen_fraction": 0.18292030056526115
+    },
+    {
+      "time_s": 40.0,
+      "oxygen_fraction": 0.18246644820586105
+    },
+    {
+      "time_s": 41.0,
+      "oxygen_fraction": 0.18202158272529995
+    },
+    {
+      "time_s": 42.0,
+      "oxygen_fraction": 0.18158552617145396
+    },
+    {
+      "time_s": 43.0,
+      "oxygen_fraction": 0.18115810411588743
+    },
+    {
+      "time_s": 44.0,
+      "oxygen_fraction": 0.18073914558407905
+    },
+    {
+      "time_s": 45.0,
+      "oxygen_fraction": 0.18032848298702994
+    },
+    {
+      "time_s": 46.0,
+      "oxygen_fraction": 0.17992595205422568
+    },
+    {
+      "time_s": 47.0,
+      "oxygen_fraction": 0.17953139176792604
+    },
+    {
+      "time_s": 48.0,
+      "oxygen_fraction": 0.1791446442987556
+    },
+    {
+      "time_s": 49.0,
+      "oxygen_fraction": 0.17876555494256996
+    },
+    {
+      "time_s": 50.0,
+      "oxygen_fraction": 0.1783939720585721
+    },
+    {
+      "time_s": 51.0,
+      "oxygen_fraction": 0.1780297470086539
+    },
+    {
+      "time_s": 52.0,
+      "oxygen_fraction": 0.177672734097939
+    },
+    {
+      "time_s": 53.0,
+      "oxygen_fraction": 0.17732279051650285
+    },
+    {
+      "time_s": 54.0,
+      "oxygen_fraction": 0.17697977628224693
+    },
+    {
+      "time_s": 55.0,
+      "oxygen_fraction": 0.17664355418490396
+    },
+    {
+      "time_s": 56.0,
+      "oxygen_fraction": 0.17631398973115195
+    },
+    {
+      "time_s": 57.0,
+      "oxygen_fraction": 0.17599095109081517
+    },
+    {
+      "time_s": 58.0,
+      "oxygen_fraction": 0.17567430904413026
+    },
+    {
+      "time_s": 59.0,
+      "oxygen_fraction": 0.17536393693005653
+    },
+    {
+      "time_s": 60.0,
+      "oxygen_fraction": 0.1750597105956101
+    }
+  ]
+}

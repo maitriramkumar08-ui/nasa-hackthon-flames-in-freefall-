@@ -9,14 +9,14 @@ Every identifier, limit and number below is a fictional placeholder. Nothing her
 a real dataset, a real model, or a fire-safety claim.
 """
 
-from pyra.adapters import (
+from pyrakit.adapters import (
     ClaimGateError,
     EnvelopeGatePolicy,
     check_envelope,
     require_in_envelope,
     require_validated,
 )
-from pyra.schema import Conditions, FuelSpec, Measure, ModelCard, Scenario, ValidationEvidence
+from pyrakit.schema import Conditions, FuelSpec, Measure, ModelCard, Scenario, ValidationEvidence
 
 
 def bench_card() -> ModelCard:

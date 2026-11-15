@@ -98,26 +98,26 @@ class Quantity:
 
 | Module | Responsibility |
 | --- | --- |
-| `pyra.schema` | pydantic models: ExperimentRecord, Conditions, FuelSpec, SourceRef, ModelCard; published JSON Schema |
-| `pyra.units` | pint registry, domain units (mole fraction, kPa, cm/s), unit validation |
-| `pyra.io` | Ingestion. Manifest-driven PSI fetcher (DOI, file hash), local loaders, reader registry keyed by investigation and file pattern |
-| `pyra.normalize` | Channel vocabulary, time-base alignment, QC flags, gap handling. No silent smoothing |
-| `pyra.conditions` | Conditions class, atmosphere helpers, similarity features |
-| `pyra.catalog` | Local index (Parquet + DuckDB), queries over conditions and outcomes |
-| `pyra.derive` | Measurement processing: oxygen-consumption heat release, enthalpy balance, spread rate, event detection, sensor lag |
-| `pyra.matching` | Scenario-to-experiment matching |
-| `pyra.coverage` | Envelope and gap analysis |
-| `pyra.compare` | Observation operators, alignment, metrics, discrepancy ledger |
-| `pyra.uq` | Propagation, calibration, model discrepancy, identifiability |
-| `pyra.sensitivity` | Sensitivity analysis wrappers |
-| `pyra.surrogate` | GP interpolation and flammability-boundary models with applicability guard |
-| `pyra.cluster` | Regime exploration |
-| `pyra.recommend` | Experiment recommendation |
-| `pyra.adapters` | Simulator interface and concrete adapters |
-| `pyra.provenance` | Lineage graph, hashing, run manifests, PROV and RO-Crate export |
-| `pyra.report` | HTML/PDF reports with status legend and ledger references |
-| `pyra.viz` | Coverage maps, comparison plots, status-aware styling |
-| `pyra.cli` | `pyra ingest`, `pyra match`, `pyra compare`, `pyra report`, `pyra replay` |
+| `pyrakit.schema` | pydantic models: ExperimentRecord, Conditions, FuelSpec, SourceRef, ModelCard; published JSON Schema |
+| `pyrakit.units` | pint registry, domain units (mole fraction, kPa, cm/s), unit validation |
+| `pyrakit.io` | Ingestion. Manifest-driven PSI fetcher (DOI, file hash), local loaders, reader registry keyed by investigation and file pattern |
+| `pyrakit.normalize` | Channel vocabulary, time-base alignment, QC flags, gap handling. No silent smoothing |
+| `pyrakit.conditions` | Conditions class, atmosphere helpers, similarity features |
+| `pyrakit.catalog` | Local index (Parquet + DuckDB), queries over conditions and outcomes |
+| `pyrakit.derive` | Measurement processing: oxygen-consumption heat release, enthalpy balance, spread rate, event detection, sensor lag |
+| `pyrakit.matching` | Scenario-to-experiment matching |
+| `pyrakit.coverage` | Envelope and gap analysis |
+| `pyrakit.compare` | Observation operators, alignment, metrics, discrepancy ledger |
+| `pyrakit.uq` | Propagation, calibration, model discrepancy, identifiability |
+| `pyrakit.sensitivity` | Sensitivity analysis wrappers |
+| `pyrakit.surrogate` | GP interpolation and flammability-boundary models with applicability guard |
+| `pyrakit.cluster` | Regime exploration |
+| `pyrakit.recommend` | Experiment recommendation |
+| `pyrakit.adapters` | Simulator interface and concrete adapters |
+| `pyrakit.provenance` | Lineage graph, hashing, run manifests, PROV and RO-Crate export |
+| `pyrakit.report` | HTML/PDF reports with status legend and ledger references |
+| `pyrakit.viz` | Coverage maps, comparison plots, status-aware styling |
+| `pyrakit.cli` | `pyra ingest`, `pyra match`, `pyra compare`, `pyra report`, `pyra replay` |
 
 Dependency direction: `schema/units/provenance` at the bottom; `io/normalize/derive/conditions/catalog` above; `matching/coverage/compare/uq/surrogate` above those; `adapters` and `report` at the top. `adapters` may import the core; the core never imports `adapters`.
 
@@ -304,7 +304,7 @@ Adapters, in implementation order:
 
 - **Artifact identity:** `artifact_id = sha256(canonical bytes)`; each artifact lists parent ids, the activity (function, version, parameters), agent (software or human), code commit and environment hash.
 - **Source pointers:** DOI or URL, access date, original file hash, investigation id and version, filename, and row or column location for key extracted numbers.
-- **Run manifest:** `pyra.lock.json` records package versions (importlib.metadata), Python version, platform, seeds and configuration hash.
+- **Run manifest:** `pyrakit.lock.json` records package versions (importlib.metadata), Python version, platform, seeds and configuration hash.
 - **Caching:** keyed by hash of (function, inputs, parameters).
 - **Replay:** `pyra replay manifest.json` re-executes the lineage and compares output hashes; numerical tolerance is configurable for floating-point differences.
 - **Human decisions** (manual QC masks, tolerance choices) are recorded as agent actions and typed INTERPRETATION.
@@ -346,16 +346,16 @@ pyra/
 ## 13. Example usage (illustrative; identifiers are placeholders)
 
 ```python
-import pyra
-from pyra.io import psi
-from pyra.derive import heat_release_o2
-from pyra.matching import match, MatchPolicy
-from pyra.coverage import coverage
-from pyra.compare import compare, SensorLag
-from pyra.adapters import ImportAdapter
-from pyra.report import build_report
+import pyrakit
+from pyrakit.io import psi
+from pyrakit.derive import heat_release_o2
+from pyrakit.matching import match, MatchPolicy
+from pyrakit.coverage import coverage
+from pyrakit.compare import compare, SensorLag
+from pyrakit.adapters import ImportAdapter
+from pyrakit.report import build_report
 
-cat = pyra.Catalog.open('~/.pyra/catalog')
+cat = pyrakit.Catalog.open('~/.pyra/catalog')
 exp = psi.load('INVESTIGATION_ID', run='RUN_ID', catalog=cat)   # status MEASURED
 
 # DERIVED quantity with propagated uncertainty
@@ -364,7 +364,7 @@ hrr = heat_release_o2(o2_in=exp.channels['o2_in'], o2_out=exp.channels['o2_out']
 assert hrr.status.name == 'DERIVED'
 
 # User-supplied simulation results, produced elsewhere
-sim = ImportAdapter(card=pyra.ModelCard.load('fds_cygnus.card.yaml')).collect('runs/cygnus_01/')
+sim = ImportAdapter(card=pyrakit.ModelCard.load('fds_cygnus.card.yaml')).collect('runs/cygnus_01/')
 
 policy = MatchPolicy.load('policies/default.yaml')
 matches = match(sim.scenario, cat, policy)          # per-dimension mismatch retained
@@ -415,14 +415,14 @@ Physics is where PYRA earns or loses trust. The rule: PYRA implements only physi
 
 | Tier | What it is | Where it lives | Claim it supports |
 | --- | --- | --- | --- |
-| S0 | Analytic and scaling relations: oxygen-consumption and enthalpy calorimetry, buoyancy-to-flow ratio, mole-to-mass-fraction conversion | `pyra.physics` | Derived quantities with propagated uncertainty |
-| S1 | Reduced-order models: well-mixed compartment, sensor lag, lumped thermal response, optional thin-fuel thermal-theory spread relation | `pyra.physics` | Verified against closed-form solutions; test-bed and hindcast use; no standalone prediction |
+| S0 | Analytic and scaling relations: oxygen-consumption and enthalpy calorimetry, buoyancy-to-flow ratio, mole-to-mass-fraction conversion | `pyrakit.physics` | Derived quantities with propagated uncertainty |
+| S1 | Reduced-order models: well-mixed compartment, sensor lag, lumped thermal response, optional thin-fuel thermal-theory spread relation | `pyrakit.physics` | Verified against closed-form solutions; test-bed and hindcast use; no standalone prediction |
 | S2 | Vehicle-scale CFD with source terms (FDS-type) and custom Python models | External, through an adapter | Model-supported statements inside the validated envelope |
 | S3 | Flame-resolved CFD and research codes (detailed pyrolysis, radiation, chemistry) | External, through an adapter | Mechanism studies; PYRA supplies data, comparison and uncertainty |
 
 NASA's own Saffire work on Cygnus is an S2 precedent: the FDS model uses no flame or combustion properties and instead injects heat and species source terms derived from experimental inlet and outlet measurements (section 21). That is the integration point PYRA targets first.
 
-### 17.2 `pyra.physics` modules and signatures
+### 17.2 `pyrakit.physics` modules and signatures
 
 ```python
 # scaling.py (S0)
@@ -616,7 +616,7 @@ One engine, several interfaces. Arrows show which layer calls which; nothing abo
 ```text
 src/pyra/physics/     scaling.py calorimetry.py zone.py sensor.py spread.py   # S0 and S1
 src/pyra/service/     api.py export_bundle.py                                  # read-only
-src/pyra_edu/         concept_models.py badges.py synthetic_traces.py lint.py
+src/pyrakit.edu/         concept_models.py badges.py synthetic_traces.py lint.py
 content/lessons/      *.yaml  (lesson specs: claims, evidence ids, prompts)
 content/quizzes/      *.yaml
 educator_kit/         plans/ answer_keys/ notebooks/ workshop/

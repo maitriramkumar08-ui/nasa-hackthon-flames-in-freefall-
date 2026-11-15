@@ -83,7 +83,7 @@ def test_generated_api_page_is_up_to_date() -> None:
 
 
 def test_every_public_name_is_documented() -> None:
-    import pyra.provenance as prov
+    import pyrakit.provenance as prov
 
     page = (DOCS / "api.md").read_text(encoding="utf-8")
     missing = [n for n in prov.__all__ if f"`{n}" not in page]
@@ -91,7 +91,7 @@ def test_every_public_name_is_documented() -> None:
 
 
 def test_top_level_exports_exist() -> None:
-    import pyra
+    import pyrakit
 
-    for name in pyra.__all__:
-        assert hasattr(pyra, name), name
+    for name in pyrakit.__all__:
+        assert hasattr(pyrakit, name), name

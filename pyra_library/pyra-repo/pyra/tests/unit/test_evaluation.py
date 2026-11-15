@@ -2,8 +2,8 @@
 
 import pytest
 
-from pyra.compare import evaluate_model
-from pyra.provenance import Quantity, Status
+from pyrakit.compare import evaluate_model
+from pyrakit.provenance import Quantity, Status
 
 SRC = "doi:10.0000/example|synthetic"
 

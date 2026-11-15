@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-import pyra_library as pk
+import pyrakit as pk
 
 run = pk.run_fire_test(
     fuel="PMMA (example label)",
@@ -18,7 +18,7 @@ print(run.summary())
 print("Saved result:", run.save(Path("fire_test_result.json")))
 
 # This compares two values in the same unit with a tolerance chosen for the exercise.
-comparison = pk.compare(
+comparison = pk.compare_values(
     observed=0.20,
     predicted=run.trace.concentration[-1],
     unit="dimensionless",

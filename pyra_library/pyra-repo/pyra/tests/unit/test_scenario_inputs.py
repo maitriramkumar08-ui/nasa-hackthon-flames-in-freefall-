@@ -5,8 +5,8 @@ All values are fictional teaching examples.
 
 import pytest
 
-from pyra.service.playground import PlaybackTimeline, scenario_from_form
-from pyra.service.scenario_inputs import PRESETS, TEACHING_EXAMPLE, FireScenario, ViewSource
+from pyrakit.service.playground import PlaybackTimeline, scenario_from_form
+from pyrakit.service.scenario_inputs import PRESETS, TEACHING_EXAMPLE, FireScenario, ViewSource
 
 
 def form(**overrides: str) -> dict[str, str]:

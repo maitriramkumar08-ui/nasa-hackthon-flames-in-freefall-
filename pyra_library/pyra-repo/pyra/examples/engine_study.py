@@ -13,10 +13,10 @@ import sys
 from pathlib import Path
 from tempfile import mkdtemp
 
-from pyra.adapters import ClaimGateError, EngineCommand, ExternalEngineAdapter
-from pyra.schema import ModelCard, ValidationEvidence
-from pyra.service.scenario_inputs import FireScenario, ViewSource
-from pyra.service.workflow import run_engine_study
+from pyrakit.adapters import ClaimGateError, EngineCommand, ExternalEngineAdapter
+from pyrakit.schema import ModelCard, ValidationEvidence
+from pyrakit.service.scenario_inputs import FireScenario, ViewSource
+from pyrakit.service.workflow import run_engine_study
 
 # The fictional engine used by PYRA's own tests. Replace with your engine's executable.
 ENGINE = Path(__file__).resolve().parents[1] / "tests" / "fixtures" / "fake_engine.py"

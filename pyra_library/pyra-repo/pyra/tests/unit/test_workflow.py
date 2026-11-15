@@ -6,10 +6,10 @@ from typing import Any
 
 import pytest
 
-from pyra.adapters import ClaimGateError, EngineCommand, ExternalEngineAdapter
-from pyra.adapters.external import python_engine_command
-from pyra.schema import Conditions, FuelSpec, Measure, ModelCard, Scenario, ValidationEvidence
-from pyra.service.workflow import run_engine_study
+from pyrakit.adapters import ClaimGateError, EngineCommand, ExternalEngineAdapter
+from pyrakit.adapters.external import python_engine_command
+from pyrakit.schema import Conditions, FuelSpec, Measure, ModelCard, Scenario, ValidationEvidence
+from pyrakit.service.workflow import run_engine_study
 
 ENGINE = Path(__file__).resolve().parents[1] / "fixtures" / "fake_engine.py"
 

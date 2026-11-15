@@ -1,1 +1,0 @@
-"""pyra.derive.events: not yet implemented (architecture section 4, 7)."""

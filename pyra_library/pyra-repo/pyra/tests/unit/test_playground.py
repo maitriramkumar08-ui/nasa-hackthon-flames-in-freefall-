@@ -1,6 +1,6 @@
 import pytest
 
-from pyra import FireScenario, run_fire_test, simulate_fire_scenario
+from pyrakit import FireScenario, run_fire_test, simulate_fire_scenario
 
 
 def test_playground_scenario_outputs_oxygen_trace_and_keeps_scope_explicit() -> None:

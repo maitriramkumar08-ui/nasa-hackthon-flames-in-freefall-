@@ -2,9 +2,9 @@
 
 import json
 
-from pyra import Ledger, LedgerEntry, Quantity
-from pyra.cli import main
-from pyra.provenance import inspect_ledger
+from pyrakit import Ledger, LedgerEntry, Quantity
+from pyrakit.cli import main
+from pyrakit.provenance import inspect_ledger
 
 
 def test_replay_inspects_a_ledger(tmp_path, capsys) -> None:

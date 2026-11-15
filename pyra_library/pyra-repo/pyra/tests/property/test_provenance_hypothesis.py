@@ -8,8 +8,8 @@ pytest.importorskip("hypothesis")
 from hypothesis import given  # noqa: E402
 from hypothesis import strategies as st  # noqa: E402
 
-from pyra.provenance.hashing import sha256_hex  # noqa: E402
-from pyra.provenance.status import Status, join  # noqa: E402
+from pyrakit.provenance.hashing import sha256_hex  # noqa: E402
+from pyrakit.provenance.status import Status, join  # noqa: E402
 
 json_like = st.recursive(
     st.none() | st.booleans() | st.integers(-10**9, 10**9)

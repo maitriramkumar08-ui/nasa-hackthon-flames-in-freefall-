@@ -10,8 +10,8 @@ from pathlib import Path
 
 import pytest
 
-from pyra.provenance.hashing import canonical_bytes, sha256_hex
-from pyra.provenance.status import Status
+from pyrakit.provenance.hashing import canonical_bytes, sha256_hex
+from pyrakit.provenance.status import Status
 
 SRC = str(Path(__file__).resolve().parents[2] / "src")
 
@@ -83,7 +83,7 @@ def test_numpy_arrays_and_scalars() -> None:
 def test_hash_is_stable_across_processes_and_hash_seeds() -> None:
     code = (
         "import sys; sys.path.insert(0, sys.argv[1]);"
-        "from pyra.provenance.hashing import sha256_hex;"
+        "from pyrakit.provenance.hashing import sha256_hex;"
         "print(sha256_hex({'k%d' % i: [i, i / 7, 'v%d' % i] for i in range(20)}))"
     )
     outs = set()

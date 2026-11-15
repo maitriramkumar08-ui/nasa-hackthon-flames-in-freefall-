@@ -23,7 +23,7 @@ git log -5 --oneline
 Python first-program commands:
 
 ```python
-import pyra_library as pk
+import pyrakit as pk
 
 hrr = pk.heat_release(0.21, 0.20, 0.01, 13_100_000, source_ref="doi:10.0000/example|synthetic")
 trace = pk.simulate_decay(1.0, 0.5, 4.0)
@@ -32,7 +32,7 @@ zone = pk.simulate_zone()  # simplified single-zone concentration exercise
 pk.fire_playground()        # editable educational GUI
 quick = pk.compare_values(observed=100, predicted=104, unit="W", tolerance=5)
 
-from pyra_edu import decay_activity
+from pyrakit.edu import decay_activity
 lesson_example = decay_activity()  # fictional trace, clearly labelled
 ```
 
@@ -42,6 +42,6 @@ not rerun an external simulator.
 
 `pyra playground` opens the Fire Playground. Its flame graphic is a schematic; the graph models
 only the simplified well-mixed oxygen balance. Use `compare_values` for a quick same-unit check;
-use `pyra.compare` for evidence, uncertainty, and time-series analysis.
+use `pyrakit.compare` for evidence, uncertainty, and time-series analysis.
 
 Keep this document command-only and copy-pasteable. Put explanations in `docs/usage.md`.

@@ -7,7 +7,7 @@ from typing import Any
 
 import pytest
 
-from pyra.adapters import (
+from pyrakit.adapters import (
     ClaimGateError,
     EnvelopeGatePolicy,
     check_envelope,
@@ -15,8 +15,8 @@ from pyra.adapters import (
     require_in_envelope,
     require_validated,
 )
-from pyra.adapters.envelope import NumericLimit
-from pyra.schema import Conditions, FuelSpec, Measure, ModelCard, Scenario, ValidationEvidence
+from pyrakit.adapters.envelope import NumericLimit
+from pyrakit.schema import Conditions, FuelSpec, Measure, ModelCard, Scenario, ValidationEvidence
 
 EARTH_ENVELOPE: dict[str, Any] = {
     "gravity_g": [0.9, 1.1],

@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from pyra.io import read_psi159_setpoints, read_psi_metadata_zip
+from pyrakit.io import read_psi159_setpoints, read_psi_metadata_zip
 
 DATASETS = Path(__file__).resolve().parents[5] / "datasets"
 

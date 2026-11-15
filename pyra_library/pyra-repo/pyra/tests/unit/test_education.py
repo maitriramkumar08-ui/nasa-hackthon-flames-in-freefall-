@@ -1,4 +1,4 @@
-from pyra_edu import check_lesson, decay_activity, make_decay_trace, status_badge
+from pyrakit.edu import check_lesson, decay_activity, make_decay_trace, status_badge
 
 
 def test_concept_activity_is_labelled_and_has_a_trace() -> None:

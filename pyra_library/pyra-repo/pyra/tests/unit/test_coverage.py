@@ -1,8 +1,8 @@
 """P6 evidence coverage contracts."""
 
-from pyra.coverage import coverage
-from pyra.matching import MatchPolicy
-from pyra.schema import Conditions, ExperimentRecord, FuelSpec, Measure, Scenario, SourceRef
+from pyrakit.coverage import coverage
+from pyrakit.matching import MatchPolicy
+from pyrakit.schema import Conditions, ExperimentRecord, FuelSpec, Measure, Scenario, SourceRef
 
 
 def conditions(gravity: float = 1e-5) -> Conditions:

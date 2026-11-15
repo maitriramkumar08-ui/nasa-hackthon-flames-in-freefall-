@@ -4,9 +4,9 @@ import dataclasses
 
 import pytest
 
-from pyra.provenance.ledger import Ledger, LedgerEntry
-from pyra.provenance.lineage import LineageCycleError, LineageGraph
-from pyra.provenance.status import Provenance, Quantity, Status
+from pyrakit.provenance.ledger import Ledger, LedgerEntry
+from pyrakit.provenance.lineage import LineageCycleError, LineageGraph
+from pyrakit.provenance.status import Provenance, Quantity, Status
 
 
 def prov(artifact_id: str, parents: tuple[str, ...] = ()) -> Provenance:

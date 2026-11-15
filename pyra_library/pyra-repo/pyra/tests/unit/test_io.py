@@ -5,7 +5,7 @@ from datetime import date
 
 import pytest
 
-from pyra.io import (
+from pyrakit.io import (
     FileHashMismatch,
     LocalCSVReader,
     ManifestEntry,

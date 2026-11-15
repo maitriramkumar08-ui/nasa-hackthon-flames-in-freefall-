@@ -12,8 +12,8 @@ After installing PYRA and opening a VS Code terminal in the project folder, run:
 pyra playground
 ```
 
-In Python code, the new short import is `import pyra_library as pk`. The earlier
-`import pyra as pk` form remains supported too.
+In Python code, the new short import is `import pyrakit as pk`. The earlier
+`import pyrakit as pk` form remains supported too.
 
 The window lets you change a fuel label, gravity, oxygen fraction, pressure, temperature, air
 exchange, oxygen sink and duration. Choose a preset or edit the boxes and click **Run scenario**.
@@ -26,7 +26,7 @@ prediction.
 When you want to save or repeat an exercise in a Python file, use the same model directly:
 
 ```python
-import pyra_library as pk
+import pyrakit as pk
 
 scenario = pk.FireScenario(
     fuel="PMMA (example fuel)",
@@ -42,7 +42,7 @@ pk.show_simulation(tuple(zip(trace.time_s, trace.concentration, strict=True)))
 For the same built-in learning model in one function call:
 
 ```python
-import pyra_library as pk
+import pyrakit as pk
 
 run = pk.run_fire_test(
     fuel="PMMA",
@@ -98,7 +98,7 @@ a `.py` file.** In a regular file, keep only the Python code, such as the comple
 Save this as `first.py` in your project folder and click **Run Python File** in VS Code:
 
 ```python
-import pyra_library as pk
+import pyrakit as pk
 
 hrr = pk.heat_release(
     o2_in=0.21,
@@ -116,14 +116,14 @@ If you are typing directly at Python's `>>>` prompt instead of running a file, f
 import line. That line creates the short name `pk`; Python does not know `pk` until you create it:
 
 ```pycon
->>> import pyra_library as pk
+>>> import pyrakit as pk
 >>> hrr = pk.heat_release(0.21, 0.20, 0.01, 13_100_000, source_ref="synthetic-example")
 >>> round(hrr.value), hrr.unit, hrr.status.name
 (1310, 'W', 'DERIVED')
 
 ```
 
-If you see `NameError: name 'pk' is not defined`, run `import pyra_library as pk` first. In a `.py` file,
+If you see `NameError: name 'pk' is not defined`, run `import pyrakit as pk` first. In a `.py` file,
 keep that import at the top of the file. When copying from examples that show `>>>` or `...`, those
 symbols are shell prompts and should not be copied into the file.
 
@@ -157,7 +157,7 @@ You can start with a normal Python file and use a short alias. The heat-release 
 source reference and returns a provenance-aware `Quantity` immediately:
 
 ```python
->>> import pyra_library as pk
+>>> import pyrakit as pk
 >>> hrr = pk.heat_release(
 ...     0.21, 0.20, 0.01, 13_100_000,
 ...     source_ref="doi:10.0000/example|synthetic", n=128, seed=0,
@@ -233,8 +233,8 @@ Small Python models can run behind a `CallableAdapter`. The result is marked `SI
 model-supported claim is refused until the model card contains validation evidence:
 
 ```python
->>> from pyra.adapters import CallableAdapter
->>> from pyra.schema import Conditions, ModelCard, Scenario
+>>> from pyrakit.adapters import CallableAdapter
+>>> from pyrakit.schema import Conditions, ModelCard, Scenario
 >>> card = ModelCard(name="toy", version="1", code_hash="local", licence="MIT", physics_summary="demo")
 >>> adapter = CallableAdapter(card, lambda scenario: {"answer": 42})
 >>> result = adapter.run(Scenario(scenario_id="demo", conditions=Conditions.model_validate({
@@ -272,8 +272,8 @@ scenario in Pa is safe. A categorical axis such as `diluent` takes a string or a
 strings.
 
 ```python
->>> from pyra.adapters import ClaimGateError, check_envelope, require_in_envelope
->>> from pyra.schema import ValidationEvidence
+>>> from pyrakit.adapters import ClaimGateError, check_envelope, require_in_envelope
+>>> from pyrakit.schema import ValidationEvidence
 >>> bench = ModelCard(
 ...     name="bench-flame", version="0.3", code_hash="sha256:demo", licence="MIT",
 ...     physics_summary="fictional bench-scale model",
@@ -314,7 +314,7 @@ The presence-only gate accepts that same microgravity claim, which is exactly wh
 the scenario-aware one:
 
 ```python
->>> from pyra.adapters import require_validated
+>>> from pyrakit.adapters import require_validated
 >>> require_validated(bench)                      # passes: the card has *some* evidence
 >>> try:
 ...     require_in_envelope(bench, microgravity)   # refuses: the evidence stops at 0.9 g
@@ -348,7 +348,7 @@ You can score a model on a set of measured cases when you provide the tolerance 
 explicitly:
 
 ```python
->>> from pyra.compare import evaluate_model
+>>> from pyrakit.compare import evaluate_model
 >>> observations = [pk.measured(10, "kW", source_ref="doi:10.0000/example|case-1"),
 ...                 pk.measured(20, "kW", source_ref="doi:10.0000/example|case-2")]
 >>> predictions = [pk.measured(10.2, "kW", source_ref="model|run-1"),
@@ -374,12 +374,12 @@ For a first comparison of two scalar values already in the same unit, use the qu
 
 `difference` means predicted minus observed. `tolerance` is a limit you choose for the exercise.
 This shortcut does not handle uncertainty, convert between units, align time series, or validate a
-model. Use the evidence-aware `pyra.compare` tools for scientific comparisons.
+model. Use the evidence-aware `pyrakit.compare` tools for scientific comparisons.
 
 ## 4. Quantities carry a status
 
 ```python
->>> from pyra import Quantity, Status
+>>> from pyrakit import Quantity, Status
 >>> p = Quantity.measured(
 ...     101.3, "kPa", 0.5, "type_b",
 ...     source_ref="doi:10.0000/example|sha256:00|row 12",   # placeholder source
@@ -431,7 +431,7 @@ A method can also refuse inputs that are too weak for it:
 ... )
 Traceback (most recent call last):
     ...
-pyra.provenance.status.StatusInputError: heat_release@1: input status SCENARIO exceeds the maximum allowed DERIVED
+pyrakit.provenance.status.StatusInputError: heat_release@1: input status SCENARIO exceeds the maximum allowed DERIVED
 
 ```
 
@@ -452,7 +452,7 @@ False
 The hashing helper is public too. Dictionary order never matters:
 
 ```python
->>> from pyra import sha256_hex
+>>> from pyrakit import sha256_hex
 >>> sha256_hex({"a": 1, "b": 2}) == sha256_hex({"b": 2, "a": 1})
 True
 
@@ -462,7 +462,7 @@ True
 
 ```python
 >>> import pathlib, tempfile
->>> from pyra import Ledger, LedgerEntry, LineageGraph
+>>> from pyrakit import Ledger, LedgerEntry, LineageGraph
 >>> ledger = Ledger(pathlib.Path(tempfile.mkdtemp()) / "ledger.jsonl")
 >>> [ledger.append(LedgerEntry.from_quantity(q)) for q in (p, target, ratio)]
 [True, True, True]
@@ -486,7 +486,7 @@ units of `g0` or a dimensionless multiple of it. The example uses a placeholder 
 fictional conditions:
 
 ```python
->>> from pyra.schema import Conditions, FuelSpec, Measure, Scenario
+>>> from pyrakit.schema import Conditions, FuelSpec, Measure, Scenario
 >>> c = Conditions(
 ...     gravity_g=Measure(value=1e-5, unit="dimensionless", u=1e-6, u_kind="type_a"),
 ...     pressure=Measure(value=101.3, unit="kPa", u=0.1, u_kind="type_b"),
@@ -505,7 +505,7 @@ The oxygen-consumption transform takes the energy per mass of oxygen as an input
 choice of literature value visible in provenance; PYRA does not silently choose one:
 
 ```python
->>> from pyra.physics.calorimetry import hrr_oxygen_consumption
+>>> from pyrakit.physics.calorimetry import hrr_oxygen_consumption
 >>> src = "doi:10.0000/example|sha256:00|synthetic"
 >>> m = lambda value, unit, u: Quantity.measured(value, unit, u, "type_b", source_ref=src)
 >>> hrr = hrr_oxygen_consumption(m(0.21, "dimensionless", 1e-6), m(0.20, "dimensionless", 1e-6),
@@ -525,7 +525,7 @@ transport is injected for offline tests; no PSI file format is guessed by the ge
 ```python
 >>> import hashlib
 >>> from datetime import date
->>> from pyra.io import ManifestEntry, fetch
+>>> from pyrakit.io import ManifestEntry, fetch
 >>> payload = b"time,value\\n0,1\\n"
 >>> entry = ManifestEntry(
 ...     investigation="synthetic", file_pattern="trace.csv", version="1",
@@ -568,7 +568,7 @@ a real `Scenario` where every input carries its unit, and where a known uncertai
 recorded as such:
 
 ```python
->>> from pyra.service.scenario_inputs import FireScenario
+>>> from pyrakit.service.scenario_inputs import FireScenario
 >>> form = FireScenario(oxygen_fraction=0.21, oxygen_uncertainty=0.005, pressure_kpa=101.3)
 >>> built = form.to_scenario("bench-study", purpose="hindcast")
 >>> built.conditions.pressure.value, built.conditions.pressure.unit
@@ -595,7 +595,7 @@ adds `flame_front`, `mesh`, `warnings`, `artifacts` and `assumptions`. Each chan
 its own unit, so an animation axis and a later comparison agree:
 
 ```python
->>> from pyra.simulation import SimulationOutput
+>>> from pyrakit.simulation import SimulationOutput
 >>> run = SimulationOutput.from_dict({
 ...     "scenario_id": "bench-study", "model_card_id": "demo:1", "engine_version": "0.1",
 ...     "time_s": [0.0, 1.0, 2.0],
@@ -665,7 +665,7 @@ is a model output, never evidence.
 
 ## 11. Where to go next
 
-* `docs/api.md`: every public name in `pyra.provenance` with its signature.
+* `docs/api.md`: every public name in `pyrakit.provenance` with its signature.
 * `examples/quickstart.py`: this page as a runnable script.
 * `examples/engine_study.py`: the whole engine flow, runnable without installing anything.
 * `docs/architecture.md`: what PYRA will and will not claim.
@@ -674,7 +674,7 @@ is a model output, never evidence.
 
 1. **Explore:** open `pyra playground`, change one setting at a time, and read the banner that
    says whether you are looking at a drawing, the learning model, or solver output.
-2. **Write a first program:** use `import pyra_library as pk`, named arguments and `print` in a `.py`
+2. **Write a first program:** use `import pyrakit as pk`, named arguments and `print` in a `.py`
    file. Run `examples/complete_fire_test.py`.
 3. **Understand evidence:** learn units, uncertainty, status and source references; then inspect a
    PSI raw-condition record without assuming its sensor values are calibrated.
@@ -682,7 +682,7 @@ is a model output, never evidence.
    `FireScenario.to_scenario(...)`, where every input carries a unit and a known uncertainty.
 5. **Drive a solver:** read section 10.1, then run `examples/engine_study.py`. Learn why the
    validation envelope is checked before the engine starts.
-6. **Analyze:** try `compare_values`, then advance to `pyra.compare`, matching and evidence reports
+6. **Analyze:** try `compare_values`, then advance to `pyrakit.compare`, matching and evidence reports
    with real, sourced records and documented uncertainty.
 
 You can stop after any step and still use the beginner tools. The advanced analysis API remains
@@ -694,7 +694,7 @@ The education package stays deliberately small: a fictional trace, readable resu
 check that lesson material either cites an evidence ID or labels itself as a concept sketch.
 
 ```python
->>> from pyra_edu import decay_activity, check_lesson, status_badge
+>>> from pyrakit.edu import decay_activity, check_lesson, status_badge
 >>> decay_activity(steps=3)["label"]
 'FICTIONAL TEACHING EXAMPLE — NOT A FIRE MODEL'
 >>> check_lesson(title="Exponential curves", concept_sketch=True).ok

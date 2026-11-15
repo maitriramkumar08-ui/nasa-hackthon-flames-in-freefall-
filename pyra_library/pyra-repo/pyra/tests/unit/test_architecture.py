@@ -1,8 +1,8 @@
 """Import-boundary tests for the dependency direction in architecture sections 4 and 19.
 
 * Lower layers never import higher layers (core never imports adapters, report, service, cli).
-* Nothing in `pyra` imports `pyra_edu`.
-* `pyra_edu` may import only `pyra.service` from `pyra`.
+* Nothing in `pyrakit` imports `pyrakit.edu`.
+* `pyrakit.edu` may import only `pyrakit.service` from the core.
 """
 
 from __future__ import annotations
@@ -71,7 +71,7 @@ def test_every_subpackage_has_a_layer() -> None:
 
 def test_lower_layers_do_not_import_higher_layers() -> None:
     violations = []
-    for path in _files("pyra"):
+    for path in _files("pyrakit"):
         module, _ = _module_name(path)
         mine = _subpackage(module)
         if mine is None:
@@ -85,23 +85,24 @@ def test_lower_layers_do_not_import_higher_layers() -> None:
 
 def test_core_never_imports_education_package() -> None:
     violations = []
-    for path in _files("pyra"):
+    for path in _files("pyrakit"):
+        if "edu" in path.relative_to(SRC).parts:
+            continue
         module, _ = _module_name(path)
         for target in _imports(path):
-            if target == "pyra_edu" or target.startswith("pyra_edu."):
+            if target == "pyrakit.edu" or target.startswith("pyrakit.edu."):
                 violations.append(f"{module} imports {target}")
     assert not violations, violations
 
 
 def test_education_package_uses_only_the_service_layer() -> None:
     violations = []
-    for path in _files("pyra_edu"):
+    for path in _files("pyrakit.edu"):
         module, _ = _module_name(path)
         for target in _imports(path):
             if (
-                (target == "pyra" or target.startswith("pyra."))
-                and target != "pyra"
-                and not target.startswith("pyra.service")
+                target.startswith("pyrakit.")
+                and not target.startswith("pyrakit.service")
             ):
                 violations.append(f"{module} imports {target}")
     assert not violations, violations

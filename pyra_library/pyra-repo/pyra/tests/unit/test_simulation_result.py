@@ -8,8 +8,8 @@ from typing import Any
 
 import pytest
 
-from pyra.provenance import Quantity, Status
-from pyra.simulation import Channel, FlameFront, MeshInfo, SimulationOutput
+from pyrakit.provenance import Quantity, Status
+from pyrakit.simulation import Channel, FlameFront, MeshInfo, SimulationOutput
 
 
 def output(**overrides: Any) -> SimulationOutput:

@@ -1,8 +1,8 @@
 import pytest
 from pydantic import ValidationError
 
-from pyra.io import PSI159Setpoints, psi159_condition_record
-from pyra.schema import PSIConditionRecord
+from pyrakit.io import PSI159Setpoints, psi159_condition_record
+from pyrakit.schema import PSIConditionRecord
 
 
 def test_psi159_condition_record_preserves_raw_values() -> None:

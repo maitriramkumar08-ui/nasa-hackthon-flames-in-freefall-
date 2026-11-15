@@ -9,8 +9,8 @@ from typing import Any
 
 import pytest
 
-from pyra.adapters import ClaimGateError
-from pyra.adapters.external import (
+from pyrakit.adapters import ClaimGateError
+from pyrakit.adapters.external import (
     CONTRACT_VERSION,
     EngineCommand,
     EngineFailedError,
@@ -20,8 +20,8 @@ from pyra.adapters.external import (
     python_engine_command,
     scenario_payload,
 )
-from pyra.provenance import Status
-from pyra.schema import Conditions, FuelSpec, Measure, ModelCard, Scenario, ValidationEvidence
+from pyrakit.provenance import Status
+from pyrakit.schema import Conditions, FuelSpec, Measure, ModelCard, Scenario, ValidationEvidence
 
 ENGINE = Path(__file__).resolve().parents[1] / "fixtures" / "fake_engine.py"
 
@@ -120,7 +120,7 @@ def test_the_scenario_actually_reaches_the_engine() -> None:
 
 
 def test_a_run_round_trips_through_json_for_reproducibility(tmp_path: Path) -> None:
-    from pyra.simulation import SimulationOutput
+    from pyrakit.simulation import SimulationOutput
 
     run = adapter().run(scenario())
     restored = SimulationOutput.load(run.save(tmp_path / "run.json"))
@@ -205,7 +205,7 @@ def test_a_cancelled_run_stops_promptly_instead_of_waiting_for_the_timeout() -> 
     import threading
     import time
 
-    from pyra.adapters import EngineCancelled
+    from pyrakit.adapters import EngineCancelled
 
     gated = adapter(None, "--hang", timeout_s=30.0)
     cancel = threading.Event()
@@ -220,7 +220,7 @@ def test_a_cancelled_run_stops_promptly_instead_of_waiting_for_the_timeout() -> 
 def test_a_run_cancelled_before_it_starts_never_reaches_the_engine() -> None:
     import threading
 
-    from pyra.adapters import EngineCancelled
+    from pyrakit.adapters import EngineCancelled
 
     cancel = threading.Event()
     cancel.set()

@@ -8,7 +8,7 @@ limitations:
   - "List conditions or observables outside the model's evidence."
 
 # Each envelope entry records one validation comparison AND the conditions it spans.
-# `pyra.adapters.require_in_envelope` reads these limits to decide whether a given
+# `pyrakit.adapters.require_in_envelope` reads these limits to decide whether a given
 # scenario is covered, so they must describe where the evidence actually is -- not
 # where you hope the model works. An entry with an empty `envelope` mapping never
 # covers any scenario.

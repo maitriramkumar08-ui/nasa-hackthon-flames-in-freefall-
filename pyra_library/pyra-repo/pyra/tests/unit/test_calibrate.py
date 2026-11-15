@@ -2,7 +2,7 @@
 
 import pytest
 
-from pyra.uq import bootstrap_mean
+from pyrakit.uq import bootstrap_mean
 
 
 def test_bootstrap_mean_is_seeded_and_bounded() -> None:

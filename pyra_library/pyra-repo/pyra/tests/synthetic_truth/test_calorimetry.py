@@ -1,11 +1,11 @@
 """Synthetic truth checks for the S0 calorimetry transforms."""
 
-from pyra.physics.calorimetry import (
+from pyrakit.physics.calorimetry import (
     hrr_enthalpy_balance,
     hrr_oxygen_consumption,
     species_generation,
 )
-from pyra.provenance import Quantity
+from pyrakit.provenance import Quantity
 
 SRC = "doi:10.0000/example|file-sha256:00|synthetic"
 

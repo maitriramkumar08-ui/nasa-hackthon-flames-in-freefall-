@@ -1,6 +1,6 @@
 import pytest
 
-from pyra.physics.zone import simulate_zone
+from pyrakit.physics.zone import simulate_zone
 
 
 def test_zone_no_exchange_has_linear_source_solution() -> None:

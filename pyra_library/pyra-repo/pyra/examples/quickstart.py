@@ -3,7 +3,7 @@
 import tempfile
 from pathlib import Path
 
-from pyra import Ledger, LedgerEntry, LineageGraph, Quantity, Status
+from pyrakit import Ledger, LedgerEntry, LineageGraph, Quantity, Status
 
 pressure = Quantity.measured(
     101.3, "kPa", 0.5, "type_b",

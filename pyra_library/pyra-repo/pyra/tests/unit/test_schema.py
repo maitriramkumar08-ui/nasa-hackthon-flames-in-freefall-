@@ -2,7 +2,7 @@
 
 import pytest
 
-from pyra.schema import Conditions, FuelSpec, Measure, ModelCard, Scenario, SourceRef
+from pyrakit.schema import Conditions, FuelSpec, Measure, ModelCard, Scenario, SourceRef
 
 
 def conditions() -> Conditions:

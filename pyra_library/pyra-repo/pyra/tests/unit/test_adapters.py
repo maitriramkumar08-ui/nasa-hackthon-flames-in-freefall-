@@ -2,9 +2,9 @@
 
 import pytest
 
-from pyra.adapters import CallableAdapter, ClaimGateError, require_validated
-from pyra.provenance import Status
-from pyra.schema import Conditions, FuelSpec, Measure, ModelCard, Scenario, ValidationEvidence
+from pyrakit.adapters import CallableAdapter, ClaimGateError, require_validated
+from pyrakit.provenance import Status
+from pyrakit.schema import Conditions, FuelSpec, Measure, ModelCard, Scenario, ValidationEvidence
 
 
 def conditions() -> Conditions:

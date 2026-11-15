@@ -14,7 +14,7 @@ pyra playground
 Then create a Python file and use the friendly import:
 
 ```python
-import pyra_library as pk
+import pyrakit as pk
 
 result = pk.heat_release(
     0.21, 0.20, 0.01, 13_100_000,
@@ -32,9 +32,9 @@ above are illustrative, not research data.
 - `pk.playground()` opens the same Fire Playground as `pyra playground`.
 - `pk.run_fire_test(...)` runs the built-in oxygen-only learning simulation and returns a summary
   plus a `run.show()` graph.
-- `pk.compare(...)` compares two values already in the same unit using a tolerance you choose.
+- `pk.compare_values(...)` compares two values already in the same unit using a tolerance you choose.
 - `pk.simulate_zone()` returns the simple, assumption-labeled concentration exercise.
-- `from pyra_edu import decay_activity` creates a fictional trace for a classroom exercise.
+- `from pyrakit.edu import decay_activity` creates a fictional trace for a classroom exercise.
 
 Change one input at a time. Read the model assumptions before interpreting the graph. The current
 Fire Playground's flame is a schematic; the graph does not model fuel combustion or flame shape.
@@ -42,7 +42,7 @@ Fire Playground's flame is a schematic; the graph does not model fuel combustion
 ## 3. Analyst: work with sourced evidence
 
 Learn `Quantity`, `Status`, units, uncertainty, source references, PSI raw condition records, and
-manifest-based file hashes. Use `pyra.compare` when two numeric values are not enough and you need
+manifest-based file hashes. Use `pyrakit.compare` when two numeric values are not enough and you need
 uncertainty, units, time-series alignment, or case-by-case evaluation. Preserve the data source and
 write down what was calibrated versus what remains a raw instrument reading.
 
@@ -56,6 +56,6 @@ improvement before PYRA makes model-supported claims.
 
 ## Friendly and full import names
 
-For a short first program, use `import pyra_library as pk`. The original `import pyra as pk` import
+For a short first program, use `import pyrakit as pk`. The original `import pyrakit as pk` import
 continues to work. Advanced modules remain available under `pyra`, for example
-`from pyra.compare import evaluate_model` or `from pyra.schema import Conditions, Scenario`.
+`from pyrakit.compare import evaluate_model` or `from pyrakit.schema import Conditions, Scenario`.

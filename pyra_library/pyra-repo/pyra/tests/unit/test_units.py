@@ -2,7 +2,7 @@
 
 import pytest
 
-from pyra.units import quantity, require_compatible, unit
+from pyrakit.units import quantity, require_compatible, unit
 
 
 def test_domain_units_parse() -> None:

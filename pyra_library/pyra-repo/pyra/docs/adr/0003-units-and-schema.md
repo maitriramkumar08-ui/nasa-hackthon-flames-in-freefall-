@@ -13,7 +13,7 @@ being represented as an exact zero.
 
 ## Decision
 
-Use a shared Pint `UnitRegistry` in `pyra.units`, with `g0` and `mole_fraction` domain units. Use a
+Use a shared Pint `UnitRegistry` in `pyrakit.units`, with `g0` and `mole_fraction` domain units. Use a
 small pydantic `Measure` model inside `Conditions`, `FuelSpec`, and experiment metadata. A measure
 must declare either a non-negative standard uncertainty and its kind, or `u_kind="unknown"` with
 `u=None`. Conditions validate dimensionality and oxygen fraction bounds at construction time.

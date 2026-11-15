@@ -4,13 +4,13 @@ import json
 
 import pytest
 
-from pyra.provenance.ledger import (
+from pyrakit.provenance.ledger import (
     Ledger,
     LedgerConflictError,
     LedgerCorruptError,
     LedgerEntry,
 )
-from pyra.provenance.status import Quantity, Status
+from pyrakit.provenance.status import Quantity, Status
 
 
 def make_chain() -> tuple[Quantity, Quantity]:

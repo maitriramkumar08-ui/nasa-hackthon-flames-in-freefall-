@@ -5,7 +5,7 @@ import itertools
 
 import pytest
 
-from pyra.provenance.status import (
+from pyrakit.provenance.status import (
     Quantity,
     Status,
     StatusError,

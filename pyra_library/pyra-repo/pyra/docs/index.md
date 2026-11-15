@@ -4,7 +4,7 @@ Fire-only Python library connecting NASA microgravity combustion evidence to spa
 simulations. Every number carries a status (Measured, Derived, Simulated, Scenario, Interpretation).
 
 ```python
-from pyra import Quantity, Status, Ledger, LedgerEntry, LineageGraph
+from pyrakit import Quantity, Status, Ledger, LedgerEntry, LineageGraph
 ```
 
 * [Installation](installation.md): install from a checkout and check the import.

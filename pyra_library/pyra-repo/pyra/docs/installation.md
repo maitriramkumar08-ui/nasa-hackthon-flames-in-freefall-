@@ -16,12 +16,12 @@ placeholders until their packages are chosen (see `TODO(verify)` in `pyproject.t
 Check that it works:
 
 ```bash
-python -c "import pyra; print(pyra.__version__)"
+python -c "import pyrakit; print(pyrakit.__version__)"
 python examples/quickstart.py
 pytest
 ```
 
-The provenance layer (`pyra.provenance`, everything in the quickstart) uses only the Python
+The provenance layer (`pyrakit.provenance`, everything in the quickstart) uses only the Python
 standard library, so it works before the heavier dependencies are installed.
 
 !!! note "Status"

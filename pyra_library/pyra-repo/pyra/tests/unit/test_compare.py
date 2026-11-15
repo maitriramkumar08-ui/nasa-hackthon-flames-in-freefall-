@@ -2,8 +2,8 @@
 
 import pytest
 
-from pyra.compare import bias, first_order_lag, relative_difference, z_score
-from pyra.provenance import Quantity
+from pyrakit.compare import bias, first_order_lag, relative_difference, z_score
+from pyrakit.provenance import Quantity
 
 SRC = "doi:10.0000/example|synthetic"
 

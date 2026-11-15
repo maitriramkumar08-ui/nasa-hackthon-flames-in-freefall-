@@ -4,7 +4,7 @@ import itertools
 
 import pytest
 
-from pyra.provenance.status import Status, StatusInputError, enforce_max_input_status, join
+from pyrakit.provenance.status import Status, StatusInputError, enforce_max_input_status, join
 
 ALL = list(Status)
 

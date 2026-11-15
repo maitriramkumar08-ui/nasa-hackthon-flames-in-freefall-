@@ -1,7 +1,7 @@
 """P12 report contracts."""
 
-from pyra.provenance import Quantity
-from pyra.report import build_report
+from pyrakit.provenance import Quantity
+from pyrakit.report import build_report
 
 
 def test_report_contains_status_and_artifact_id(tmp_path) -> None:

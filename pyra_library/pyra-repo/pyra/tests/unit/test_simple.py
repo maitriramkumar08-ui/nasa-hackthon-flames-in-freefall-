@@ -1,6 +1,6 @@
 """Beginner-facing convenience API tests."""
 
-from pyra import compare_values, heat_release, simulate_decay
+from pyrakit import compare_values, heat_release, simulate_decay
 
 
 def test_simple_heat_release_keeps_derived_status() -> None:

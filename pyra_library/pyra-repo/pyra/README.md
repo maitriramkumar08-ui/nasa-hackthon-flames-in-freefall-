@@ -23,7 +23,7 @@ by NASA or any programme named in its materials.
 ## A first calculation
 
 ```python
-import pyra_library as pk
+import pyrakit as pk
 
 hrr = pk.heat_release(
     0.21, 0.20, 0.01, 13_100_000,
@@ -38,11 +38,11 @@ For a local visual demo, run `pyra simulate --window`. For machine-readable outp
 For an explicitly simplified run that returns a summary and can save its results, use
 `pk.run_fire_test(...)`. `run.show()` opens its graph and `run.save("fire_run.json")` saves inputs,
 assumptions, and the trace. This remains an educational oxygen-balance model, not a flame solver.
-For classroom examples, `pyra_edu.decay_activity()` returns a fictional trace labelled as a
+For classroom examples, `pyrakit.edu.decay_activity()` returns a fictional trace labelled as a
 concept sketch.
 
-For the friendly import surface, use `pyra_library`; the complete advanced API remains available
-as `pyra` (for example, `from pyra.compare import evaluate_model`).
+For the friendly import surface, use `pyrakit`; the complete advanced API remains available
+as `pyra` (for example, `from pyrakit.compare import evaluate_model`).
 
 ## Install and explore
 

@@ -1,7 +1,7 @@
 """P5 matching contracts."""
 
-from pyra.matching import MatchPolicy, match_conditions, pareto_front
-from pyra.schema import Conditions, FuelSpec, Measure
+from pyrakit.matching import MatchPolicy, match_conditions, pareto_front
+from pyrakit.schema import Conditions, FuelSpec, Measure
 
 
 def conditions(*, configuration="concurrent", gravity=1e-5, fuel="PMMA") -> Conditions:

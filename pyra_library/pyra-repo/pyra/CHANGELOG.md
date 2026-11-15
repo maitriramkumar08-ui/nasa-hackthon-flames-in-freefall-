@@ -2,18 +2,18 @@
 
 ## Unreleased
 
-- Added `pyra.simulation`, the contract an external engine reports through: a seconds time
+- Added `pyrakit.simulation`, the contract an external engine reports through: a seconds time
   base, channels tagged with Pint-parsable units, optional flame-front geometry and mesh
   information, engine warnings, and output file locations. Structural mistakes (a channel
   length that does not match the time base, an unparsable unit, a time base that does not
   increase) are refused with a specific message rather than surfacing halfway through a plot.
-- Added `pyra.adapters.ExternalEngineAdapter`, which runs a locally installed engine as a
+- Added `pyrakit.adapters.ExternalEngineAdapter`, which runs a locally installed engine as a
   child process over that contract. PYRA takes no dependency on any engine, so one can be
   written in any language and swapped freely. Runs are cancellable and time-bounded, and a
   cancelled engine is killed and reaped. `run()` explores; `run_supported()` additionally
   requires the scenario to fall inside the model card's recorded envelope, checked before
   the engine starts.
-- Added `pyra.service.workflow.run_engine_study`, one call that gates, runs, writes the
+- Added `pyrakit.service.workflow.run_engine_study`, one call that gates, runs, writes the
   scenario beside the output so the run can be reproduced, and optionally compares a channel
   against a measurement in that channel's own unit.
 - Extended the Playground scenario form into typed fields covering flow, fuel geometry,
@@ -26,7 +26,7 @@
 - Fixed a confusing `ImportError` when a local directory named `pyra` shadows the installed
   library; the error now names the shadowing directory and says how to avoid it.
 
-- Added a scenario-aware claim gate. `pyra.adapters.require_in_envelope(card, scenario)` and
+- Added a scenario-aware claim gate. `pyrakit.adapters.require_in_envelope(card, scenario)` and
   `check_envelope(...)` read the limits recorded on each model-card evidence entry and refuse a
   claim whose conditions fall outside them, axis by axis, with unit conversion. The previous
   `require_validated(card)` remains but is only a presence check: it accepts an Earth-gravity-only

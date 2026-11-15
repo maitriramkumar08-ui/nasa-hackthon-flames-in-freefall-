@@ -2,8 +2,8 @@
 
 import json
 
-import pyra.cli as cli
-from pyra.cli import main
+import pyrakit.cli as cli
+from pyrakit.cli import main
 
 
 def test_demo_command_prints_json(capsys) -> None:
