@@ -273,6 +273,13 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
 * class `SimulationOutput`
   One engine run: its identity, its time base, and everything it produced.
 
+## Module `pyra.service.workflow`
+
+* class `EngineStudy`
+  Everything one engine study produced, kept together so it can be reproduced.
+* `run_engine_study(adapter: ExternalEngineAdapter, scenario: Scenario, *, require_support: bool = True, save_to: str | Path | None = None, compare_channel: str | None = None, observed: float | None = None, tolerance: float | None = None, cancel: Event | None = None) -> EngineStudy`
+  Run one engine study and keep its scenario, output, gate result and comparison.
+
 ## Module `pyra.report`
 
 * `build_report(items: Iterable[Any], out: Path, *, title: str = 'PYRA report') -> Path`

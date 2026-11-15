@@ -369,9 +369,7 @@ def fire_playground() -> None:  # pragma: no cover - interactive window
         x = 20 + (front.position_m[index] / span) * 280
         flame.create_line(20, 150, 300, 150, fill="#6f7a99")
         flame.create_oval(x - 12, 108, x + 12, 152, fill="#ff8c32", outline="")
-        flame.create_text(
-            160, 18, text="solver flame front", fill="white", font=("Segoe UI", 10)
-        )
+        flame.create_text(160, 18, text="solver flame front", fill="white", font=("Segoe UI", 10))
         flame.create_text(
             160,
             40,
@@ -425,9 +423,7 @@ def fire_playground() -> None:  # pragma: no cover - interactive window
             highlight=index,
         )
         draw_front(output, index)
-        frame_label.set(
-            f"t = {output.time_s[index]:.3g} s  ({index + 1}/{timeline.frames})"
-        )
+        frame_label.set(f"t = {output.time_s[index]:.3g} s  ({index + 1}/{timeline.frames})")
 
     slider.configure(command=lambda _value: refresh_frame())
 

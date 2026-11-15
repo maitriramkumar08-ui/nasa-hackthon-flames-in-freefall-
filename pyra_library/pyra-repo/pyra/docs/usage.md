@@ -539,20 +539,150 @@ True
 
 ```
 
+## 10.1 Connecting a real simulation engine
+
+PYRA does not contain a flame solver, and it never imports one. An engine runs as a
+separate program, and PYRA talks to it over a documented JSON contract. That means an
+engine can be written in any language, installed separately, and swapped without changing
+PYRA.
+
+### The three kinds of picture
+
+The Playground can show three different things, and they are not interchangeable:
+
+| What you see | Where it came from | What it is worth |
+| --- | --- | --- |
+| Schematic flame | A drawing | Nothing was computed. It does not respond to any setting. |
+| Oxygen curve | PYRA's learning model | A well-mixed oxygen balance. Not a flame solver. |
+| Solver output | An external engine | Depends entirely on that engine's model card and envelope. |
+
+Every view in the window carries a banner naming which of the three it is, and the
+schematic flame is replaced by real geometry only when an engine actually returns a flame
+front. In code the same three are `ViewSource.SCHEMATIC`, `ViewSource.LEARNING_MODEL` and
+`ViewSource.SOLVER`.
+
+### From the beginner form to a validated scenario
+
+The Playground's fields are plain numbers. `FireScenario.to_scenario(...)` turns them into
+a real `Scenario` where every input carries its unit, and where a known uncertainty is
+recorded as such:
+
+```python
+>>> from pyra.service.scenario_inputs import FireScenario
+>>> form = FireScenario(oxygen_fraction=0.21, oxygen_uncertainty=0.005, pressure_kpa=101.3)
+>>> built = form.to_scenario("bench-study", purpose="hindcast")
+>>> built.conditions.pressure.value, built.conditions.pressure.unit
+(101.3, 'kPa')
+>>> built.conditions.o2_mole_fraction.u, built.conditions.o2_mole_fraction.u_kind
+(0.005, 'type_b')
+
+```
+
+Leaving an uncertainty out records "not known", which is different from zero:
+
+```python
+>>> unknown = FireScenario().to_scenario("no-uncertainty")
+>>> unknown.conditions.o2_mole_fraction.u, unknown.conditions.o2_mole_fraction.u_kind
+(None, 'unknown')
+
+```
+
+### What an engine must return
+
+An engine reads the scenario on stdin and writes a JSON object on stdout with
+`scenario_id`, `model_card_id`, `engine_version`, `time_s` and `channels`. Optionally it
+adds `flame_front`, `mesh`, `warnings`, `artifacts` and `assumptions`. Each channel names
+its own unit, so an animation axis and a later comparison agree:
+
+```python
+>>> from pyra.simulation import SimulationOutput
+>>> run = SimulationOutput.from_dict({
+...     "scenario_id": "bench-study", "model_card_id": "demo:1", "engine_version": "0.1",
+...     "time_s": [0.0, 1.0, 2.0],
+...     "channels": {"hrr": {"unit": "kW", "long_name": "Heat release rate",
+...                          "values": [0.0, 4.0, 6.0]}},
+... })
+>>> run.channel("hrr").label
+'Heat release rate [kW]'
+>>> run.duration_s, run.sample_at(1.6)
+(2.0, 2)
+
+```
+
+Structural mistakes are refused here rather than halfway through a plot. A channel whose
+length does not match the time base, a unit that does not parse, or a time base that does
+not increase all raise `ValueError` naming the problem.
+
+### Running a whole study in one call
+
+`run_engine_study` is the coordinating function: it checks the validation envelope, runs
+the engine, keeps the scenario beside the output so the run can be reproduced, and
+optionally compares a channel against a measurement.
+
+```text
+python examples/engine_study.py
+```
+
+That example is runnable as-is, because it drives the fictional engine from PYRA's own
+test suite. Its numbers are meaningless by construction. Point it at a real executable and
+supply a real model card to do actual work.
+
+The call looks like this. Note that `save_to` writes the scenario *and* the output side by
+side, because an output without the scenario that produced it cannot be reproduced:
+
+```python
+study = run_engine_study(
+    adapter,
+    scenario,
+    save_to="runs/bench-study",
+    compare_channel="hrr",
+    observed=2.0,
+    tolerance=0.5,
+)
+print(study.summary())
+```
+
+The order matters: the envelope is checked **before** the engine starts, so an unsupported
+study fails immediately instead of after a long solve. Exploring outside the envelope is
+still allowed with `require_support=False`, and the summary then says plainly that it
+happened, printing `Validation envelope: not checked. This run is exploration only and
+cannot support a claim about these conditions.`
+
+### Before you wire up your friend's engine
+
+Four things are needed from whoever wrote it, and none of them is optional:
+
+1. **How to run it** — the executable, and whether it needs a subcommand or config flag.
+2. **Its output format** — if it does not already speak PYRA's contract, a small wrapper
+   script that converts its native output is usually a few dozen lines.
+3. **Its licence** — recorded on the model card, because it governs what you may publish.
+4. **Its validation envelope** — the conditions it was actually compared against. Without
+   this, PYRA will run the engine for exploration but will refuse to call any result
+   supported, which is the correct behaviour rather than an obstacle.
+
+Until all four exist, keep the engine in exploration mode. A result labelled `SIMULATED`
+is a model output, never evidence.
+
 ## 11. Where to go next
 
 * `docs/api.md`: every public name in `pyra.provenance` with its signature.
 * `examples/quickstart.py`: this page as a runnable script.
+* `examples/engine_study.py`: the whole engine flow, runnable without installing anything.
 * `docs/architecture.md`: what PYRA will and will not claim.
 
 ## Learning path
 
-1. **Explore:** open `pyra playground`, change one setting at a time and distinguish displayed
-   scenario fields from values used in the simple concentration calculation.
-2. **Write a first program:** use `import pyra_library as pk`, named arguments and `print` in a `.py` file.
+1. **Explore:** open `pyra playground`, change one setting at a time, and read the banner that
+   says whether you are looking at a drawing, the learning model, or solver output.
+2. **Write a first program:** use `import pyra_library as pk`, named arguments and `print` in a `.py`
+   file. Run `examples/complete_fire_test.py`.
 3. **Understand evidence:** learn units, uncertainty, status and source references; then inspect a
    PSI raw-condition record without assuming its sensor values are calibrated.
-4. **Analyze:** try `compare_values`, then advance to `pyra.compare`, matching and evidence reports
+4. **Make the scenario real:** move from the flat beginner form to a validated scenario with
+   `FireScenario.to_scenario(...)`, where every input carries a unit and a known uncertainty.
+5. **Drive a solver:** read section 10.1, then run `examples/engine_study.py`. Learn why the
+   validation envelope is checked before the engine starts.
+6. **Analyze:** try `compare_values`, then advance to `pyra.compare`, matching and evidence reports
    with real, sourced records and documented uncertainty.
 
 You can stop after any step and still use the beginner tools. The advanced analysis API remains

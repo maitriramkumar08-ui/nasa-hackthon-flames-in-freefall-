@@ -57,6 +57,20 @@ def test_envelope_gate_example_runs_and_refuses_the_out_of_envelope_claim() -> N
     assert "records no envelope limits" in res.stdout
 
 
+def test_engine_study_example_runs_the_whole_flow() -> None:
+    res = subprocess.run(
+        [sys.executable, str(ROOT / "examples" / "engine_study.py")],
+        capture_output=True,
+        text=True,
+        check=True,
+        env={"PYTHONPATH": str(ROOT / "src"), "PATH": ""},
+    )
+    assert "Validation envelope: covered by fictional-bench-01" in res.stdout
+    assert "Refused, correctly:" in res.stdout
+    assert "exploration only" in res.stdout
+    assert "scenario.json" in res.stdout and "simulation_output.json" in res.stdout
+
+
 def test_generated_api_page_is_up_to_date() -> None:
     script = ROOT / "scripts" / "gen_api_docs.py"
     spec = importlib.util.spec_from_file_location("gen_api_docs", script)

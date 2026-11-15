@@ -23,6 +23,7 @@ import pyra.provenance as prov  # noqa: E402
 import pyra.report as report  # noqa: E402
 import pyra.schema as schema  # noqa: E402
 import pyra.service as service  # noqa: E402
+import pyra.service.workflow as workflow  # noqa: E402
 import pyra.simulation as simulation  # noqa: E402
 import pyra.units as units  # noqa: E402
 import pyra.uq as uq  # noqa: E402
@@ -98,6 +99,7 @@ def render() -> str:
         (compare, "pyra.compare"),
         (adapters, "pyra.adapters"),
         (simulation, "pyra.simulation"),
+        (workflow, "pyra.service.workflow"),
         (report, "pyra.report"),
         (service, "pyra.service"),
         (calorimetry, "pyra.physics.calorimetry"),
