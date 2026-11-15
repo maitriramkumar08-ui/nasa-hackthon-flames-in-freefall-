@@ -221,14 +221,28 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
 
 ## Module `pyra.adapters`
 
+* class `AxisCheck`
+  Whether one scenario axis falls inside one recorded limit.
 * class `CallableAdapter`
   Run a user-supplied function without importing any simulator package.
 * class `ClaimGateError`
   Raised when a model-supported claim lacks validation evidence.
+* class `EnvelopeCheck`
+  The result of checking one scenario against one model card's envelope.
+* class `EnvelopeGatePolicy`
+  Which axes a model card must declare before a scenario can be called covered.
+* class `EvidenceCheck`
+  How one validation-evidence entry relates to one scenario.
 * class `SimulationResult`
   A simulator output bundle with an explicit SIMULATED status.
+* `check_envelope(card: ModelCard, scenario: Scenario, *, policy: EnvelopeGatePolicy | None = None) -> EnvelopeCheck`
+  Report whether one scenario falls inside a model card's recorded envelope.
+* `parse_envelope(envelope: Mapping[str, Any]) -> tuple[Limit, ...]`
+  Read one evidence entry's ``envelope`` mapping into typed, unit-resolved limits.
+* `require_in_envelope(card: ModelCard, scenario: Scenario, *, policy: EnvelopeGatePolicy | None = None) -> EnvelopeCheck`
+  Refuse a model-supported claim unless the scenario sits inside the envelope.
 * `require_validated(card: ModelCard) -> None`
-  Refuse a model-supported claim when its envelope is empty.
+  Refuse a model-supported claim when the card records no validation evidence.
 
 ## Module `pyra.report`
 

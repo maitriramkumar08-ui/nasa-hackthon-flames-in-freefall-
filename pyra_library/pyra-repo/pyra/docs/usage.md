@@ -252,6 +252,96 @@ model-supported claim is refused until the model card contains validation eviden
 The callable adapter is a development and test boundary; it does not validate a model or make a
 prediction outside a registered evidence envelope.
 
+### 2.1 Checking a scenario against the model's validation envelope
+
+There are two different gates, and the difference matters.
+
+`require_validated(card)` asks only **"did anyone record any validation evidence at all?"** That is
+a presence check. A model tested only on an Earth-gravity laboratory bench passes it even when you
+ask about a microgravity flame.
+
+`require_in_envelope(card, scenario)` asks the question you usually mean: **"does the recorded
+evidence actually cover these conditions?"** It reads the limits written on each evidence entry and
+compares them with your scenario one variable at a time.
+
+The limits live in each evidence entry's `envelope` dictionary. Each key is an *axis* — one
+variable the evidence was gathered over. A numeric axis takes either a `[min, max]` pair, or a
+`{"min": ..., "max": ..., "unit": ...}` mapping when you want to write the limits in a convenient
+unit. PYRA converts the limits before comparing, so recording pressure in kPa and holding the
+scenario in Pa is safe. A categorical axis such as `diluent` takes a string or a list of allowed
+strings.
+
+```python
+>>> from pyra.adapters import ClaimGateError, check_envelope, require_in_envelope
+>>> from pyra.schema import ValidationEvidence
+>>> bench = ModelCard(
+...     name="bench-flame", version="0.3", code_hash="sha256:demo", licence="MIT",
+...     physics_summary="fictional bench-scale model",
+...     envelope=[ValidationEvidence(
+...         experiment_ids=["fictional-bench-01"],
+...         quantity="flame_length", metric="bias", result={"bias": 0.0},
+...         envelope={"gravity_g": [0.9, 1.1],
+...                   "o2_mole_fraction": [0.18, 0.25],
+...                   "pressure": {"min": 95, "max": 105, "unit": "kPa"}},
+...     )],
+... )
+>>> def at_gravity(scenario_id, gravity_g):
+...     return Scenario(scenario_id=scenario_id, conditions=Conditions.model_validate({
+...         "gravity_g": {"value": gravity_g, "unit": "dimensionless"},
+...         "pressure": {"value": 101.3, "unit": "kPa"},
+...         "o2_mole_fraction": {"value": 0.21, "unit": "dimensionless"},
+...         "diluent": "nitrogen", "flow_mode": "forced", "fuel": {"material": "PMMA"},
+...         "configuration": "concurrent", "length_scale": {"value": 0.02, "unit": "m"},
+...     }))
+
+```
+
+An Earth-gravity scenario sits inside this envelope; a microgravity one does not:
+
+```python
+>>> check_envelope(bench, at_gravity("earth-bench", 1.0)).inside
+True
+>>> microgravity = at_gravity("microgravity-demo", 0.00001)
+>>> check_envelope(bench, microgravity).inside
+False
+>>> check_envelope(bench, microgravity).reasons()[0]
+"evidence for 'flame_length' (bias) from fictional-bench-01 does not reach this
+ scenario: gravity_g is 1e-05 dimensionless, outside the recorded 0.9 to 1.1 dimensionless"
+
+```
+
+The presence-only gate accepts that same microgravity claim, which is exactly why you should prefer
+the scenario-aware one:
+
+```python
+>>> from pyra.adapters import require_validated
+>>> require_validated(bench)                      # passes: the card has *some* evidence
+>>> try:
+...     require_in_envelope(bench, microgravity)   # refuses: the evidence stops at 0.9 g
+... except ClaimGateError:
+...     print("claim refused")
+claim refused
+
+```
+
+`check_envelope` reports and never raises; `require_in_envelope` raises `ClaimGateError`. Use
+`check_envelope(...).explain()` to print a plain-language paragraph naming the verdict and every
+failing axis.
+
+Three deliberate refusals are worth knowing about:
+
+- An evidence entry with an **empty** `envelope` dictionary never covers anything. Recording no
+  limits is not the same as having wide ones.
+- An entry must bound every axis in the gate policy — by default `gravity_g`, `o2_mole_fraction`
+  and `pressure` — or the scenario is not treated as covered. That default is a documented
+  starting policy for spacecraft fire work, not a claim that those three variables are physically
+  sufficient. Change it explicitly with `EnvelopeGatePolicy(required_axes=(...))`.
+- An **unknown axis name** raises `ValueError`, so a typo in a model card fails loudly instead of
+  silently widening the envelope.
+
+Passing this gate means a human recorded evidence spanning your conditions. It is not a safety
+certification, and PYRA cannot check whether the recorded limits are themselves right.
+
 ## 3. Benchmarking a model against supplied evidence
 
 You can score a model on a set of measured cases when you provide the tolerance and source IDs

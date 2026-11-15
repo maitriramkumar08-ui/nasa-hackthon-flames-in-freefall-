@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Added a scenario-aware claim gate. `pyra.adapters.require_in_envelope(card, scenario)` and
+  `check_envelope(...)` read the limits recorded on each model-card evidence entry and refuse a
+  claim whose conditions fall outside them, axis by axis, with unit conversion. The previous
+  `require_validated(card)` remains but is only a presence check: it accepts an Earth-gravity-only
+  model for a microgravity scenario, which is why it is no longer the gate to reach for. An
+  evidence entry recording no limits now covers nothing, an unknown axis name raises instead of
+  silently widening the envelope, and the required-axis set is an explicit `EnvelopeGatePolicy`
+  rather than an implicit assumption.
+- Documented the envelope format in `model_cards/template.yaml` and added the runnable
+  `examples/envelope_gate.py`, both exercised by the test suite.
 - Added a beginner Fire Playground with presets, editable environment fields, a static flame
   illustration and an explicitly limited oxygen trace.
 - Added `compare_values` as a same-unit scalar shortcut while retaining all evidence-aware

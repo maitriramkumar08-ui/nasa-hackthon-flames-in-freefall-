@@ -14,15 +14,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-import pyra.provenance as prov  # noqa: E402
-import pyra.physics.calorimetry as calorimetry  # noqa: E402
+import pyra.adapters as adapters  # noqa: E402
+import pyra.compare as compare  # noqa: E402
 import pyra.io as io  # noqa: E402
 import pyra.matching as matching  # noqa: E402
-import pyra.compare as compare  # noqa: E402
-import pyra.adapters as adapters  # noqa: E402
+import pyra.physics.calorimetry as calorimetry  # noqa: E402
+import pyra.provenance as prov  # noqa: E402
 import pyra.report as report  # noqa: E402
-import pyra.service as service  # noqa: E402
 import pyra.schema as schema  # noqa: E402
+import pyra.service as service  # noqa: E402
 import pyra.units as units  # noqa: E402
 import pyra.uq as uq  # noqa: E402
 

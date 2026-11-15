@@ -6,4 +6,35 @@ licence: "replace-me"
 physics_summary: "Describe the implemented physics without claiming validation."
 limitations:
   - "List conditions or observables outside the model's evidence."
+
+# Each envelope entry records one validation comparison AND the conditions it spans.
+# `pyra.adapters.require_in_envelope` reads these limits to decide whether a given
+# scenario is covered, so they must describe where the evidence actually is -- not
+# where you hope the model works. An entry with an empty `envelope` mapping never
+# covers any scenario.
+#
+# Numeric axes: gravity_g, pressure, o2_mole_fraction, flow_velocity, temperature,
+#   length_scale. Write `[min, max]`, or a mapping with `min`/`max` and an explicit
+#   `unit`. Limits are unit-converted before comparison.
+# Categorical axes: diluent, flow_mode, configuration, fuel_material. Write one
+#   string, or a list of allowed strings.
+#
+# By default a scenario counts as covered only when an entry bounds gravity_g,
+# o2_mole_fraction and pressure. That default is a documented starting policy, not a
+# claim of physical sufficiency.
+#
+# A populated entry looks like the following. The identifiers are placeholders;
+# replace them with real investigation IDs before recording any claim.
+#
+# envelope:
+#   - experiment_ids: ["replace-me-investigation-id"]
+#     quantity: "flame_spread_rate"
+#     metric: "bias"
+#     result: {bias: 0.0, n_cases: 0}
+#     envelope:
+#       gravity_g: [0.9, 1.1]
+#       o2_mole_fraction: [0.18, 0.25]
+#       pressure: {min: 95, max: 105, unit: "kPa"}
+#       diluent: ["nitrogen"]
+#       fuel_material: ["replace-me"]
 envelope: []

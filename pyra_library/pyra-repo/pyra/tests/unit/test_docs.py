@@ -44,6 +44,19 @@ def test_complete_fire_test_example_runs_and_saves_output(tmp_path: Path) -> Non
     assert (tmp_path / "fire_test_result.json").exists()
 
 
+def test_envelope_gate_example_runs_and_refuses_the_out_of_envelope_claim() -> None:
+    res = subprocess.run(
+        [sys.executable, str(ROOT / "examples" / "envelope_gate.py")],
+        capture_output=True,
+        text=True,
+        check=True,
+        env={"PYTHONPATH": str(ROOT / "src"), "PATH": ""},
+    )
+    assert "is OUTSIDE the recorded validation envelope" in res.stdout
+    assert "ClaimGateError (this is the correct outcome)" in res.stdout
+    assert "records no envelope limits" in res.stdout
+
+
 def test_generated_api_page_is_up_to_date() -> None:
     script = ROOT / "scripts" / "gen_api_docs.py"
     spec = importlib.util.spec_from_file_location("gen_api_docs", script)
