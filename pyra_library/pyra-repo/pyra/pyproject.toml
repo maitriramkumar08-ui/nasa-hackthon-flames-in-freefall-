@@ -32,7 +32,7 @@ dev = ["pytest", "hypothesis", "ruff", "mypy", "nox", "pre-commit", "mkdocs"]
 pyra = "pyra.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/pyra", "src/pyra_edu"]
+packages = ["src/pyra", "src/pyra_edu", "src/pyra_library"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -23,7 +23,7 @@ by NASA or any programme named in its materials.
 ## A first calculation
 
 ```python
-import pyra as pk
+import pyra_library as pk
 
 hrr = pk.heat_release(
     0.21, 0.20, 0.01, 13_100_000,
@@ -38,6 +38,9 @@ For a local visual demo, run `pyra simulate --window`. For machine-readable outp
 For an explicitly simplified concentration exercise, use `pk.simulate_zone()` from Python.
 For classroom examples, `pyra_edu.decay_activity()` returns a fictional trace labelled as a
 concept sketch. Neither is a validated fire-safety simulation.
+
+For the friendly import surface, use `pyra_library`; the complete advanced API remains available
+as `pyra` (for example, `from pyra.compare import evaluate_model`).
 
 ## Install and explore
 

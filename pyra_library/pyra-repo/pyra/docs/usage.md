@@ -12,6 +12,9 @@ After installing PYRA and opening a VS Code terminal in the project folder, run:
 pyra playground
 ```
 
+In Python code, the new short import is `import pyra_library as pk`. The earlier
+`import pyra as pk` form remains supported too.
+
 The window lets you change a fuel label, gravity, oxygen fraction, pressure, temperature, air
 exchange, oxygen sink and duration. Choose a preset or edit the boxes and click **Run scenario**.
 The drawing is a static flame illustration. The graph shows the oxygen-only, well-mixed zone
@@ -23,7 +26,7 @@ prediction.
 When you want to save or repeat an exercise in a Python file, use the same model directly:
 
 ```python
-import pyra as pk
+import pyra_library as pk
 
 scenario = pk.FireScenario(
     fuel="PMMA (example fuel)",
@@ -65,7 +68,7 @@ a `.py` file.** In a regular file, keep only the Python code, such as the comple
 Save this as `first.py` in your project folder and click **Run Python File** in VS Code:
 
 ```python
-import pyra as pk
+import pyra_library as pk
 
 hrr = pk.heat_release(
     o2_in=0.21,
@@ -83,14 +86,14 @@ If you are typing directly at Python's `>>>` prompt instead of running a file, f
 import line. That line creates the short name `pk`; Python does not know `pk` until you create it:
 
 ```pycon
->>> import pyra as pk
+>>> import pyra_library as pk
 >>> hrr = pk.heat_release(0.21, 0.20, 0.01, 13_100_000, source_ref="synthetic-example")
 >>> round(hrr.value), hrr.unit, hrr.status.name
 (1310, 'W', 'DERIVED')
 
 ```
 
-If you see `NameError: name 'pk' is not defined`, run `import pyra as pk` first. In a `.py` file,
+If you see `NameError: name 'pk' is not defined`, run `import pyra_library as pk` first. In a `.py` file,
 keep that import at the top of the file. When copying from examples that show `>>>` or `...`, those
 symbols are shell prompts and should not be copied into the file.
 
@@ -124,7 +127,7 @@ You can start with a normal Python file and use a short alias. The heat-release 
 source reference and returns a provenance-aware `Quantity` immediately:
 
 ```python
->>> import pyra as pk
+>>> import pyra_library as pk
 >>> hrr = pk.heat_release(
 ...     0.21, 0.20, 0.01, 13_100_000,
 ...     source_ref="doi:10.0000/example|synthetic", n=128, seed=0,
@@ -426,7 +429,7 @@ True
 
 1. **Explore:** open `pyra playground`, change one setting at a time and distinguish displayed
    scenario fields from values used in the simple concentration calculation.
-2. **Write a first program:** use `import pyra as pk`, named arguments and `print` in a `.py` file.
+2. **Write a first program:** use `import pyra_library as pk`, named arguments and `print` in a `.py` file.
 3. **Understand evidence:** learn units, uncertainty, status and source references; then inspect a
    PSI raw-condition record without assuming its sensor values are calibrated.
 4. **Analyze:** try `compare_values`, then advance to `pyra.compare`, matching and evidence reports
