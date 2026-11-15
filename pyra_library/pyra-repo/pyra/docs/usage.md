@@ -56,6 +56,16 @@ With the defaults (`C_in = 0.21`, `S = 0.001/s`, `k = 0.02/s`) that is
 it with a time constant of `1/k = 50 s`, so after the default 60 seconds it has travelled
 most but not all of the way, reaching about **0.175**:
 
+> **Reading the `>>>` examples.** Lines starting with `>>>` and `...` are the interactive
+> Python prompt. Start `python` in a terminal and type after the prompt, or copy the code
+> **without** those symbols into a `.py` file.
+>
+> One difference catches everyone once. At the `>>>` prompt, a line that is just an
+> expression prints its value automatically. In a `.py` file it does not: the value is
+> computed and thrown away, and the script exits silently having printed nothing. So the
+> last line below prints at the prompt, but in a file you must wrap it in `print(...)`.
+> Seeing no output usually means this, not that something failed.
+
 ```python
 >>> import pyrakit as pk
 >>> run = pk.run_fire_test()
@@ -212,7 +222,23 @@ import line. That line creates the short name `pk`; Python does not know `pk` un
 
 If you see `NameError: name 'pk' is not defined`, run `import pyrakit as pk` first. In a `.py` file,
 keep that import at the top of the file. When copying from examples that show `>>>` or `...`, those
-symbols are shell prompts and should not be copied into the file.
+symbols are the interactive prompt and should not be copied into the file.
+
+**If the script runs but prints nothing**, the last line is probably a bare expression. This
+version computes the answer and silently discards it:
+
+```python
+round(hrr.value), hrr.unit, hrr.status.name          # prints nothing in a .py file
+```
+
+while this one shows it:
+
+```python
+print(round(hrr.value), hrr.unit, hrr.status.name)   # 1310 W DERIVED
+```
+
+The script was not broken in the first case; an exit code of 0 with no output means it ran
+and you simply never asked it to print.
 
 The named arguments (`o2_in=...`) make each number's purpose easier to recognize. In actual
 research, replace the sample values and source with verified measurements and document
