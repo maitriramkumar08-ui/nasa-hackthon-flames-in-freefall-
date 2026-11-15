@@ -285,8 +285,40 @@ def fire_playground() -> None:  # pragma: no cover - interactive window
     set_view(ViewSource.SCHEMATIC, "Choose settings, then run a scenario.")
 
     # -- scenario form
-    form = ttk.LabelFrame(panel, text="Scenario", padding=10)
-    form.grid(row=2, column=0, sticky="nsw", padx=(0, 12))
+    #
+    # The scenario has more fields than fit on a short screen, so the fields scroll
+    # inside a canvas while the Run and Cancel buttons stay pinned below it. The
+    # primary action must never be the thing that scrolls out of reach.
+    form_area = ttk.LabelFrame(panel, text="Scenario", padding=(10, 10, 0, 10))
+    form_area.grid(row=2, column=0, sticky="nsw", padx=(0, 12))
+    form_area.rowconfigure(0, weight=1)
+
+    form_canvas = tk.Canvas(form_area, width=330, highlightthickness=0, borderwidth=0)
+    form_canvas.grid(row=0, column=0, sticky="nsew")
+    form_scroll = ttk.Scrollbar(form_area, orient="vertical", command=form_canvas.yview)
+    form_scroll.grid(row=0, column=1, sticky="ns")
+    form_canvas.configure(yscrollcommand=form_scroll.set)
+
+    form = ttk.Frame(form_canvas)
+    form_window = form_canvas.create_window((0, 0), window=form, anchor="nw")
+
+    def _resize_form(_event: object = None) -> None:
+        form_canvas.configure(scrollregion=form_canvas.bbox("all"))
+        form_canvas.itemconfigure(form_window, width=form_canvas.winfo_width())
+
+    form.bind("<Configure>", _resize_form)
+    form_canvas.bind("<Configure>", _resize_form)
+
+    def _on_wheel(event: tk.Event) -> None:
+        # Windows and macOS report delta differently; normalise to one notch.
+        step = -1 if getattr(event, "delta", 0) > 0 else 1
+        form_canvas.yview_scroll(step, "units")
+
+    for widget in (form_canvas, form):
+        widget.bind("<MouseWheel>", _on_wheel)
+        widget.bind("<Button-4>", lambda _e: form_canvas.yview_scroll(-1, "units"))
+        widget.bind("<Button-5>", lambda _e: form_canvas.yview_scroll(1, "units"))
+
     fields: dict[str, tk.StringVar] = {}
     for row, (key, label, default) in enumerate(FORM_FIELDS):
         ttk.Label(form, text=label).grid(row=row, column=0, sticky="w", pady=2)
@@ -518,15 +550,19 @@ def fire_playground() -> None:  # pragma: no cover - interactive window
             cancel.set()
             status.set("Cancelling the engine run...")
 
-    buttons = ttk.Frame(form)
-    buttons.grid(row=preset_row + 3, column=0, columnspan=2, sticky="ew", pady=(6, 2))
+    # Pinned below the scrolling fields, so Run is always reachable.
+    buttons = ttk.Frame(form_area)
+    buttons.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(10, 0), padx=(0, 10))
     buttons.columnconfigure((0, 1), weight=1)
     run_button = ttk.Button(buttons, text="Run scenario", command=run_scenario)
     run_button.grid(row=0, column=0, sticky="ew", padx=(0, 4))
     cancel_button = ttk.Button(buttons, text="Cancel", command=cancel_run, state="disabled")
     cancel_button.grid(row=0, column=1, sticky="ew", padx=(4, 0))
+    root.bind("<Return>", lambda _e: run_scenario())
 
     draw_schematic_flame("schematic only")
+    root.update_idletasks()
+    _resize_form()
     root.mainloop()
 
 

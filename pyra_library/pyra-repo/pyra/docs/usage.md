@@ -22,11 +22,93 @@ same library under its previous name.
 
 The window lets you change a fuel label, gravity, oxygen fraction, pressure, temperature, air
 exchange, oxygen sink and duration. Choose a preset or edit the boxes and click **Run scenario**.
-The drawing is a static flame illustration. The graph shows the oxygen-only, well-mixed zone
-equation; only starting oxygen, air exchange, oxygen sink and duration affect that graph. Fuel,
-gravity, pressure and temperature are displayed for scenario context but do not change the
-calculation. This is a guided learning exercise, not a validated fire simulation or safety
-prediction.
+The scenario fields scroll; the Run and Cancel buttons stay pinned below them.
+
+### What exactly is that graph?
+
+It is **oxygen mole fraction on the vertical axis against time in seconds on the horizontal
+axis**. Nothing else. It is not flame height, not temperature, not spread rate, not heat.
+
+Picture one sealed box of air with a fire inside, and assume the air in it is stirred so
+well that every point has the same oxygen fraction. That assumption is what "well-mixed
+single zone" means, and it is the whole model. Two things then compete:
+
+- **Ventilation refills oxygen.** Fresh air enters at rate `k` (the *air exchange rate*,
+  per second) carrying oxygen fraction `C_in`.
+- **The fire consumes oxygen.** It removes oxygen at a constant rate `S` (the *oxygen sink
+  rate*, per second).
+
+Written out, the line being plotted is the exact solution of
+
+```text
+dC/dt = k * (C_in - C) - S
+```
+
+The useful thing to notice is that the curve does not fall forever. It flattens towards a
+balance point where refill and consumption cancel:
+
+```text
+C_equilibrium = C_in - S / k
+```
+
+With the defaults (`C_in = 0.21`, `S = 0.001/s`, `k = 0.02/s`) that is
+`0.21 - 0.001/0.02 = 0.16`. The curve starts at 0.21 and bends towards 0.16. It approaches
+it with a time constant of `1/k = 50 s`, so after the default 60 seconds it has travelled
+most but not all of the way, reaching about **0.175**:
+
+```python
+>>> import pyrakit as pk
+>>> run = pk.run_fire_test()
+>>> round(run.trace.concentration[0], 4), round(run.trace.concentration[-1], 4)
+(0.21, 0.1751)
+
+```
+
+### What each knob does to the curve
+
+Change one at a time and watch the balance point move:
+
+| Change | Equilibrium becomes | Value at 60 s |
+| --- | --- | --- |
+| defaults | 0.160 | 0.1751 |
+| oxygen sink doubled to 0.002/s | 0.110 | 0.1401 |
+| oxygen sink halved to 0.0005/s | 0.185 | 0.1925 |
+| air exchange set to 0 (no ventilation) | none; falls forever | 0.1500 |
+
+That last row is the interesting one. With no ventilation there is no balance point, so the
+line becomes straight and simply drops until the oxygen runs out. In a real spacecraft that
+is the dangerous direction, and it is why ventilation appears in fire-safety arguments at
+all.
+
+```python
+>>> sealed = pk.run_fire_test(air_exchange_per_s=0.0)
+>>> round(sealed.trace.concentration[-1], 4)
+0.15
+
+```
+
+### What the graph is not
+
+Fuel, gravity, pressure and temperature are recorded on the scenario and shown in the
+window, but **they do not appear anywhere in the equation above**, so changing them does
+not move the line. That is deliberate and it is the honest state of affairs: PYRA has no
+validated flame solver, so it does not pretend that gravity changes this curve.
+
+The model also states its own limits, which you can read directly:
+
+```python
+>>> for note in run.trace.assumptions:
+...     print(note)
+well-mixed single zone
+constant ventilation rate
+constant concentration source rate
+no chemistry, heat transfer, or spatial gradients
+
+```
+
+So: use it to build intuition about ventilation versus consumption, which is a real and
+useful idea. Do not use it to predict a fire. A real flame solver is connected through an
+adapter instead, and section 10.1 covers that.
 
 When you want to save or repeat an exercise in a Python file, use the same model directly:
 
