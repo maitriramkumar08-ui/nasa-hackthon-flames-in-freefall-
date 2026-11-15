@@ -23,7 +23,7 @@ git log -5 --oneline
 Python first-program commands:
 
 ```python
-import pyra as pk
+import pyra_library as pk
 
 hrr = pk.heat_release(0.21, 0.20, 0.01, 13_100_000, source_ref="doi:10.0000/example|synthetic")
 trace = pk.simulate_decay(1.0, 0.5, 4.0)
