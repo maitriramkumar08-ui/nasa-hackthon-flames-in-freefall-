@@ -12,8 +12,13 @@ After installing PYRA and opening a VS Code terminal in the project folder, run:
 pyra playground
 ```
 
-In Python code, the new short import is `import pyrakit as pk`. The earlier
-`import pyrakit as pk` form remains supported too.
+In Python code the import is `import pyrakit as pk`. One name covers the whole toolkit:
+the short beginner helpers and the full API are the same import.
+
+The library used to be called `pyra`, and was split across `pyra` and `pyra_library`.
+Both old names still work, so older code and notebooks keep running, but everything
+below uses `pyrakit`. If you meet `import pyra as pk` in an older example, it is the
+same library under its previous name.
 
 The window lets you change a fuel label, gravity, oxygen fraction, pressure, temperature, air
 exchange, oxygen sink and duration. Choose a preset or edit the boxes and click **Run scenario**.

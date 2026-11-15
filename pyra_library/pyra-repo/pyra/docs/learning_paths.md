@@ -56,6 +56,6 @@ improvement before PYRA makes model-supported claims.
 
 ## Friendly and full import names
 
-For a short first program, use `import pyrakit as pk`. The original `import pyrakit as pk` import
+For a short first program, use `import pyrakit as pk`. The older `import pyra as pk` spelling
 continues to work. Advanced modules remain available under `pyra`, for example
 `from pyrakit.compare import evaluate_model` or `from pyrakit.schema import Conditions, Scenario`.
