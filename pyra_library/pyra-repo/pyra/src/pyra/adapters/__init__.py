@@ -21,17 +21,35 @@ from pyra.adapters.envelope import (
     check_envelope,
     parse_envelope,
 )
+from pyra.adapters.external import (
+    EngineCommand,
+    EngineError,
+    EngineFailedError,
+    EngineNotFoundError,
+    EngineOutputError,
+    ExternalEngineAdapter,
+    python_engine_command,
+    scenario_payload,
+)
 
 __all__ = [
     "AxisCheck",
     "CallableAdapter",
     "ClaimGateError",
+    "EngineCommand",
+    "EngineError",
+    "EngineFailedError",
+    "EngineNotFoundError",
+    "EngineOutputError",
     "EnvelopeCheck",
     "EnvelopeGatePolicy",
     "EvidenceCheck",
+    "ExternalEngineAdapter",
     "SimulationResult",
     "check_envelope",
     "parse_envelope",
+    "python_engine_command",
     "require_in_envelope",
     "require_validated",
+    "scenario_payload",
 ]

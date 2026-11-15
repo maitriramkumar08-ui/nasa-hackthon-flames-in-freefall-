@@ -15,6 +15,7 @@ SRC = Path(__file__).resolve().parents[2] / "src"
 LAYERS = {
     "units": 0, "schema": 0, "provenance": 0,
     "io": 1, "normalize": 1, "derive": 1, "conditions": 1, "catalog": 1, "physics": 1,
+    "simulation": 1,
     "matching": 2, "coverage": 2, "compare": 2, "uq": 2, "sensitivity": 2,
     "surrogate": 2, "cluster": 2, "recommend": 2,
     "adapters": 3, "report": 3, "viz": 3, "service": 3, "cli": 3,

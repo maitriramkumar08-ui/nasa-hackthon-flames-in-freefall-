@@ -227,22 +227,49 @@ SHA-256 hex digest of the canonical bytes of ``obj``.
   Run a user-supplied function without importing any simulator package.
 * class `ClaimGateError`
   Raised when a model-supported claim lacks validation evidence.
+* class `EngineCommand`
+  How to invoke one locally installed engine.
+* class `EngineError`
+  Base class for every failure of an external engine.
+* class `EngineFailedError`
+  The engine ran but exited non-zero, or did not finish in time.
+* class `EngineNotFoundError`
+  The configured executable could not be started.
+* class `EngineOutputError`
+  The engine finished but did not return a usable simulation output.
 * class `EnvelopeCheck`
   The result of checking one scenario against one model card's envelope.
 * class `EnvelopeGatePolicy`
   Which axes a model card must declare before a scenario can be called covered.
 * class `EvidenceCheck`
   How one validation-evidence entry relates to one scenario.
+* class `ExternalEngineAdapter`
+  Adapt one external engine executable to PYRA's simulation contract.
 * class `SimulationResult`
   A simulator output bundle with an explicit SIMULATED status.
 * `check_envelope(card: ModelCard, scenario: Scenario, *, policy: EnvelopeGatePolicy | None = None) -> EnvelopeCheck`
   Report whether one scenario falls inside a model card's recorded envelope.
 * `parse_envelope(envelope: Mapping[str, Any]) -> tuple[Limit, ...]`
   Read one evidence entry's ``envelope`` mapping into typed, unit-resolved limits.
+* `python_engine_command(script: str | Path, **kwargs: object) -> EngineCommand`
+  Build a command that runs a Python engine script with the current interpreter.
 * `require_in_envelope(card: ModelCard, scenario: Scenario, *, policy: EnvelopeGatePolicy | None = None) -> EnvelopeCheck`
   Refuse a model-supported claim unless the scenario sits inside the envelope.
 * `require_validated(card: ModelCard) -> None`
   Refuse a model-supported claim when the card records no validation evidence.
+* `scenario_payload(scenario: Scenario) -> dict[str, object]`
+  Build the JSON object an engine receives for one scenario.
+
+## Module `pyra.simulation`
+
+* class `Channel`
+  One named time series produced by an engine.
+* class `FlameFront`
+  Flame-front geometry sampled on the same time base as the channels.
+* class `MeshInfo`
+  The spatial discretization an engine used, recorded so a run can be judged.
+* class `SimulationOutput`
+  One engine run: its identity, its time base, and everything it produced.
 
 ## Module `pyra.report`
 
