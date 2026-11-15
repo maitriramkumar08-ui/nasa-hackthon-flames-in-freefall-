@@ -38,9 +38,9 @@ _LIB = ROOT / "pyra_library" / "pyra-repo" / "pyra" / "src"
 if _LIB.is_dir():
     sys.path.insert(0, str(_LIB))
 
-from pyrakit.adapters import check_envelope  # noqa: E402
-from pyrakit.io.psi import read_psi_metadata_zip  # noqa: E402
-from pyrakit.schema import (  # noqa: E402
+from pyrakit.adapters import check_envelope
+from pyrakit.io.psi import read_psi_metadata_zip
+from pyrakit.schema import (
     Conditions,
     FuelSpec,
     Measure,
@@ -165,8 +165,10 @@ def main() -> int:
     print("=" * 76)
     print("1. Dataset integrity")
     matched, mismatched = verify_datasets()
-    print(f"   {len(matched)} of {len(matched) + len(mismatched)} supplied files match "
-          f"their recorded SHA-256.")
+    print(
+        f"   {len(matched)} of {len(matched) + len(mismatched)} supplied files match "
+        f"their recorded SHA-256."
+    )
     for bad in mismatched:
         print(f"   MISMATCH, not used: {bad}")
 
