@@ -203,11 +203,3 @@ def scenario(raw):
         "label": "HYPOTHETICAL",
     }
 
-
-def dummy_conn():
-    """An in-memory database built from the DUMMY samples. For tests and demos."""
-    from . import db
-    from .loader import load_folder
-    conn = db.create(":memory:")
-    load_folder(conn, paths.SAMPLES)
-    return conn

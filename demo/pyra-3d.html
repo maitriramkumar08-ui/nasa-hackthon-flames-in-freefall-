@@ -1,0 +1,2175 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PYRA Simulation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ============================================================
+   TOKENS + BASE
+   ============================================================ */
+    :root {
+      --bg: #03050b;
+      --panel: rgba(10, 16, 30, .72);
+      --panel-solid: #0a101e;
+      --line: rgba(140, 180, 255, .14);
+      --text: #e6edf9;
+      --dim: #8a9bb8;
+      --faint: #5a6b88;
+      --blue: #5fb7ff;
+      --cyan: #46f0e0;
+      --amber: #ffb347;
+      --fire: #ff6a2b;
+      --red: #ff4d5e;
+      --green: #3ee08f;
+      --violet: #a98bff;
+      --mono: 'JetBrains Mono', ui-monospace, monospace;
+      --sans: 'Space Grotesk', system-ui, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans)
+    }
+
+    #stage {
+      position: fixed;
+      inset: 0
+    }
+
+    #stage canvas {
+      display: block;
+      width: 100%;
+      height: 100%
+    }
+
+    /* ---------- 3D-anchored labels ---------- */
+    #pins {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2
+    }
+
+    .pin {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      pointer-events: auto;
+      cursor: pointer;
+      white-space: nowrap;
+      font: 600 11px var(--mono);
+      letter-spacing: .04em;
+      padding: 5px 8px;
+      border-radius: 6px;
+      background: rgba(6, 10, 20, .78);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(6px);
+      transition: opacity .3s, border-color .3s
+    }
+
+    .pin::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      width: 1px;
+      height: 14px;
+      background: linear-gradient(var(--line), transparent)
+    }
+
+    .pin .v {
+      color: var(--cyan);
+      margin-left: 6px
+    }
+
+    .pin.watch {
+      border-color: rgba(255, 179, 71, .7)
+    }
+
+    .pin.watch .v {
+      color: var(--amber)
+    }
+
+    .pin.alert {
+      border-color: rgba(255, 77, 94, .9);
+      box-shadow: 0 0 18px rgba(255, 77, 94, .4)
+    }
+
+    .pin.alert .v {
+      color: var(--red)
+    }
+
+    .pin.node {
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0
+    }
+
+    .pin.node small {
+      display: none;
+      font: 400 10px var(--mono);
+      color: var(--dim)
+    }
+
+    .pin.node.sel {
+      border-color: rgba(140, 180, 255, .6)
+    }
+
+    .pin.node.sel small {
+      display: block
+    }
+
+    .pin.hidden {
+      opacity: 0;
+      pointer-events: none
+    }
+
+    /* ---------- top bar ---------- */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 14px 20px;
+      background: linear-gradient(rgba(3, 5, 11, .9), rgba(3, 5, 11, 0))
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .brand .mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 60%, #fff 0, #9fd8ff 18%, #2f7bff 45%, rgba(47, 123, 255, 0) 70%);
+      box-shadow: 0 0 22px #2f7bff
+    }
+
+    .brand b {
+      font-size: 18px;
+      letter-spacing: .18em
+    }
+
+    .brand span {
+      display: block;
+      font: 400 10px var(--mono);
+      color: var(--dim);
+      letter-spacing: .08em
+    }
+
+    nav {
+      display: flex;
+      gap: 4px;
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 4px;
+      margin-left: auto
+    }
+
+    nav button,
+    .btn {
+      font: 500 13px var(--sans);
+      color: var(--dim);
+      background: none;
+      border: 0;
+      padding: 8px 14px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: .2s
+    }
+
+    nav button:hover,
+    .btn:hover {
+      color: var(--text)
+    }
+
+    nav button.on {
+      background: rgba(95, 183, 255, .16);
+      color: #fff;
+      box-shadow: inset 0 0 0 1px rgba(95, 183, 255, .4)
+    }
+
+    nav button i {
+      font-style: normal;
+      font: 400 10px var(--mono);
+      color: var(--faint);
+      margin-right: 6px
+    }
+
+    .btn.tour {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .04)
+    }
+
+    .btn.tour.on {
+      color: #fff;
+      border-color: var(--fire);
+      box-shadow: 0 0 20px rgba(255, 106, 43, .35)
+    }
+
+    /* ---------- side panels ---------- */
+    .panel {
+      position: fixed;
+      z-index: 4;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      backdrop-filter: blur(14px);
+      padding: 16px;
+      width: 300px;
+      max-height: calc(100vh - 170px);
+      overflow: auto;
+      scrollbar-width: thin
+    }
+
+    #left {
+      left: 20px;
+      top: 78px
+    }
+
+    #right {
+      right: 20px;
+      top: 78px;
+      width: 320px
+    }
+
+    .panel h3,
+    .atlas h3 {
+      font: 600 11px var(--mono);
+      letter-spacing: .14em;
+      color: var(--dim);
+      text-transform: uppercase;
+      margin: 0 0 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px
+    }
+
+    .panel h3 em,
+    .atlas h3 em {
+      font-style: normal;
+      color: var(--amber);
+      font-size: 9px;
+      border: 1px solid rgba(255, 179, 71, .4);
+      padding: 2px 6px;
+      border-radius: 4px
+    }
+
+    .panel section+section {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line)
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px
+    }
+
+    .chip {
+      font: 500 12px var(--sans);
+      color: var(--text);
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid var(--line);
+      padding: 6px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: .2s
+    }
+
+    .chip:hover {
+      border-color: rgba(95, 183, 255, .5)
+    }
+
+    .chip.on {
+      background: rgba(95, 183, 255, .18);
+      border-color: var(--blue)
+    }
+
+    .slider {
+      margin-top: 14px
+    }
+
+    .slider label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--dim);
+      margin-bottom: 6px
+    }
+
+    .slider label b {
+      font: 600 12px var(--mono);
+      color: var(--text)
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--blue) var(--p, 50%), rgba(255, 255, 255, .12) var(--p, 50%));
+      outline: none
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(95, 183, 255, .25), 0 0 12px var(--blue);
+      cursor: pointer
+    }
+
+    input[type=range]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border: 0;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(95, 183, 255, .25)
+    }
+
+    select {
+      width: 100%;
+      font: 500 13px var(--sans);
+      color: var(--text);
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px
+    }
+
+    select option {
+      background: var(--panel-solid)
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 7px 10px;
+      font-size: 12px
+    }
+
+    .kv span {
+      color: var(--dim)
+    }
+
+    .kv b {
+      font: 600 12px var(--mono);
+      text-align: right
+    }
+
+    .state {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font: 600 11px var(--mono);
+      letter-spacing: .06em;
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin-bottom: 12px
+    }
+
+    .state::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 10px currentColor
+    }
+
+    .state.burn {
+      color: var(--fire);
+      background: rgba(255, 106, 43, .12)
+    }
+
+    .state.out {
+      color: var(--faint);
+      background: rgba(255, 255, 255, .05)
+    }
+
+    .state.ok {
+      color: var(--green);
+      background: rgba(62, 224, 143, .1)
+    }
+
+    .state.watch {
+      color: var(--amber);
+      background: rgba(255, 179, 71, .1)
+    }
+
+    .state.alert {
+      color: var(--red);
+      background: rgba(255, 77, 94, .12)
+    }
+
+    .meter {
+      height: 6px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, .08);
+      overflow: hidden;
+      margin: 6px 0 12px
+    }
+
+    .meter i {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--fire));
+      transition: width .3s
+    }
+
+    .tele {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px
+    }
+
+    .tile {
+      background: rgba(255, 255, 255, .035);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 9px 10px;
+      transition: .3s
+    }
+
+    .tile span {
+      display: block;
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: .04em
+    }
+
+    .tile b {
+      font: 600 15px var(--mono)
+    }
+
+    .tile small {
+      font: 400 10px var(--mono);
+      color: var(--faint)
+    }
+
+    .tile.watch {
+      border-color: rgba(255, 179, 71, .6)
+    }
+
+    .tile.watch b {
+      color: var(--amber)
+    }
+
+    .tile.alert {
+      border-color: rgba(255, 77, 94, .8);
+      background: rgba(255, 77, 94, .08)
+    }
+
+    .tile.alert b {
+      color: var(--red)
+    }
+
+    .gaprow {
+      display: grid;
+      grid-template-columns: 78px 1fr;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+      margin-bottom: 8px
+    }
+
+    .gaprow span {
+      color: var(--dim)
+    }
+
+    .gaprow small {
+      color: var(--faint);
+      font-family: var(--mono)
+    }
+
+    .gap {
+      font: 600 10px var(--mono);
+      letter-spacing: .04em;
+      padding: 4px 7px;
+      border-radius: 5px;
+      justify-self: start
+    }
+
+    .gap small {
+      font-weight: 400;
+      opacity: .75;
+      margin-left: 4px;
+      color: inherit
+    }
+
+    .g-DIRECTLY_TESTED {
+      background: rgba(62, 224, 143, .15);
+      color: var(--green)
+    }
+
+    .g-INSUFFICIENT {
+      background: rgba(70, 240, 224, .12);
+      color: var(--cyan)
+    }
+
+    .g-BOUNDED {
+      background: rgba(95, 183, 255, .15);
+      color: var(--blue)
+    }
+
+    .g-ONE_SIDED {
+      background: rgba(255, 179, 71, .14);
+      color: var(--amber)
+    }
+
+    .g-NOT_COMPARABLE {
+      background: rgba(169, 139, 255, .15);
+      color: var(--violet)
+    }
+
+    .g-NO_INDEXED_DATA {
+      background: rgba(255, 77, 94, .14);
+      color: var(--red)
+    }
+
+    .combo {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px dashed var(--line);
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--dim)
+    }
+
+    .combo b {
+      color: var(--text)
+    }
+
+    .near {
+      font: 400 11px var(--mono);
+      color: var(--dim);
+      line-height: 1.8
+    }
+
+    .near b {
+      color: var(--text);
+      font-weight: 600
+    }
+
+    .near .word {
+      color: var(--violet)
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      font-size: 11px;
+      color: var(--dim)
+    }
+
+    .legend i {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-right: 5px;
+      vertical-align: -1px
+    }
+
+    .note {
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--faint);
+      margin-top: 12px
+    }
+
+    p.lead {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--dim)
+    }
+
+    p.lead b {
+      color: var(--text)
+    }
+
+    .events {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px
+    }
+
+    .events .chip {
+      border-radius: 8px;
+      text-align: left;
+      font-size: 11px
+    }
+
+    /* ---------- 2D evidence atlas (act 02) ---------- */
+    .atlas {
+      position: fixed;
+      z-index: 3;
+      left: 340px;
+      right: 360px;
+      top: 78px;
+      bottom: 120px;
+      display: flex;
+      flex-direction: column;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      backdrop-filter: blur(14px);
+      padding: 14px 14px 10px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .5s, visibility 0s .5s
+    }
+
+    .atlas.show {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity .5s .3s, visibility 0s
+    }
+
+    .atlas canvas {
+      flex: 1;
+      width: 100%;
+      min-height: 0;
+      display: block;
+      cursor: crosshair
+    }
+
+    .atlas .tip {
+      position: absolute;
+      pointer-events: none;
+      font: 400 11px var(--mono);
+      line-height: 1.5;
+      color: var(--dim);
+      background: var(--panel-solid);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 8px;
+      white-space: nowrap;
+      display: none
+    }
+
+    .atlas .tip b {
+      color: var(--text)
+    }
+
+    /* ---------- caption + misc ---------- */
+    #caption {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      transform: translateX(-50%);
+      z-index: 4;
+      max-width: min(680px, calc(100vw - 40px));
+      text-align: center;
+      pointer-events: none
+    }
+
+    #caption .t {
+      font: 600 11px var(--mono);
+      letter-spacing: .2em;
+      color: var(--fire);
+      text-transform: uppercase
+    }
+
+    #caption .s {
+      font-size: 17px;
+      line-height: 1.45;
+      margin-top: 6px;
+      text-shadow: 0 2px 20px #000;
+      transition: opacity .5s
+    }
+
+    #progress {
+      height: 2px;
+      background: rgba(255, 255, 255, .1);
+      margin: 12px auto 0;
+      width: 160px;
+      border-radius: 2px;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity .3s
+    }
+
+    #progress i {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--fire)
+    }
+
+    #loading {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      background: var(--bg);
+      transition: opacity 1s
+    }
+
+    #loading div {
+      font: 500 12px var(--mono);
+      letter-spacing: .3em;
+      color: var(--dim);
+      text-align: center
+    }
+
+    #loading div::before {
+      content: "";
+      display: block;
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff 0, #7ac4ff 15%, #2f7bff 40%, transparent 70%);
+      animation: pulse 1.6s ease-in-out infinite
+    }
+
+    @keyframes pulse {
+      50% {
+        transform: scale(.7);
+        opacity: .6
+      }
+    }
+
+    #err {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 21;
+      place-items: center;
+      background: var(--bg);
+      color: var(--dim);
+      font-size: 14px;
+      text-align: center;
+      padding: 20px
+    }
+
+    /* ---------- sim playback (pause + speed) ---------- */
+    #simctl {
+      position: fixed;
+      left: 20px;
+      bottom: 20px;
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 14px 8px 8px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      backdrop-filter: blur(14px);
+      width: 300px
+    }
+
+    #simctl button {
+      flex: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .05);
+      color: var(--text);
+      font: 600 13px var(--sans);
+      cursor: pointer;
+      display: grid;
+      place-items: center
+    }
+
+    #simctl button:hover {
+      border-color: rgba(95, 183, 255, .5)
+    }
+
+    #simctl.paused button {
+      color: #fff;
+      border-color: var(--amber);
+      box-shadow: 0 0 14px rgba(255, 179, 71, .3)
+    }
+
+    #simctl .sp {
+      flex: 1;
+      min-width: 0
+    }
+
+    #simctl label {
+      display: flex;
+      justify-content: space-between;
+      font: 500 10px var(--mono);
+      letter-spacing: .1em;
+      color: var(--dim);
+      margin-bottom: 6px;
+      text-transform: uppercase
+    }
+
+    #simctl label b {
+      color: var(--cyan);
+      font-weight: 600
+    }
+
+    #simctl.paused label b {
+      color: var(--amber)
+    }
+
+    @media (max-width:1040px) {
+      .atlas {
+        left: 20px;
+        right: 360px
+      }
+
+      body.act-atlas #left {
+        display: none
+      }
+    }
+
+    @media (max-width:820px) {
+      header {
+        padding: 10px 16px;
+        flex-wrap: wrap;
+        gap: 8px
+      }
+
+      nav {
+        margin-left: 0;
+        order: 3;
+        width: 100%;
+        justify-content: space-between
+      }
+
+      nav button {
+        padding: 7px 8px;
+        font-size: 12px
+      }
+
+      nav button i {
+        display: none
+      }
+
+      .panel {
+        position: fixed;
+        left: 16px;
+        right: 16px;
+        width: auto;
+        top: auto;
+        max-height: 34vh
+      }
+
+      #left {
+        bottom: 76px
+      }
+
+      #right {
+        display: none
+      }
+
+      #simctl {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        width: auto
+      }
+
+      body.act-atlas #left {
+        display: block
+      }
+
+      body.showright #right {
+        display: block;
+        bottom: 76px
+      }
+
+      body.showright #left {
+        display: none
+      }
+
+      .atlas {
+        left: 16px;
+        right: 16px;
+        top: 150px;
+        bottom: calc(34vh + 88px)
+      }
+
+      #caption {
+        top: 118px;
+        min-width: 0
+      }
+
+      #caption .s {
+        font-size: 14px
+      }
+
+      body.act-atlas #caption {
+        display: none
+      }
+
+      #swap {
+        display: inline-block !important
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      * {
+        transition: none !important;
+        animation: none !important
+      }
+    }
+  </style>
+  <script
+    type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/"}}</script>
+</head>
+
+<body>
+  <div id="loading">
+    <div>INITIALISING PYRA</div>
+  </div>
+  <div id="err"></div>
+  <div id="stage"></div>
+  <div id="pins"></div>
+
+  <header>
+    <div class="brand">
+      <div class="mark"></div>
+      <div><b>PYRA</b><span>PREDICTIVE HAZARD &amp; RELIABILITY ATLAS</span></div>
+    </div>
+    <nav id="acts">
+      <button data-act="habitat" class="on"><i>01</i>Habitat</button>
+      <button data-act="atlas"><i>02</i>Evidence Atlas</button>
+      <button data-act="pipeline"><i>03</i>Agentic Pipeline</button>
+    </nav>
+    <button class="btn tour" id="tour">▶ Tour</button>
+    <button class="btn tour" id="swap" style="display:none">⇄</button>
+  </header>
+
+  <aside class="panel" id="left">
+    <section>
+      <h3>Scenario</h3>
+      <div class="chips" id="presets"></div>
+    </section>
+    <section>
+      <h3>Atmosphere &amp; environment</h3>
+      <div class="slider"><label>Oxygen <b id="o2v"></b></label><input type="range" id="o2" min="10" max="40"
+          step="0.5"></div>
+      <div class="slider"><label>Total pressure <b id="pv"></b></label><input type="range" id="p" min="20" max="110"
+          step="1"></div>
+      <div class="slider"><label>Gravity <b id="gv"></b></label><input type="range" id="g" min="0" max="1" step="0.005">
+      </div>
+      <div class="slider"><label>Ventilation flow <b id="fv"></b></label><input type="range" id="f" min="0" max="40"
+          step="0.5"></div>
+      <div class="slider"><label>Material</label>
+        <select id="mat">
+          <option value="fabric">Fabric (cotton / Nomex)</option>
+          <option value="plastic">Plastic (PMMA)</option>
+          <option value="paper">Paper (Kimwipe)</option>
+          <option value="wire">Wire insulation</option>
+        </select>
+      </div>
+      <p class="note">Flame shape and telemetry are SIMULATED for this demo. Evidence points are verified runs from PYRA. PYRA shows
+        where evidence exists. It does not predict fires.</p>
+    </section>
+  </aside>
+
+  <aside class="panel" id="right"></aside>
+
+  <div class="atlas" id="atlas">
+    <h3>Evidence atlas · O₂ × pressure, at scenario gravity <em>VERIFIED DATA</em></h3>
+    <canvas id="atlasCanvas"></canvas>
+    <div class="tip" id="atlasTip"></div>
+  </div>
+
+  <div id="simctl">
+    <button id="pause" title="Pause / resume (Space)" aria-label="Pause simulation">❚❚</button>
+    <div class="sp"><label for="speed">Sim speed <b id="speedv">1.0×</b></label><input type="range" id="speed" min="0.1"
+        max="1" step="0.05" value="1" aria-label="Simulation speed"></div>
+  </div>
+
+  <div id="caption">
+    <div class="t" id="capT"></div>
+    <div class="s" id="capS"></div>
+    <div id="progress"><i></i></div>
+  </div>
+
+  <script src="flame-model.js"></script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+    /*
+      PYRA simulation, three acts sharing one scenario (S):
+        01 Habitat   3D cutaway module, flame (flame-model.js), simulated cabin telemetry
+        02 Atlas     2D canvas chart of verified test runs + the PYRA gap logic
+        03 Pipeline  3D diagram of how evidence enters the database
+      Everything below is grouped in that order, then UI, camera/tour, the frame loop, and boot.
+    */
+
+    /* ============================================================
+       CONFIG + SHARED STATE (mirrors config/decisions.json and config/alerts.json)
+       ============================================================ */
+    const TOL = { o2: 2, p: 7, f: 5, g: 0.05 };              // gap_tolerances
+    const MIN_RUNS = 3;                                       // min_runs_for_sufficient
+    const LIMITS = { o2: { max: 35 }, co: { max: 25 }, smoke: { max: 0.2 }, temp: { max: 30 }, flow: { min: 5 } }; // PLACEHOLDER
+    const PRESETS = [
+      { id: 'iss', name: 'ISS cabin', o2: 21, p: 101, g: 0.0, f: 10, cap: 'Station air: Earth-like oxygen and pressure, but no gravity to carry hot gas away.' },
+      { id: 'expl', name: 'Exploration 8.2 psi', o2: 34, p: 56.5, g: 0.0, f: 10, cap: 'The proposed exploration atmosphere: lower pressure, much more oxygen. Few tests sit here.' },
+      { id: 'moon', name: 'Lunar habitat', o2: 34, p: 56.5, g: 0.166, f: 8, cap: 'Same air on the Moon. One-sixth g is a partial buoyancy regime almost no one has burned anything in.' },
+      { id: 'mars', name: 'Mars transit', o2: 26.5, p: 70, g: 0.38, f: 12, cap: 'Mars gravity with a compromise atmosphere. Parabolic flights reach it for seconds at a time.' },
+      { id: 'earth', name: 'Earth lab', o2: 21, p: 101, g: 1.0, f: 0, cap: 'Normal gravity: buoyancy stretches the flame into a teardrop and feeds it fresh air.' },
+    ];
+    const SCENARIO_KEYS = ['o2', 'p', 'g', 'f'];
+    // The one scenario every act reads. act = visible act, event = injected telemetry event, node = selected pipeline stage.
+    const S = { o2: 21, p: 101, g: 0, f: 10, mat: 'fabric', act: 'habitat', event: 'nominal', node: null, preset: 'iss' };
+
+    /* ============================================================
+       UTILITIES
+       ============================================================ */
+    const $ = id => document.getElementById(id);
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+    // Seeded PRNG (mulberry32) so the backdrop and the run jitter are the same on every load.
+    function rng(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+    function gauss(r) { return Math.sqrt(-2 * Math.log(r() + 1e-9)) * Math.cos(6.2832 * r()); }
+    const css = (hex, a = 1) => `rgba(${hex >> 16 & 255},${hex >> 8 & 255},${hex & 255},${a})`;
+    function glowSprite() {
+      const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d');
+      const g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(.25, 'rgba(255,255,255,.6)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = g; x.fillRect(0, 0, 64, 64); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+    }
+
+    /* ============================================================
+       RENDERER / SCENE / LIGHTS
+       ============================================================ */
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    } catch (e) {
+      const el = $('err'); el.style.display = 'grid';
+      el.textContent = 'WebGL is not available in this browser, so the 3D simulation cannot start.';
+      throw e;
+    }
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    $('stage').appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x03050b);
+    scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environmentIntensity = 0.16;
+
+    const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.05, 2000);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true; controls.dampingFactor = 0.06;
+    controls.minDistance = 3; controls.maxDistance = 60;
+
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.7, 0.5, 0.9);
+    composer.addPass(bloom);
+    composer.addPass(new OutputPass());
+
+    const sun = new THREE.DirectionalLight(0xfff3e0, 1.6);
+    sun.position.set(-30, 25, 18); sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    Object.assign(sun.shadow.camera, { left: -12, right: 12, top: 12, bottom: -12, near: 1, far: 120 });
+    scene.add(sun, new THREE.HemisphereLight(0x6f8fd0, 0x0a0f1c, 0.35));
+
+    const SPRITE = glowSprite();
+
+    /* ============================================================
+       SPACE BACKDROP: stars, Earth, Moon
+       ============================================================ */
+    {
+      const n = 6000, pos = new Float32Array(n * 3), col = new Float32Array(n * 3), r = rng(7);
+      for (let i = 0; i < n; i++) {
+        const u = r() * 2 - 1, th = r() * 6.2832, R = 600 + r() * 400, s = Math.sqrt(1 - u * u);
+        pos.set([R * s * Math.cos(th), R * u, R * s * Math.sin(th)], i * 3);
+        const t = r(), c = new THREE.Color().setHSL(t < .2 ? 0.08 : t < .5 ? 0.6 : 0.62, t < .2 ? 0.6 : 0.3, 0.6 + r() * 0.4);
+        col.set([c.r, c.g, c.b], i * 3);
+      }
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+      scene.add(new THREE.Points(g, new THREE.PointsMaterial({ size: 2.2, map: SPRITE, vertexColors: true, transparent: true, depthWrite: false, sizeAttenuation: false, blending: THREE.AdditiveBlending })));
+    }
+    // Procedural Earth: blurred noise continents on a canvas + an atmosphere rim shader.
+    const earth = new THREE.Group(); earth.position.set(-150, -230, -520); scene.add(earth);
+    {
+      const c = document.createElement('canvas'); c.width = 1024; c.height = 512; const x = c.getContext('2d');
+      x.fillStyle = '#0b2a5c'; x.fillRect(0, 0, 1024, 512);
+      const r = rng(42);
+      x.filter = 'blur(5px)';
+      for (let k = 0; k < 70; k++) {
+        const cx = r() * 1024, cy = 80 + r() * 350, rad = 20 + r() * 90;
+        x.fillStyle = `hsl(${95 + r() * 40},${35 + r() * 20}%,${22 + r() * 14}%)`;
+        x.beginPath(); for (let a = 0; a < 6.3; a += 0.3) { const rr = rad * (0.6 + r() * 0.6); x.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 0.7); } x.fill();
+      }
+      x.filter = 'blur(3px)';
+      x.fillStyle = 'rgba(240,245,255,.9)'; x.fillRect(0, 0, 1024, 26); x.fillRect(0, 486, 1024, 26);
+      x.filter = 'blur(6px)';
+      for (let k = 0; k < 120; k++) { x.fillStyle = `rgba(255,255,255,${0.08 + r() * 0.2})`; x.beginPath(); x.ellipse(r() * 1024, r() * 512, 10 + r() * 60, 3 + r() * 10, r() * 3, 0, 6.3); x.fill(); }
+      const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+      const globe = new THREE.Mesh(new THREE.SphereGeometry(60, 96, 64), new THREE.MeshStandardMaterial({ map: tex, roughness: .85, metalness: 0 }));
+      earth.add(globe); earth.userData.globe = globe;
+      earth.add(new THREE.Mesh(new THREE.SphereGeometry(63.5, 64, 48), new THREE.ShaderMaterial({
+        transparent: true, blending: THREE.AdditiveBlending, side: THREE.BackSide, depthWrite: false,
+        vertexShader: `varying vec3 vN;varying vec3 vP;void main(){vN=normalize(normalMatrix*normal);vec4 mv=modelViewMatrix*vec4(position,1.);vP=-mv.xyz;gl_Position=projectionMatrix*mv;}`,
+        fragmentShader: `varying vec3 vN;varying vec3 vP;void main(){float f=pow(1.-abs(dot(normalize(vN),normalize(vP))),2.5);gl_FragColor=vec4(vec3(.3,.6,1.)*f*1.6,f);}`
+      })));
+    }
+    const moon = new THREE.Mesh(new THREE.SphereGeometry(14, 64, 48), new THREE.MeshStandardMaterial({ color: 0x8a8a90, roughness: 1 }));
+    moon.position.set(260, 60, -420); scene.add(moon);
+
+    /* ============================================================
+       ACT 01: HABITAT MODULE
+       ============================================================ */
+    const HAB = new THREE.Group(); scene.add(HAB);
+    const M = {
+      hull: new THREE.MeshStandardMaterial({ color: 0xaeb4bf, metalness: .55, roughness: .38 }),
+      inner: new THREE.MeshStandardMaterial({ color: 0x6a7382, metalness: .1, roughness: .65, side: THREE.BackSide }),
+      rib: new THREE.MeshStandardMaterial({ color: 0x9aa3b2, metalness: .85, roughness: .3 }),
+      rack: new THREE.MeshStandardMaterial({ color: 0x8d95a3, metalness: .3, roughness: .55 }),
+      dark: new THREE.MeshStandardMaterial({ color: 0x2a3142, metalness: .6, roughness: .4 }),
+      gold: new THREE.MeshStandardMaterial({ color: 0xd4a24a, metalness: 1, roughness: .32 }),
+      glass: new THREE.MeshPhysicalMaterial({ color: 0x9fd2ff, metalness: 0, roughness: .05, transparent: true, opacity: .12, clearcoat: 1, depthWrite: false, side: THREE.DoubleSide }),
+    };
+    const LEN = 14, RAD = 3.4;   // module length and inner radius (scene units)
+    {
+      // Cutaway hull, open toward the camera (+z).
+      const cut = Math.PI * 0.62;
+      const hull = new THREE.Mesh(new THREE.CylinderGeometry(RAD + 0.18, RAD + 0.18, LEN, 96, 1, true, cut / 2, Math.PI * 2 - cut), M.hull);
+      hull.rotation.z = Math.PI / 2; hull.castShadow = hull.receiveShadow = true; HAB.add(hull);
+      const inner = new THREE.Mesh(new THREE.CylinderGeometry(RAD, RAD, LEN, 96, 1, true, cut / 2, Math.PI * 2 - cut), M.inner);
+      inner.rotation.z = Math.PI / 2; inner.receiveShadow = true; HAB.add(inner);
+      // MLI gold blanket band on the outside
+      const mli = new THREE.Mesh(new THREE.CylinderGeometry(RAD + 0.22, RAD + 0.22, LEN * 0.55, 96, 1, true, cut / 2 + 0.05, Math.PI * 2 - cut - 0.1), M.gold);
+      mli.rotation.z = Math.PI / 2; HAB.add(mli);
+      // Ribs, cut the same way (ring around x, gap facing +z)
+      for (let i = 0; i <= 8; i++) {
+        const rg = new THREE.TorusGeometry(RAD + 0.05, 0.09, 12, 96, Math.PI * 2 - cut);
+        rg.rotateZ(-Math.PI + cut / 2); rg.rotateY(Math.PI / 2);
+        const r = new THREE.Mesh(rg, M.rib); r.position.x = -LEN / 2 + i * LEN / 8;
+        r.castShadow = true; HAB.add(r);
+      }
+      // End caps, hatches and berthing rings
+      for (const s of [-1, 1]) {
+        const cap = new THREE.Mesh(new THREE.CircleGeometry(RAD, 64), new THREE.MeshStandardMaterial({ color: 0xdfe3ea, metalness: .3, roughness: .5, side: THREE.DoubleSide }));
+        cap.rotation.y = Math.PI / 2; cap.position.x = s * LEN / 2; HAB.add(cap);
+        const hatch = new THREE.Mesh(new THREE.TorusGeometry(1.1, 0.14, 16, 64), M.rib); hatch.rotation.y = Math.PI / 2; hatch.position.x = s * (LEN / 2 - 0.05); HAB.add(hatch);
+        const door = new THREE.Mesh(new THREE.CircleGeometry(1.05, 48), M.dark); door.rotation.y = -s * Math.PI / 2; door.position.x = s * (LEN / 2 - 0.06); HAB.add(door);
+        const berth = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.7, 0.6, 48), M.hull); berth.rotation.z = Math.PI / 2; berth.position.x = s * (LEN / 2 + 0.3); HAB.add(berth);
+      }
+      // Floor deck + equipment racks along the back wall (gap in the middle for the combustion rack)
+      const deck = new THREE.Mesh(new THREE.BoxGeometry(LEN - 0.4, 0.08, 3.2), new THREE.MeshStandardMaterial({ color: 0x8d96a6, metalness: .5, roughness: .5 }));
+      deck.position.y = -2.3; deck.receiveShadow = true; HAB.add(deck);
+      const r = rng(3);
+      for (let i = 0; i < 6; i++) {
+        if (i === 2 || i === 3) continue;
+        const x = -LEN / 2 + 1.4 + i * 2.2;
+        const rack = new THREE.Mesh(new THREE.BoxGeometry(1.9, 3.6, 0.9), M.rack); rack.position.set(x, -0.4, -2.45); rack.castShadow = rack.receiveShadow = true; HAB.add(rack);
+        for (let k = 0; k < 5; k++) {
+          const pnl = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.55, 0.05), M.dark); pnl.position.set(x, -1.9 + k * 0.7, -1.98); HAB.add(pnl);
+          for (let l = 0; l < 3; l++) {
+            const on = r() > .3;
+            const led = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 8), new THREE.MeshBasicMaterial({ color: on ? (r() > .8 ? 0xffb347 : 0x46f0e0) : 0x223040 }));
+            led.position.set(x - 0.65 + l * 0.14, -1.8 + k * 0.7, -1.95); HAB.add(led);
+          }
+        }
+      }
+      // Ceiling light strips
+      for (let i = 0; i < 3; i++) {
+        const strip = new THREE.Mesh(new THREE.BoxGeometry(3, 0.05, 0.35), new THREE.MeshBasicMaterial({ color: 0x8fb4e6 }));
+        strip.position.set(-4.5 + i * 4.5, 3.0, -0.9); strip.rotation.x = 0.35; HAB.add(strip);
+        const l = new THREE.PointLight(0xcfe4ff, 7, 9, 1.8); l.position.set(-4.5 + i * 4.5, 2.6, -0.6); HAB.add(l);
+      }
+      // Handrails
+      for (const y of [1.6, -1.6]) { const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, LEN - 1, 10), M.gold); rail.rotation.z = Math.PI / 2; rail.position.set(0, y, -2.0); HAB.add(rail); }
+      // Vent diffuser at the -x end, where the ventilation flow comes from
+      const vent = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.2, 1.6), M.dark); vent.position.set(-LEN / 2 + 0.12, 0.6, -0.8); HAB.add(vent);
+      for (let k = 0; k < 6; k++) { const sl = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.04, 1.5), new THREE.MeshBasicMaterial({ color: 0x46f0e0 })); sl.position.set(-LEN / 2 + 0.15, 0.15 + k * 0.18, -0.8); HAB.add(sl); }
+    }
+    // Combustion chamber (the experiment rack in the middle of the module)
+    const CH = new THREE.Group(); CH.position.set(0, -0.2, -1.2); HAB.add(CH);
+    {
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(1.05, 1.15, 0.35, 48), M.dark); base.position.y = -1.55; CH.add(base);
+      const top = new THREE.Mesh(new THREE.CylinderGeometry(1.05, 1.05, 0.25, 48), M.dark); top.position.y = 1.85; CH.add(top);
+      const glass = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 1.0, 3.2, 64, 1, true), M.glass); glass.position.y = 0.15; CH.add(glass);
+      for (const y of [-1.37, 1.72]) { const ring = new THREE.Mesh(new THREE.TorusGeometry(1.02, 0.05, 10, 64), M.gold); ring.rotation.x = Math.PI / 2; ring.position.y = y; CH.add(ring); }
+      for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + 0.4; const post = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 3.2, 8), M.rib); post.position.set(Math.cos(a) * 1.02, 0.15, Math.sin(a) * 1.02); CH.add(post); }
+      const back = new THREE.Mesh(new THREE.CylinderGeometry(0.97, 0.97, 3.2, 48, 1, true, Math.PI / 2, Math.PI), new THREE.MeshBasicMaterial({ color: 0x020308, side: THREE.DoubleSide })); back.position.y = 0.15; CH.add(back);
+      const holder = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.3, 12), M.rib); holder.position.y = -0.75; CH.add(holder);
+      const halo = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.02, 8, 96), new THREE.MeshBasicMaterial({ color: 0x5fb7ff })); halo.rotation.x = Math.PI / 2; halo.position.y = -1.36; CH.add(halo);
+    }
+    // Fuel sample at the flame origin
+    const fuel = new THREE.Mesh(new THREE.SphereGeometry(0.11, 32, 24), new THREE.MeshStandardMaterial({ color: 0x332218, roughness: .8, emissive: 0xff4400, emissiveIntensity: 0 }));
+    fuel.position.y = -0.05; CH.add(fuel);
+
+    /* ---------- flame: four shaded shells driven by flame-model.js ---------- */
+    const NOISE = `
+float hash(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
+float noise(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);
+return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),
+mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);}`;
+    const NTH = 33; // radius samples from downstream (theta = 0) to upstream (theta = pi)
+    function flameMaterial(base, tip, rimMix, power) {
+      return new THREE.ShaderMaterial({
+        transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+        defines: { NTH },
+        uniforms: {
+          uTime: { value: 0 }, uDir: { value: new THREE.Vector3(0, 1, 0) }, uR: { value: new Array(NTH).fill(0.3) }, uFlicker: { value: 0 }, uFreq: { value: 0 },
+          uBase: { value: new THREE.Color(base) }, uTip: { value: new THREE.Color(tip) }, uAlpha: { value: 1 }, uRim: { value: rimMix }, uPow: { value: power }, uSeed: { value: Math.random() * 10 }
+        },
+        vertexShader: `${NOISE}
+      uniform float uTime,uFlicker,uFreq,uSeed; uniform vec3 uDir; uniform float uR[NTH];
+      varying vec3 vN; varying vec3 vV; varying float vT;
+      // Radius along each direction comes from flame-model.js (iso-surface of the mixture fraction).
+      // Noise only adds buoyant flicker, scaled by the model's buoyant share.
+      void main(){
+        vec3 p=normalize(position); float t=clamp(dot(p,uDir),-1.,1.); float up=max(t,0.);
+        float x=acos(t)/3.14159265*float(NTH-1); int i=int(floor(x)); int j=min(i+1,NTH-1);
+        float r=mix(uR[i],uR[j],x-float(i));
+        float n=noise(p*2.2+uDir*(-uTime*uFreq*.6)+uSeed)-.5;
+        float n2=noise(p*5.+uDir*(-uTime*uFreq*1.2)+uSeed*2.)-.5;
+        vec3 q=p*r*(1.+(n*.5+n2*.25)*uFlicker*up);
+        vT=(t+1.)*.5;
+        vec4 mv=modelViewMatrix*vec4(q,1.);
+        vV=normalize(-mv.xyz); vN=normalize(normalMatrix*normal);
+        gl_Position=projectionMatrix*mv;
+      }`,
+        fragmentShader: `
+      uniform vec3 uBase,uTip; uniform float uAlpha,uRim,uPow;
+      varying vec3 vN; varying vec3 vV; varying float vT;
+      void main(){
+        float f=abs(dot(normalize(vN),normalize(vV)));
+        float rim=pow(1.-f,uPow); float core=pow(f,2.);
+        vec3 c=mix(uBase,uTip,smoothstep(.2,.95,vT));
+        float a=uAlpha*mix(core,rim,uRim)*(1.-smoothstep(.85,1.,vT)*.6);
+        gl_FragColor=vec4(c*a,a);
+      }`
+      });
+    }
+    const FL = new THREE.Group(); FL.position.copy(fuel.position); CH.add(FL);
+    const flameGeo = new THREE.SphereGeometry(1, 96, 64);
+    const shellOuter = new THREE.Mesh(flameGeo, flameMaterial(0x2a5cff, 0x6aa8ff, 1.0, 3.0));
+    const shellBlue = new THREE.Mesh(flameGeo, flameMaterial(0x4d8cff, 0xb0e0ff, 0.8, 1.8));
+    const coreSoot = new THREE.Mesh(flameGeo, flameMaterial(0xff7a1a, 0xffe08a, 0.15, 1.0));
+    const coreHot = new THREE.Mesh(flameGeo, flameMaterial(0xffffff, 0xfff1c0, 0.0, 1.0));
+    FL.add(shellOuter, shellBlue, coreSoot, coreHot);
+    const SHELLS = [[shellOuter, 'outer'], [shellBlue, 'blue'], [coreSoot, 'soot'], [coreHot, 'hot']];
+    const flameLight = new THREE.PointLight(0xff8a3a, 0, 12, 1.4); FL.add(flameLight);
+
+    // Soot / ember tracer particles released on the flame sheet
+    const EMB = (() => {
+      const n = 900, pos = new Float32Array(n * 3), col = new Float32Array(n * 3), life = new Float32Array(n).fill(-1);
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+      const pts = new THREE.Points(g, new THREE.PointsMaterial({ size: 0.07, map: SPRITE, vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+      pts.frustumCulled = false; FL.add(pts);
+      return { n, pos, col, life, g, next: 0, acc: 0 };
+    })();
+    // Ventilation air particles drifting along the module
+    const AIR = (() => {
+      const n = 2200, pos = new Float32Array(n * 3), col = new Float32Array(n * 3), r = rng(11), ph = new Float32Array(n);
+      for (let i = 0; i < n; i++) { const a = r() * 6.28, rr = Math.sqrt(r()) * (RAD - 0.4); pos.set([-LEN / 2 + r() * LEN, Math.sin(a) * rr, Math.cos(a) * rr * 0.8 - 0.6], i * 3); ph[i] = r() * 6.28; }
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+      const pts = new THREE.Points(g, new THREE.PointsMaterial({ size: 0.045, map: SPRITE, vertexColors: true, transparent: true, opacity: .9, depthWrite: false, blending: THREE.AdditiveBlending }));
+      pts.frustumCulled = false; HAB.add(pts);
+      return { n, pos, col, ph, g };
+    })();
+
+    /* ---------- cabin sensors ---------- */
+    const SENSORS = [
+      { id: 'o2', name: 'O₂', pos: [-4.8, 2.4, -1.6], unit: '%', fmt: v => v.toFixed(1) },
+      { id: 'p', name: 'Pressure', pos: [-2.2, 2.7, -1.4], unit: 'kPa', fmt: v => v.toFixed(1) },
+      { id: 'smoke', name: 'Smoke', pos: [1.6, 2.5, -1.7], unit: '', fmt: v => v.toFixed(2) },
+      { id: 'co', name: 'CO', pos: [4.2, 2.2, -1.8], unit: 'ppm', fmt: v => v.toFixed(1) },
+      { id: 'temp', name: 'Temp', pos: [5.8, 0.8, -2.2], unit: '°C', fmt: v => v.toFixed(1) },
+      { id: 'flow', name: 'Flow', pos: [-6.2, 0.6, -0.8], unit: 'cm/s', fmt: v => v.toFixed(1) },
+    ];
+    for (const s of SENSORS) {
+      const g = new THREE.Group(); g.position.set(...s.pos); HAB.add(g);
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.1, 24), M.dark); body.rotation.x = Math.PI / 2; g.add(body);
+      const led = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 12), new THREE.MeshBasicMaterial({ color: 0x3ee08f })); led.position.z = 0.07; g.add(led);
+      s.obj = g; s.led = led;
+    }
+
+    /* ---------- flame model: physics lives in flame-model.js (window.PyraFlame); this maps it to the scene ---------- */
+    const MAT = { fabric: { soot: 1.0, ign: 0 }, plastic: { soot: 1.4, ign: 1.0 }, paper: { soot: 0.7, ign: -1.0 }, wire: { soot: 1.2, ign: 2.0 } };
+    const SCENE_PER_M = 100;      // 1 scene unit = 1 cm in the sample chamber
+    const R_MAX = 1.4;            // the chamber glass; larger flames are drawn clipped (sizes in the panel are not)
+    const TIME_SCALE = 0.05;      // tracer playback at 1/20 real time so the motion can be followed
+    // Shells are iso-surfaces of the computed mixture fraction at Z = k * Z_st (k < 1: hot products outside
+    // the sheet, k = 1: the flame sheet, k > 1: fuel-rich core where soot forms).
+    const SHELL_Z = { outer: 0.75, blue: 1.0, soot: 1.4, hot: 3.5 };
+    // FS = flame state. radii = model targets per shell, shown = eased values actually drawn.
+    const FS = { power: 0, target: 0, flicker: 0, dir: new THREE.Vector3(0, 1, 0), soot: 0, limit: 16, alive: true, shape: '', model: null, radii: {}, shown: {} };
+    for (const k of Object.keys(SHELL_Z)) { FS.radii[k] = new Float64Array(NTH).fill(0.3); FS.shown[k] = new Float64Array(NTH).fill(0.3); }
+
+    function solveFlame() {
+      const m = MAT[S.mat];
+      const out = PyraFlame.solve({ gravity: S.g * PyraFlame.G0, flow: S.f / 100, o2: S.o2, pressure: S.p, fuel: S.mat });
+      FS.model = out;
+      const R = out.results;
+      for (const [k, z] of Object.entries(SHELL_Z)) {
+        const r = PyraFlame.surface(out.state, z, NTH);
+        for (let i = 0; i < NTH; i++) FS.radii[k][i] = Math.min(r[i] * SCENE_PER_M, R_MAX);
+      }
+      FS.dir.set(R.direction[0], R.direction[1], 0);
+      const b = Math.sqrt(R.gravityG);
+      // ILLUSTRATIVE oxygen limit (to be replaced by a stability model):
+      // higher in quiescent microgravity, lower with gentle flow, higher at low pressure.
+      const transport = clamp(b * 1.4 + S.f / 12, 0, 1.6);
+      let limit = 15.5 + 4.5 * Math.exp(-transport * 2.2) + (101 - S.p) / 34 + m.ign;
+      if (S.f > 28) limit += (S.f - 28) * 0.25;     // strong flow blows the flame off
+      FS.limit = limit;
+      const margin = S.o2 - limit;
+      FS.alive = margin > 0;
+      FS.target = FS.alive ? clamp(0.25 + margin / 9, 0.25, 1.3) : 0;
+      FS.flicker = clamp(R.buoyantShare, 0, 1);   // flicker only where buoyancy drives the flow
+      // ILLUSTRATIVE soot colour (visual only, not computed)
+      FS.soot = clamp(b + S.f / 40, 0, 1) * m.soot * (0.45 + 0.55 * smooth(14, 32, S.o2)) * clamp(S.p / 101, 0.5, 1.2);
+      FS.shape = !FS.alive ? 'extinguished' : R.peclet < 1 ? 'near-spherical (diffusion-dominated)' : R.buoyantShare > 0.6 ? 'buoyant plume' : 'stretched by flow';
+    }
+
+    /* ---------- telemetry (SIMULATED) + concern levels ---------- */
+    const EVENTS = {
+      nominal: { name: 'Nominal', drift: {} },
+      o2: { name: 'O₂ drift + fan slowing', drift: { o2: 0.15, flow: -0.8 } },
+      wire: { name: 'Overheating wire', drift: { smoke: 0.03, co: 3, temp: 1.0 } },
+      stuck: { name: 'Stuck O₂ sensor', drift: {}, stuck: 'o2' },
+    };
+    const NOISE_SD = { o2: .08, p: .15, smoke: .003, co: .15, temp: .06, flow: .2 };
+    const TEL = { o2: 21, p: 101, smoke: 0, co: 1, temp: 22, flow: 10, t: 0 };
+    const telRand = rng(99); let stuckVal = null;
+    function resetTelemetry() { TEL.t = 0; stuckVal = null; }
+    function stepTelemetry(dt) {
+      TEL.t = Math.min(TEL.t + dt, 25);
+      const ev = EVENTS[S.event], burn = FS.power;
+      const base = { o2: S.o2, p: S.p, smoke: burn * FS.soot * 0.05, co: 1 + burn * 2, temp: 22 + burn * 1.5, flow: S.f };
+      for (const k of Object.keys(base)) {
+        let v = base[k] + (ev.drift[k] || 0) * TEL.t + gauss(telRand) * NOISE_SD[k];
+        v = k === 'smoke' ? clamp(v, 0, 1) : Math.max(0, v);
+        if (ev.stuck === k) { if (stuckVal == null) stuckVal = v; v = stuckVal; }
+        TEL[k] = lerp(TEL[k], v, 0.25);
+      }
+    }
+    function level(id, v) {
+      const L = LIMITS[id]; if (!L) return 'ok';
+      if ((L.max != null && v > L.max) || (L.min != null && v < L.min)) return 'alert';
+      const span = L.max != null ? L.max * 0.08 : L.min * 0.1;
+      if ((L.max != null && v > L.max - span) || (L.min != null && v < L.min + span)) return 'watch';
+      return 'ok';
+    }
+
+    /* ============================================================
+       ACT 02: EVIDENCE ATLAS (verified runs + PYRA gap logic + 2D chart)
+       ============================================================ */
+    const AX = { o2: [10, 40], p: [20, 110], g: [0, 1] };
+    // Real evidence only: verified runs and ranges from the PYRA server (/api/runs, /api/investigations).
+    // Nothing is invented. With no verified fact sheets loaded, the atlas is empty and says so.
+    const PALETTE = [0x5fb7ff, 0x46f0e0, 0xa98bff, 0x3ee08f, 0xffb347, 0xff8a5c, 0xff5fa2, 0xd7e36a, 0xffffff];
+    const MAT_WORDS = { fabric: /fabric|cotton|nomex|cloth|textile/i, plastic: /pmma|plastic|polymer|acrylic|polyethylene|delrin|polycarbonate/i,
+                        paper: /paper|cellulose|kimwipe/i, wire: /wire|insulation|cable/i };
+    let INV_DEF = [], RANGE_DEF = [], RUNS = [];
+    let evidenceNote = 'Loading verified evidence from PYRA...';
+    function matClass(materials) {
+      for (const m of materials || []) for (const [k, re] of Object.entries(MAT_WORDS)) if (re.test(m)) return k;
+      return null;
+    }
+    const getJSON = url => fetch(url).then(r => { if (!r.ok) throw new Error(`${url} answered ${r.status}`); return r.json(); });
+    async function loadEvidence() {
+      try {
+        const [invs, runs] = await Promise.all([getJSON('/api/investigations'), getJSON('/api/runs')]);
+        const color = {};
+        invs.forEach((inv, i) => { color[inv.acronym] = PALETTE[i % PALETTE.length]; });
+        const r = rng(2026);   // only for the vertical jitter in the gravity strip
+        // The chart places a run by O2, pressure and gravity, so a run missing one of them cannot be drawn.
+        const placed = runs.filter(x => x.values.o2_percent != null && x.values.pressure != null && x.values.gravity != null);
+        RUNS = placed.map(x => ({
+          ac: x.acronym, color: color[x.acronym] ?? 0xffffff, id: x.run_id ? `${x.acronym} ${x.run_id}` : x.acronym,
+          mat: matClass(x.materials), word: (x.from_words || []).includes('gravity'),
+          o2: x.values.o2_percent, p: x.values.pressure, g: x.values.gravity, f: x.values.flow_speed, jitter: r()
+        }));
+        const withRuns = new Set(runs.map(x => x.acronym));
+        RANGE_DEF = invs.filter(inv => !withRuns.has(inv.acronym) && inv.ranges.o2_percent && inv.ranges.pressure && inv.ranges.gravity)
+          .map(inv => ({ ac: inv.acronym, color: color[inv.acronym], mat: matClass(inv.fuels.map(f => f.material)),
+                         o2: [inv.ranges.o2_percent.min, inv.ranges.o2_percent.max], p: [inv.ranges.pressure.min, inv.ranges.pressure.max],
+                         g: [inv.ranges.gravity.min, inv.ranges.gravity.max] }));
+        INV_DEF = invs.map(inv => ({ ac: inv.acronym, color: color[inv.acronym] }));
+        const skipped = runs.length - placed.length;
+        evidenceNote = invs.length
+          ? `${RUNS.length} verified run(s) from ${invs.length} investigation(s)${skipped ? `; ${skipped} run(s) lack O₂, pressure or gravity and are not drawn` : ''}.`
+          : 'No verified evidence is loaded yet. Add fact sheets to data/factsheets/verified and run .\run.ps1 -Build.';
+      } catch (err) {
+        evidenceNote = `Open this demo through PYRA (.\run.ps1) to see the verified evidence (${err.message}).`;
+      }
+      scenVer++; heatDirty = true;
+      if (S.act === 'atlas') { renderRight(); drawAtlas(); }
+    }
+    loadEvidence();
+
+    // Port of pyra/gaps.py classify_axis essentials.
+    function classifyAxis(values, target, tol) {
+      values = values.filter(v => v != null);
+      if (!values.length) return { cls: 'NO_INDEXED_DATA', dist: null };
+      const within = values.filter(v => Math.abs(v - target) <= tol).length;
+      if (within >= MIN_RUNS) return { cls: 'DIRECTLY_TESTED', dist: 0, within };
+      if (within) return { cls: 'INSUFFICIENT', dist: 0, within };
+      const dist = Math.min(...values.map(v => Math.abs(v - target))) / tol;
+      if (Math.min(...values) < target && target < Math.max(...values)) return { cls: 'BOUNDED', dist };
+      return { cls: 'ONE_SIDED', dist };
+    }
+    const rangeValues = ax => RANGE_DEF.flatMap(d => d[ax] ? [d[ax][0], d[ax][1]] : []);
+    function analyze() {
+      const out = {};
+      for (const ax of ['o2', 'p', 'f', 'g']) {
+        const all = [...RUNS.map(r => r[ax]), ...rangeValues(ax)];
+        // Gravity given only in words can show which side the evidence is on, but cannot make an axis tested.
+        const measured = [...RUNS.filter(r => !(ax === 'g' && r.word)).map(r => r[ax]), ...rangeValues(ax)];
+        let res = classifyAxis(all, S[ax], TOL[ax]);
+        if (res.cls === 'DIRECTLY_TESTED' || res.cls === 'INSUFFICIENT') {
+          const m = classifyAxis(measured, S[ax], TOL[ax]);
+          res = (m.cls === 'DIRECTLY_TESTED' || m.cls === 'INSUFFICIENT') ? m : { cls: 'NOT_COMPARABLE', dist: 0 };
+        }
+        out[ax] = res;
+      }
+      const matchN = RUNS.filter(r => r.mat === S.mat).length + RANGE_DEF.filter(d => d.mat === S.mat).length;
+      out.mat = { cls: matchN >= MIN_RUNS ? 'DIRECTLY_TESTED' : matchN ? 'INSUFFICIENT' : 'NO_INDEXED_DATA', within: matchN };
+      // The stricter question: did any single run match every axis at once?
+      out.combo = RUNS.filter(r => !r.word && r.mat === S.mat && insideBox(r) && (r.f == null || Math.abs(r.f - S.f) <= TOL.f)).length;
+      // Nearest runs: RMS distance in tolerances over the axes each run reports.
+      out.nearest = RUNS.map(r => {
+        const gs = ['o2', 'p', 'f', 'g'].filter(a => r[a] != null).map(a => (r[a] - S[a]) / TOL[a]);
+        return { r, d: Math.sqrt(gs.reduce((s, x) => s + x * x, 0) / gs.length), n: gs.length };
+      }).sort((a, b) => a.d - b.d || b.n - a.n).slice(0, 3);
+      return out;
+    }
+    const inGravitySlice = r => Math.abs(r.g - S.g) <= TOL.g;
+    const insideBox = r => inGravitySlice(r) && Math.abs(r.o2 - S.o2) <= TOL.o2 && Math.abs(r.p - S.p) <= TOL.p;
+    // analyze() is cached per scenario version so the panel and the chart share one result.
+    let scenVer = 0, cachedVer = -1, cachedA = null;
+    function currentAnalysis() { if (cachedVer !== scenVer) { cachedA = analyze(); cachedVer = scenVer; } return cachedA; }
+
+    /* ---------- 2D chart ---------- */
+    const atlasEl = $('atlas'), atlasCanvas = $('atlasCanvas'), atlasTip = $('atlasTip'), actx = atlasCanvas.getContext('2d');
+    const ATLAS_COL = { grid: 'rgba(140,180,255,.10)', frame: 'rgba(140,180,255,.28)', text: '#8a9bb8', faint: '#5a6b88', scen: 0xff6a2b, cover: 0x46f0e0 };
+    const HEAT_N = 72, heatCanvas = document.createElement('canvas'); heatCanvas.width = heatCanvas.height = HEAT_N;
+    let heatDirty = true;
+    let atlasHits = [];   // screen positions of drawn runs, for the hover tooltip
+
+    // Coverage shading: how close (in tolerances) the nearest run is, at the scenario's gravity.
+    function drawHeat() {
+      const ctx = heatCanvas.getContext('2d'), img = ctx.createImageData(HEAT_N, HEAT_N);
+      for (let j = 0; j < HEAT_N; j++) for (let i = 0; i < HEAT_N; i++) {
+        const o2 = lerp(AX.o2[0], AX.o2[1], (i + .5) / HEAT_N), p = lerp(AX.p[0], AX.p[1], 1 - (j + .5) / HEAT_N);
+        let best = 99; for (const r of RUNS) { const d = Math.hypot((r.o2 - o2) / TOL.o2, (r.p - p) / TOL.p, (r.g - S.g) / TOL.g); if (d < best) best = d; }
+        const k = (j * HEAT_N + i) * 4, cov = Math.exp(-best * best / 6);
+        img.data[k] = 0x46; img.data[k + 1] = 0xf0; img.data[k + 2] = 0xe0; img.data[k + 3] = cov * 70 | 0;
+      }
+      ctx.putImageData(img, 0, 0); heatDirty = false;
+    }
+
+    function atlasLayout(w, h) {
+      const L = 54, R = 14, T = 10, stripH = 46, gap = 52, axisB = 30;
+      const plot = { x: L, y: T, w: w - L - R, h: Math.max(60, h - T - gap - stripH - axisB) };
+      const strip = { x: L, y: plot.y + plot.h + gap, w: plot.w, h: stripH };
+      return { plot, strip };
+    }
+    const sx = (pl, o2) => pl.x + (o2 - AX.o2[0]) / (AX.o2[1] - AX.o2[0]) * pl.w;
+    const sy = (pl, p) => pl.y + pl.h - (p - AX.p[0]) / (AX.p[1] - AX.p[0]) * pl.h;
+    const sg = (st, g) => st.x + Math.sqrt(clamp(g, 0, 1)) * st.w;    // gravity strip uses a sqrt scale to open up 0–0.4 g
+
+    function dot(x, y, r, color, alpha, hollow) {
+      actx.beginPath(); actx.arc(x, y, r, 0, Math.PI * 2);
+      if (hollow) { actx.strokeStyle = css(color, alpha); actx.lineWidth = 1.5; actx.stroke(); }
+      else { actx.fillStyle = css(color, alpha); actx.fill(); }
+    }
+
+    function drawAtlas() {
+      if (S.act !== 'atlas') return;
+      const w = atlasCanvas.clientWidth, h = atlasCanvas.clientHeight; if (!w || !h) return;
+      const dpr = Math.min(devicePixelRatio, 2);
+      if (atlasCanvas.width !== Math.round(w * dpr) || atlasCanvas.height !== Math.round(h * dpr)) { atlasCanvas.width = Math.round(w * dpr); atlasCanvas.height = Math.round(h * dpr); }
+      actx.setTransform(dpr, 0, 0, dpr, 0, 0); actx.clearRect(0, 0, w, h);
+      const { plot, strip } = atlasLayout(w, h), A = currentAnalysis();
+      actx.font = '10px "JetBrains Mono", monospace'; actx.textBaseline = 'middle';
+      atlasHits = [];
+
+      // coverage shading
+      if (heatDirty) drawHeat();
+      actx.imageSmoothingEnabled = true; actx.drawImage(heatCanvas, plot.x, plot.y, plot.w, plot.h);
+
+      // grid, frame and tick labels
+      actx.lineWidth = 1;
+      for (let o2 = 10; o2 <= 40; o2 += 5) {
+        const x = sx(plot, o2); actx.strokeStyle = ATLAS_COL.grid; actx.beginPath(); actx.moveTo(x, plot.y); actx.lineTo(x, plot.y + plot.h); actx.stroke();
+        actx.fillStyle = ATLAS_COL.text; actx.textAlign = 'center'; actx.fillText(o2 + '%', x, plot.y + plot.h + 12);
+      }
+      for (let p = 20; p <= 110; p += 10) {
+        const y = sy(plot, p); actx.strokeStyle = ATLAS_COL.grid; actx.beginPath(); actx.moveTo(plot.x, y); actx.lineTo(plot.x + plot.w, y); actx.stroke();
+        actx.fillStyle = ATLAS_COL.text; actx.textAlign = 'right'; actx.fillText(p, plot.x - 6, y);
+      }
+      actx.strokeStyle = ATLAS_COL.frame; actx.strokeRect(plot.x + .5, plot.y + .5, plot.w - 1, plot.h - 1);
+      actx.fillStyle = ATLAS_COL.text; actx.textAlign = 'center'; actx.fillText('Oxygen (% by volume) →', plot.x + plot.w / 2, plot.y + plot.h + 26);
+      actx.save(); actx.translate(14, plot.y + plot.h / 2); actx.rotate(-Math.PI / 2); actx.fillText('Total pressure (kPa) →', 0, 0); actx.restore();
+
+      // range-only investigations (solid edge only if their gravity range reaches the scenario)
+      actx.setLineDash([5, 4]);
+      for (const d of RANGE_DEF) {
+        const live = S.g >= d.g[0] - TOL.g && S.g <= d.g[1] + TOL.g;
+        const x0 = sx(plot, d.o2[0]), x1 = sx(plot, d.o2[1]), y0 = sy(plot, d.p[1]), y1 = sy(plot, d.p[0]);
+        actx.strokeStyle = css(d.color, live ? .7 : .18); actx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+      }
+      actx.setLineDash([]);
+
+      if (!RUNS.length && !RANGE_DEF.length) {
+        actx.fillStyle = ATLAS_COL.text; actx.textAlign = 'center';
+        actx.fillText('No verified runs loaded yet', plot.x + plot.w / 2, plot.y + plot.h / 2);
+      }
+      // tolerance box around the scenario ("close enough" on O₂ and pressure)
+      const cx = sx(plot, S.o2), cy = sy(plot, S.p);
+      const bx0 = sx(plot, S.o2 - TOL.o2), bx1 = sx(plot, S.o2 + TOL.o2), by0 = sy(plot, S.p + TOL.p), by1 = sy(plot, S.p - TOL.p);
+      actx.fillStyle = css(ATLAS_COL.scen, .08); actx.fillRect(bx0, by0, bx1 - bx0, by1 - by0);
+      actx.strokeStyle = css(ATLAS_COL.scen, .8); actx.lineWidth = 1; actx.strokeRect(bx0, by0, bx1 - bx0, by1 - by0);
+
+      // crosshair from the scenario to both axes
+      actx.setLineDash([3, 4]); actx.strokeStyle = css(ATLAS_COL.scen, .4); actx.beginPath();
+      actx.moveTo(cx, cy); actx.lineTo(cx, plot.y + plot.h); actx.moveTo(cx, cy); actx.lineTo(plot.x, cy); actx.stroke(); actx.setLineDash([]);
+
+      // lines to the three nearest runs
+      actx.strokeStyle = css(ATLAS_COL.scen, .55); actx.lineWidth = 1;
+      for (const n of A.nearest) { actx.beginPath(); actx.moveTo(cx, cy); actx.lineTo(sx(plot, n.r.o2), sy(plot, n.r.p)); actx.stroke(); }
+
+      // runs: out-of-slice runs first (faded), then runs at the scenario's gravity on top
+      const order = [...RUNS].sort((a, b) => inGravitySlice(a) - inGravitySlice(b));
+      for (const r of order) {
+        const x = sx(plot, r.o2), y = sy(plot, r.p), live = inGravitySlice(r), inside = insideBox(r);
+        const rad = inside ? 5 : live ? 4 : 3;
+        dot(x, y, rad, r.color, live ? .95 : .16, r.word);
+        if (inside) { actx.strokeStyle = 'rgba(255,255,255,.9)'; actx.lineWidth = 1; actx.beginPath(); actx.arc(x, y, rad + 2, 0, Math.PI * 2); actx.stroke(); }
+        atlasHits.push({ r, x, y });
+      }
+      // nearest-run rank labels
+      actx.font = '600 10px "JetBrains Mono", monospace'; actx.textAlign = 'left';
+      A.nearest.forEach((n, i) => { actx.fillStyle = '#e6edf9'; actx.fillText(String(i + 1), sx(plot, n.r.o2) + 7, sy(plot, n.r.p) - 7); });
+
+      // scenario marker
+      dot(cx, cy, 5, 0xffffff, 1, false);
+      actx.strokeStyle = css(ATLAS_COL.scen, 1); actx.lineWidth = 2; actx.beginPath(); actx.arc(cx, cy, 8, 0, Math.PI * 2); actx.stroke();
+      actx.fillStyle = css(ATLAS_COL.scen, 1); actx.textAlign = cx > plot.x + plot.w - 80 ? 'right' : 'left';
+      actx.fillText('SCENARIO', cx + (actx.textAlign === 'right' ? -12 : 12), cy - 12);
+
+      // gravity strip: every run along √g, the scenario's gravity and its tolerance band
+      actx.font = '10px "JetBrains Mono", monospace';
+      const gx0 = sg(strip, Math.max(0, S.g - TOL.g)), gx1 = sg(strip, Math.min(1, S.g + TOL.g)), gcx = sg(strip, S.g);
+      actx.fillStyle = css(ATLAS_COL.scen, .12); actx.fillRect(gx0, strip.y, Math.max(2, gx1 - gx0), strip.h);
+      actx.strokeStyle = ATLAS_COL.frame; actx.lineWidth = 1; actx.strokeRect(strip.x + .5, strip.y + .5, strip.w - 1, strip.h - 1);
+      for (const r of RUNS) {
+        const x = sg(strip, r.g), y = strip.y + 6 + r.jitter * (strip.h - 12), live = inGravitySlice(r);
+        dot(x, y, 2.5, r.color, live ? .9 : .35, r.word);
+        atlasHits.push({ r, x, y });
+      }
+      actx.strokeStyle = css(ATLAS_COL.scen, 1); actx.lineWidth = 2; actx.beginPath(); actx.moveTo(gcx, strip.y - 4); actx.lineTo(gcx, strip.y + strip.h + 4); actx.stroke();
+      actx.textAlign = 'center';
+      for (const [g, t] of [[0, '0 g'], [0.166, 'Moon'], [0.38, 'Mars'], [1, '1 g Earth']]) {
+        const x = sg(strip, g); actx.fillStyle = ATLAS_COL.text;
+        actx.textAlign = g === 0 ? 'left' : g === 1 ? 'right' : 'center';
+        actx.fillText(t, x, strip.y + strip.h + 12);
+        actx.strokeStyle = ATLAS_COL.grid; actx.beginPath(); actx.moveTo(x, strip.y); actx.lineTo(x, strip.y + strip.h); actx.stroke();
+      }
+      actx.textAlign = 'left'; actx.fillStyle = ATLAS_COL.text;
+      actx.fillText('Gravity (√ scale). Runs inside the orange band are drawn solid in the chart above.', strip.x, strip.y - 12);
+    }
+
+    // Hover tooltip on any run dot
+    atlasCanvas.addEventListener('pointermove', e => {
+      const b = atlasCanvas.getBoundingClientRect(), mx = e.clientX - b.left, my = e.clientY - b.top;
+      let best = null, bd = 81;
+      for (const h of atlasHits) { const d = (h.x - mx) ** 2 + (h.y - my) ** 2; if (d < bd) { bd = d; best = h; } }
+      if (!best) { atlasTip.style.display = 'none'; return; }
+      const r = best.r;
+      atlasTip.innerHTML = `<b>${r.id}</b> · ${r.mat}<br>${r.o2.toFixed(1)}% O₂ · ${r.p.toFixed(0)} kPa<br>${r.g.toFixed(3)} g${r.word ? ' (from words)' : ''}${r.f != null ? ` · ${r.f.toFixed(0)} cm/s` : ''}`;
+      atlasTip.style.display = 'block';
+      const ox = atlasCanvas.offsetLeft, oy = atlasCanvas.offsetTop;
+      const left = Math.min(ox + best.x + 12, atlasEl.clientWidth - atlasTip.offsetWidth - 6);
+      atlasTip.style.left = left + 'px'; atlasTip.style.top = (oy + best.y + 12) + 'px';
+    });
+    atlasCanvas.addEventListener('pointerleave', () => atlasTip.style.display = 'none');
+
+    /* ============================================================
+       ACT 03: DATA PIPELINE (calm diagram: matte nodes, thin edges, a slow trickle of packets)
+       ============================================================ */
+    const PIPE = new THREE.Group(); PIPE.position.set(-80, 0, 0); scene.add(PIPE);
+    const NODES = [
+      {
+        id: 'src', label: 'NASA sources', sub: '23 rows · NTRS · PSI', pos: [-12, -2.5, 0], color: 0x5fb7ff, shape: 'ico',
+        text: 'Every paper, data set and PSI page we rely on, one row each in <b>sources/sources.csv</b>. A person opens each link and fills in the url, access date and what we take from it.'
+      },
+      {
+        id: 'p1', label: 'Prompt 1', sub: 'extract factsheet', pos: [-8.5, 1, 0], color: 0xa98bff, shape: 'oct',
+        text: 'Turns a paper into a JSON factsheet: conditions with page numbers, test runs, findings tagged MEASURED or INTERPRETED. Every number keeps its original value and unit.'
+      },
+      {
+        id: 'p12', label: 'Prompt 12 + 2nd checker', sub: 'adversarial review', pos: [-5, 3.2, 0], color: 0xff5fa2, shape: 'oct',
+        text: 'A second prompt hunts for invented numbers and missing pages, then a <b>second person</b> checks every value against the paper. No second checker, no load.'
+      },
+      {
+        id: 'val', label: 'Validate', sub: 'errors reject · warnings flag', pos: [-1, 1.2, 0], color: 0xffb347, shape: 'gate',
+        text: '<b>pyra validate</b> rejects sheets without a source or checker, impossible values, or text stuffed into numbers. Rejected packets stop here.'
+      },
+      {
+        id: 'db', label: 'pyra.db', sub: 'SQLite · rebuilt every time', pos: [3, -1.2, 0], color: 0x46f0e0, shape: 'db',
+        text: 'One SQLite file built from the verified sheets. Never edited by hand. Missing values stay NULL with <b>is_missing = 1</b>, never 0.'
+      },
+      {
+        id: 'ev', label: 'Evidence corpus', sub: 'evidence.py', pos: [7, 0, 0], color: 0x3ee08f, shape: 'ico',
+        text: 'Reads the database into one in-memory corpus of investigations and runs that every engine shares.'
+      },
+      {
+        id: 'rank', label: 'Ranking', sub: '7 weighted axes', pos: [12, 6, -1], color: 0x5fb7ff, shape: 'dodeca',
+        text: 'Ranks investigations by closeness to a scenario: atmosphere 0.25, gravity 0.20, material 0.20, flow, objective, scale 0.10 each, measurement 0.05.'
+      },
+      {
+        id: 'gaps', label: 'Gap engine', sub: 'DIRECTLY_TESTED → NO_INDEXED_DATA', pos: [13, 2, 1], color: 0xff6a2b, shape: 'dodeca',
+        text: 'Axis by axis: directly tested, bounded, one-sided, insufficient, not comparable, or no data. Then the stricter question: did a <b>single run</b> match every axis?'
+      },
+      {
+        id: 'ret', label: 'Retrieval + Assistant', sub: 'grounded, 250 words', pos: [13, -2, 1], color: 0xa98bff, shape: 'dodeca',
+        text: 'In-memory search over papers and findings. The assistant answers only from retrieved evidence, cites it, and its answers are checked.'
+      },
+      {
+        id: 'con', label: 'Concern engine', sub: 'SIMULATED telemetry', pos: [12, -6, -1], color: 0xff4d5e, shape: 'dodeca',
+        text: 'Watches simulated cabin telemetry against PLACEHOLDER limits and trends, and explains which evidence is relevant to the concern.'
+      },
+      {
+        id: 'app', label: 'PYRA web app', sub: 'Explorer · Compare · Astronaut · Mission · Builders · Researchers', pos: [18, 0, 0], color: 0xdfe6f2, shape: 'ring',
+        text: 'The six views. Every number on screen links back to a page in a paper, and every gap is shown as a gap.'
+      },
+    ];
+    const EDGES = [['src', 'p1'], ['p1', 'p12'], ['p12', 'val'], ['val', 'db'], ['db', 'ev'], ['ev', 'rank'], ['ev', 'gaps'], ['ev', 'ret'], ['ev', 'con'], ['rank', 'app'], ['gaps', 'app'], ['ret', 'app'], ['con', 'app']];
+    const PIPE_STYLE = {
+      emissive: 0.12, emissiveSel: 0.5,                       // node glow, kept under the bloom threshold
+      edge: 0x2c4a7a, edgeOpacity: 0.5, edgeSel: 0x7aa6e6, edgeSelOpacity: 0.9,
+      packetEvery: 1.4, packetSpeed: 0.3, rejectRate: 0.2, fadeTime: 0.8,
+      colors: { raw: 0x9fd2ff, checked: 0xffd27a, rejected: 0xff4d5e, stored: 0x46f0e0 },
+    };
+    const nodeById = {};
+    function nodeMesh(shape, mat) {
+      switch (shape) {
+        case 'ico': return new THREE.Mesh(new THREE.IcosahedronGeometry(0.75, 0), mat);
+        case 'oct': return new THREE.Mesh(new THREE.OctahedronGeometry(0.7, 0), mat);
+        case 'gate': { const m = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.14, 16, 48), mat); m.rotation.y = Math.PI / 2; return m; }
+        case 'db': { const g = new THREE.Group(); for (let k = 0; k < 3; k++) { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.75, 0.35, 40), mat); c.position.y = (k - 1) * 0.45; g.add(c); } return g; }
+        case 'ring': { const g = new THREE.Group(); g.add(new THREE.Mesh(new THREE.TorusGeometry(1.1, 0.08, 16, 64), mat), new THREE.Mesh(new THREE.SphereGeometry(0.45, 32, 24), mat)); return g; }
+        default: return new THREE.Mesh(new THREE.DodecahedronGeometry(0.55, 0), mat);
+      }
+    }
+    for (const n of NODES) {
+      const g = new THREE.Group(); g.position.set(...n.pos); PIPE.add(g); n.obj = g; nodeById[n.id] = n;
+      n.mat = new THREE.MeshStandardMaterial({ color: n.color, emissive: n.color, emissiveIntensity: PIPE_STYLE.emissive, metalness: .2, roughness: .6 });
+      n.mesh = nodeMesh(n.shape, n.mat); g.add(n.mesh);
+      n.mesh.traverse(o => { o.userData.node = n.id; });
+    }
+    const CURVES = EDGES.map(([a, b]) => {
+      const A = nodeById[a].obj.position, B = nodeById[b].obj.position;
+      const mid = A.clone().add(B).multiplyScalar(.5); mid.z += 0.6;
+      const c = new THREE.CatmullRomCurve3([A.clone(), mid, B.clone()]);
+      const mat = new THREE.MeshBasicMaterial({ color: PIPE_STYLE.edge, transparent: true, opacity: PIPE_STYLE.edgeOpacity });
+      PIPE.add(new THREE.Mesh(new THREE.TubeGeometry(c, 48, 0.025, 8, false), mat));
+      return { a, b, c, mat };
+    });
+    // Brighten only the edges touching the selected stage.
+    function highlightEdges() {
+      for (const e of CURVES) {
+        const on = e.a === S.node || e.b === S.node;
+        e.mat.color.set(on ? PIPE_STYLE.edgeSel : PIPE_STYLE.edge); e.mat.opacity = on ? PIPE_STYLE.edgeSelOpacity : PIPE_STYLE.edgeOpacity;
+      }
+    }
+
+    // Packets: small plain dots that travel along edges. Rejected ones turn red at review and fade out at Validate.
+    const PK = []; const pkGeo = new THREE.SphereGeometry(0.07, 12, 10); let pkTimer = 0;
+    function spawnPacket(edgeIdx, color, reject = false) {
+      const m = new THREE.Mesh(pkGeo, new THREE.MeshBasicMaterial({ color, transparent: true })); PIPE.add(m);
+      m.position.copy(CURVES[edgeIdx].c.getPointAt(0));
+      PK.push({ m, e: edgeIdx, t: 0, reject, fade: 0, dead: false });
+    }
+    function removePacket(p) { p.dead = true; PIPE.remove(p.m); p.m.material.dispose(); }
+    // Called when a packet reaches the end of its edge; returns false when the packet is finished.
+    function packetArrives(p) {
+      const at = CURVES[p.e].b, C = PIPE_STYLE.colors;
+      if (at === 'p12') p.m.material.color.set(p.reject ? C.rejected : C.checked);
+      if (at === 'val' && p.reject) { p.fade = PIPE_STYLE.fadeTime; return true; }
+      if (at === 'db') p.m.material.color.set(C.stored);
+      const outs = CURVES.map((c, i) => [c, i]).filter(([c]) => c.a === at);
+      if (!outs.length) return false;
+      if (at === 'ev') {   // the corpus feeds every engine: one packet per outgoing edge, in the engine's colour
+        for (const [c, i] of outs.slice(1)) spawnPacket(i, nodeById[c.b].color);
+        p.m.material.color.set(nodeById[outs[0][0].b].color);
+      }
+      p.e = outs[0][1]; p.t = 0; return true;
+    }
+    function updatePipeline(dt) {
+      pkTimer += dt;
+      if (pkTimer > PIPE_STYLE.packetEvery) { pkTimer = 0; spawnPacket(0, PIPE_STYLE.colors.raw, Math.random() < PIPE_STYLE.rejectRate); }
+      for (const n of NODES) {
+        const tgt = n.id === S.node ? PIPE_STYLE.emissiveSel : PIPE_STYLE.emissive;
+        n.mat.emissiveIntensity = lerp(n.mat.emissiveIntensity, tgt, 0.1);
+      }
+      for (const p of PK) {
+        if (p.dead) continue;
+        if (p.fade > 0) {
+          p.fade -= dt; const k = Math.max(p.fade / PIPE_STYLE.fadeTime, 0);
+          p.m.material.opacity = k; p.m.scale.setScalar(0.5 + 0.5 * k);
+          if (p.fade <= 0) removePacket(p);
+          continue;
+        }
+        p.t += dt * PIPE_STYLE.packetSpeed;
+        if (p.t < 1) { p.m.position.copy(CURVES[p.e].c.getPointAt(p.t)); continue; }
+        if (!packetArrives(p)) removePacket(p);
+      }
+      for (let i = PK.length - 1; i >= 0; i--) if (PK[i].dead) PK.splice(i, 1);
+    }
+
+    /* ============================================================
+       PINS: HTML labels that follow 3D objects
+       ============================================================ */
+    const pinsEl = $('pins'); const PINS = [];
+    function addPin(act, obj, html, cls = '', onclick = null) {
+      const el = document.createElement('div'); el.className = 'pin ' + cls; el.innerHTML = html; pinsEl.appendChild(el);
+      if (onclick) el.addEventListener('click', onclick);
+      const p = { act, obj, el, off: new THREE.Vector3(0, 0.35, 0) }; PINS.push(p); return p;
+    }
+    for (const s of SENSORS) s.pin = addPin('habitat', s.obj, `${s.name}<span class="v">–</span>`);
+    const flamePin = addPin('habitat', FL, 'FLAME<span class="v">–</span>'); flamePin.off.set(0, 1.8, 0);
+    for (const n of NODES) { n.pin = addPin('pipeline', n.obj, `${n.label}<small>${n.sub}</small>`, 'node', () => selectNode(n.id)); n.pin.off.set(0, 1.5, 0); }
+    const _v = new THREE.Vector3();
+    function updatePins() {
+      const visible = transitioning ? null : S.act;
+      for (const p of PINS) {
+        if (p.act !== visible) { p.el.classList.add('hidden'); continue; }
+        p.obj.getWorldPosition(_v).add(p.off); _v.project(camera);
+        if (_v.z > 1) { p.el.classList.add('hidden'); continue; }
+        p.el.classList.remove('hidden');
+        p.el.style.left = ((_v.x + 1) / 2 * innerWidth) + 'px'; p.el.style.top = ((1 - _v.y) / 2 * innerHeight) + 'px';
+      }
+    }
+
+    /* ============================================================
+       RIGHT PANEL (one renderer per act)
+       ============================================================ */
+    const right = $('right');
+    const hex6 = c => '#' + c.toString(16).padStart(6, '0');
+    function gapChip(x) {
+      const d = x.dist != null && x.dist > 0 ? `<small>${x.dist.toFixed(1)}×tol</small>` : x.within ? `<small>${x.within} runs</small>` : '';
+      return `<span class="gap g-${x.cls}">${x.cls.replace(/_/g, ' ')}${d}</span>`;
+    }
+    function renderHabitatPanel() {
+      right.innerHTML = `
+  <section><h3>Flame · sample chamber <em>ILLUSTRATIVE</em></h3>
+    <div class="state" id="fstate"></div>
+    <div class="kv">
+      <span>Shape</span><b id="fshape"></b>
+      <span>Gravity</span><b id="fg"></b>
+      <span>Buoyant velocity · calc</span><b id="fbuoy"></b>
+      <span>Péclet number · calc</span><b id="fpe"></b>
+      <span>Length × width · calc</span><b id="fsize"></b>
+      <span>Flame temp · est. adiabatic</span><b id="ftf"></b>
+      <span>Heat release · est.</span><b id="fq"></b>
+      <span>O₂ limit (toy model)</span><b id="flim"></b>
+      <span>Margin</span><b id="fmar"></b>
+    </div>
+    <div class="meter"><i id="fmeter"></i></div>
+    <p class="note">Shape is the computed flame sheet of a point fuel source in the combined buoyant and ventilation flow (flame-model.js). With no gravity and no flow the Péclet number goes to zero and the flame is a diffusion-limited sphere. The O₂ limit and soot colour are still a toy, not a fire model.</p>
+  </section>
+  <section><h3>Cabin telemetry <em>SIMULATED</em></h3>
+    <div class="state ok" id="cstate">ALL NOMINAL</div>
+    <div class="tele" id="tele"></div>
+    <h3 style="margin-top:16px">Inject event</h3>
+    <div class="events">${Object.entries(EVENTS).map(([k, e]) => `<button class="chip ${S.event === k ? 'on' : ''}" data-ev="${k}">${e.name}</button>`).join('')}</div>
+    <p class="note">Limits are PLACEHOLDER values from config/alerts.json, picked so the demo has something to trip. Drift is sped up for the demo. The 50–62 kPa pressure band is meant for the 8.2 psi habitat, so it isn't applied here.</p>
+  </section>`;
+      right.querySelectorAll('[data-ev]').forEach(b => b.onclick = () => { S.event = b.dataset.ev; resetTelemetry(); renderRight(); });
+      updateHabitatPanel();
+    }
+    function renderAtlasPanel() {
+      const A = currentAnalysis();
+      const rows = [['Oxygen', A.o2, `${S.o2.toFixed(1)}%`], ['Pressure', A.p, `${S.p.toFixed(0)} kPa`], ['Gravity', A.g, `${S.g.toFixed(3)} g`], ['Flow', A.f, `${S.f.toFixed(1)} cm/s`], ['Material', A.mat, S.mat]];
+      right.innerHTML = `
+  <section><h3>Gap report <em>VERIFIED DATA</em></h3>
+    <p class="note">${evidenceNote}</p>
+    ${rows.map(([n, x, v]) => `<div class="gaprow"><span>${n}<br><small>${v}</small></span>${gapChip(x)}</div>`).join('')}
+    <div class="combo">${A.combo > 0
+          ? `<b>${A.combo} single run${A.combo > 1 ? 's' : ''}</b> matched every axis at once. This exact combination has been burned.`
+          : `<b>No single run</b> matched every axis at once. Each axis may look covered, but the combination has never been tested.`}</div>
+  </section>
+  <section><h3>Nearest runs</h3>
+    <div class="near">${A.nearest.length ? "" : "No verified runs to measure against."}${A.nearest.map((n, i) => `${i + 1}. <b>${n.r.id}</b> · ${n.d.toFixed(2)} tol away<br>&nbsp;&nbsp; ${n.r.o2.toFixed(1)}% · ${n.r.p.toFixed(0)} kPa · ${n.r.g.toFixed(2)} g${n.r.word ? ' · <span class="word">g from words</span>' : ''}`).join('<br>')}</div>
+    <p class="note">Distance is root-mean-square in tolerances (O₂ ±2 pts, pressure ±7 kPa, flow ±5 cm/s, gravity ±0.05 g), as in pyra/gaps.py.</p>
+  </section>
+  <section><h3>Legend</h3>
+    <div class="legend">${INV_DEF.map(d => `<span><i style="background:${hex6(d.color)}"></i>${d.ac}</span>`).join('')}</div>
+    <p class="note">Solid dots are runs at the scenario's gravity (±0.05 g); faded dots were burned at another gravity. Rings are runs whose gravity is only given in words. Dashed boxes are investigations that report only ranges. Teal shading shows how close the nearest run is; dark areas have no evidence.</p>
+  </section>`;
+    }
+    function renderPipelinePanel() {
+      const n = nodeById[S.node || 'gaps'];
+      for (const x of NODES) x.pin.el.classList.toggle('sel', x === n);
+      right.innerHTML = `
+  <section><h3>How evidence gets in</h3>
+    <p class="lead">Nothing reaches the database until <b>a person has checked it</b>. Dots show factsheets moving through; red ones fail review and stop at Validate.</p>
+  </section>
+  <section><h3>${n.label}</h3><p class="lead">${n.text}</p></section>
+  <section><h3>Stages</h3><div class="chips">${NODES.map(x => `<button class="chip ${x.id === n.id ? 'on' : ''}" data-node="${x.id}">${x.label}</button>`).join('')}</div></section>`;
+      right.querySelectorAll('[data-node]').forEach(b => b.onclick = () => selectNode(b.dataset.node));
+    }
+    function renderRight() { ({ habitat: renderHabitatPanel, atlas: renderAtlasPanel, pipeline: renderPipelinePanel })[S.act](); }
+
+    // Live values in the habitat panel (called a few times a second, no re-render)
+    function updateHabitatPanel() {
+      if (!$('fshape')) return;
+      const R = FS.model.results, st = $('fstate');
+      st.className = 'state ' + (FS.alive ? 'burn' : 'out'); st.textContent = FS.alive ? 'BURNING' : 'FLAME OUT';
+      $('fshape').textContent = FS.shape;
+      $('fg').textContent = R.gravity.toFixed(2) + ' m/s² (' + R.gravityG.toFixed(3) + ' g)';
+      $('fbuoy').textContent = (R.buoyantVelocity * 100).toFixed(1) + ' cm/s';
+      $('fpe').textContent = R.peclet.toFixed(2);
+      $('fsize').textContent = (R.length * 1e3).toFixed(1) + ' × ' + (R.width * 1e3).toFixed(1) + ' mm';
+      $('ftf').textContent = R.flameTemp.toFixed(0) + ' K';
+      $('fq').textContent = R.heatRelease.toFixed(1) + ' W';
+      $('flim').textContent = FS.limit.toFixed(1) + '% O₂';
+      const mg = S.o2 - FS.limit; $('fmar').textContent = (mg > 0 ? '+' : '') + mg.toFixed(1) + ' pts';
+      $('fmeter').style.width = clamp(FS.power / 1.3, 0, 1) * 100 + '%';
+      let worst = 'ok';
+      $('tele').innerHTML = SENSORS.map(s => {
+        const v = TEL[s.id], l = level(s.id, v);
+        if (l === 'alert' || (l === 'watch' && worst === 'ok')) worst = l;
+        const L = LIMITS[s.id], lim = L ? (L.max != null ? `≤ ${L.max}` : '') + (L.min != null ? ` ≥ ${L.min}` : '') : '';
+        return `<div class="tile ${l}"><span>${s.name}</span><b>${s.fmt(v)}</b> <small>${s.unit}</small><br><small>${lim}</small></div>`;
+      }).join('');
+      if (S.event === 'stuck' && worst === 'ok') worst = 'watch';
+      const cs = $('cstate'); cs.className = 'state ' + worst;
+      cs.textContent = worst === 'ok' ? 'ALL NOMINAL' : worst === 'watch' ? (S.event === 'stuck' ? 'WATCH · O₂ READING FROZEN' : 'WATCH · APPROACHING LIMIT') : 'CONCERN · LIMIT EXCEEDED';
+    }
+    function selectNode(id) { S.node = id; highlightEdges(); if (S.act !== 'pipeline') goAct('pipeline'); else { renderRight(); focusNode(id); } }
+    function focusNode(id) { const wp = new THREE.Vector3(); nodeById[id].obj.getWorldPosition(wp); flyTo(wp.clone().add(new THREE.Vector3(2, 2.5, 13)), wp, 1.4); }
+
+    /* ============================================================
+       LEFT PANEL: presets + sliders
+       ============================================================ */
+    const presetsEl = $('presets');
+    presetsEl.innerHTML = PRESETS.map(p => `<button class="chip" data-p="${p.id}">${p.name}</button>`).join('');
+    presetsEl.querySelectorAll('[data-p]').forEach(b => b.onclick = () => applyPreset(b.dataset.p, true));
+    const ctl = { o2: $('o2'), p: $('p'), g: $('g'), f: $('f'), mat: $('mat') };
+    function syncSliders() {
+      for (const k of SCENARIO_KEYS) { const el = ctl[k]; el.value = S[k]; el.style.setProperty('--p', ((S[k] - el.min) / (el.max - el.min) * 100) + '%'); }
+      ctl.mat.value = S.mat;
+      $('o2v').textContent = S.o2.toFixed(1) + ' %';
+      $('pv').textContent = S.p.toFixed(0) + ' kPa · ' + (S.p / 6.895).toFixed(1) + ' psi';
+      const gname = S.g < 0.01 ? ' µg' : Math.abs(S.g - 0.166) < 0.02 ? ' Moon' : Math.abs(S.g - 0.38) < 0.02 ? ' Mars' : Math.abs(S.g - 1) < 0.02 ? ' Earth' : '';
+      $('gv').textContent = S.g.toFixed(3) + ' g · ' + (S.g * PyraFlame.G0).toFixed(2) + ' m/s²' + gname;
+      $('fv').textContent = S.f.toFixed(1) + ' cm/s';
+      presetsEl.querySelectorAll('[data-p]').forEach(b => b.classList.toggle('on', b.dataset.p === S.preset));
+    }
+    // Every scenario change goes through here so all three acts stay in sync.
+    function onScenario() {
+      scenVer++; heatDirty = true;
+      solveFlame(); syncSliders();
+      if (S.act === 'atlas') { renderRight(); drawAtlas(); }
+      else if (S.act === 'habitat') updateHabitatPanel();
+    }
+    for (const k of SCENARIO_KEYS) ctl[k].addEventListener('input', () => { S[k] = parseFloat(ctl[k].value); S.preset = null; onScenario(); });
+    ctl.mat.addEventListener('change', () => { S.mat = ctl.mat.value; S.preset = null; onScenario(); });
+
+    let scenTween = null;   // presets glide over 1.6 s instead of jumping
+    function applyPreset(id, tween) {
+      const p = PRESETS.find(x => x.id === id); S.preset = id;
+      if (!tween) { for (const k of SCENARIO_KEYS) S[k] = p[k]; onScenario(); return; }
+      scenTween = { from: Object.fromEntries(SCENARIO_KEYS.map(k => [k, S[k]])), to: p, t: 0 };
+      caption('Scenario', p.cap);
+    }
+    function stepScenarioTween(dt) {
+      if (!scenTween) return;
+      scenTween.t = Math.min(1, scenTween.t + dt / 1.6); const e = 1 - Math.pow(1 - scenTween.t, 3);
+      for (const k of SCENARIO_KEYS) S[k] = lerp(scenTween.from[k], scenTween.to[k], e);
+      if (scenTween.t >= 1) scenTween = null;
+      onScenario();
+    }
+
+    /* ============================================================
+       CAMERA + ACT TRANSITIONS
+       ============================================================ */
+    const VIEWS = {
+      habitat: { pos: new THREE.Vector3(5.2, 1.9, 10.2), tgt: new THREE.Vector3(0, -0.3, -1.2) },
+      atlas: { pos: new THREE.Vector3(91, 6.5, 24), tgt: new THREE.Vector3(80, 0.3, -0.5) },   // empty starfield behind the 2D chart
+      pipeline: { pos: new THREE.Vector3(-77, 6, 47), tgt: new THREE.Vector3(-77, 0.5, 0) },
+    };
+    let fly = null, transitioning = false;
+    function flyTo(pos, tgt, dur = 2.2) { fly = { p0: camera.position.clone(), t0: controls.target.clone(), p1: pos.clone(), t1: tgt.clone(), t: 0, dur }; transitioning = true; }
+    function stepCamera(dt) {
+      if (fly) {
+        fly.t = Math.min(1, fly.t + dt / fly.dur); const e = fly.t < .5 ? 4 * fly.t ** 3 : 1 - Math.pow(-2 * fly.t + 2, 3) / 2;
+        camera.position.lerpVectors(fly.p0, fly.p1, e); controls.target.lerpVectors(fly.t0, fly.t1, e);
+        if (fly.p0.distanceTo(fly.p1) > 30) camera.position.y += Math.sin(e * Math.PI) * 14;   // arc over long jumps between acts
+        if (fly.t >= 1) { fly = null; transitioning = false; }
+      }
+      controls.update();
+    }
+    const CAPS = {
+      habitat: ['Act 01 · Habitat', 'A cutaway habitat module. Drag the sliders: the flame, airflow and simulated cabin sensors all respond to the same scenario.'],
+      atlas: ['Act 02 · Evidence Atlas', 'Every dot is a test run, placed by oxygen and pressure. The orange box is "close enough" to your scenario. Dark space is where the evidence stops.'],
+      pipeline: ['Act 03 · Data Pipeline', 'From NASA papers to the app. Every number is extracted, adversarially checked, validated, and only then built into the database.'],
+    };
+    function goAct(a) {
+      S.act = a;
+      document.querySelectorAll('#acts button').forEach(b => b.classList.toggle('on', b.dataset.act === a));
+      document.body.classList.toggle('act-atlas', a === 'atlas');
+      atlasEl.classList.toggle('show', a === 'atlas');
+      const v = VIEWS[a]; flyTo(v.pos, v.tgt); renderRight(); drawAtlas(); caption(...CAPS[a]);
+      if (a === 'pipeline') { highlightEdges(); if (S.node) setTimeout(() => focusNode(S.node), 2300); }
+    }
+    document.querySelectorAll('#acts button').forEach(b => b.onclick = () => { stopTour(); goAct(b.dataset.act); });
+    $('swap').onclick = () => document.body.classList.toggle('showright');
+
+    /* ---------- captions ---------- */
+    let capTimer = null;
+    function caption(t, s, hold = 9000) {
+      const T = $('capT'), Sx = $('capS');
+      Sx.style.opacity = 0; setTimeout(() => { T.textContent = t; Sx.innerHTML = s; Sx.style.opacity = 1; }, 250);
+      clearTimeout(capTimer); if (!touring) capTimer = setTimeout(() => { Sx.style.opacity = 0; T.textContent = ''; }, hold);
+    }
+
+    /* ---------- guided tour ---------- */
+    const TOUR = [
+      { act: 'habitat', preset: 'earth', dur: 7, t: 'On Earth', s: 'Buoyancy pulls hot gas upward. The flame is a bright, sooty, flickering teardrop.' },
+      { act: 'habitat', preset: 'iss', dur: 8, t: 'In orbit', s: 'Take gravity away and the same fuel burns as a <b>dim blue ball</b>, steady and almost invisible, fed only by diffusion and a gentle push from the ventilation fan.' },
+      { act: 'habitat', preset: 'expl', dur: 8, t: 'Exploration atmosphere', s: 'Drop pressure to 8.2 psi and raise oxygen to 34%. The flame grows and the O₂ sensor is now near its PLACEHOLDER limit.' },
+      { act: 'habitat', preset: 'expl', event: 'wire', dur: 8, t: 'Concern engine', s: 'An overheating wire: smoke, CO and temperature drift up. The concern engine flags it against the limits, using SIMULATED telemetry.' },
+      { act: 'atlas', preset: 'iss', dur: 8, t: 'Is there evidence?', s: 'ISS air sits inside a dense cluster of test runs, and many of them match on every axis at once.' },
+      { act: 'atlas', preset: 'moon', dur: 9, t: 'Lunar habitat', s: 'Move the scenario to the Moon. Oxygen and pressure each look covered, but <b>no single run</b> matched all axes. That empty space is the finding.' },
+      { act: 'atlas', preset: 'mars', dur: 7, t: 'Mars gravity', s: 'A thin band of parabolic-flight runs reaches 0.38 g, only at Earth pressure. The gap engine reports what is bounded and what is one-sided.' },
+      { act: 'pipeline', node: 'val', dur: 8, t: 'Trust the input', s: 'Every factsheet is checked by a second person. Validation rejects anything without a source. Red dots stop there.' },
+      { act: 'pipeline', node: 'gaps', dur: 8, t: 'One corpus, many engines', s: 'Ranking, gaps, retrieval and the concern engine all read the same verified corpus and feed the six views of the app.' },
+    ];
+    let touring = false, tourIdx = 0, tourT = 0;
+    const tourBtn = $('tour'), prog = $('progress');
+    function startTour() { touring = true; tourIdx = -1; tourBtn.classList.add('on'); tourBtn.textContent = '■ Stop'; prog.style.opacity = 1; nextTour(); }
+    function stopTour() { if (!touring) return; touring = false; tourBtn.classList.remove('on'); tourBtn.textContent = '▶ Tour'; prog.style.opacity = 0; }
+    function nextTour() {
+      tourIdx = (tourIdx + 1) % TOUR.length; tourT = 0; const st = TOUR[tourIdx];
+      if (st.node) { S.node = st.node; highlightEdges(); }
+      if (S.act !== st.act) goAct(st.act); else if (st.node) { renderRight(); focusNode(st.node); }
+      if (st.preset && st.preset !== S.preset) applyPreset(st.preset, true);
+      const ev = st.event || 'nominal'; if (ev !== S.event) { S.event = ev; resetTelemetry(); if (S.act === 'habitat') renderRight(); }
+      setTimeout(() => caption(st.t, st.s), 60);
+    }
+    function stepTour(dt) {
+      if (!touring) return;
+      tourT += dt; const st = TOUR[tourIdx]; prog.firstChild.style.width = (tourT / st.dur * 100) + '%';
+      if (tourT >= st.dur) nextTour();
+    }
+    tourBtn.onclick = () => touring ? stopTour() : startTour();
+    atlasEl.addEventListener('pointerdown', stopTour);
+
+    /* ---------- clicking pipeline nodes in 3D ---------- */
+    const ray = new THREE.Raycaster(), mouse = new THREE.Vector2(); let downAt = null;
+    renderer.domElement.addEventListener('pointerdown', e => { downAt = [e.clientX, e.clientY]; stopTour(); });
+    renderer.domElement.addEventListener('pointerup', e => {
+      if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 5 || S.act !== 'pipeline') return;   // ignore drags
+      mouse.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); ray.setFromCamera(mouse, camera);
+      const hit = ray.intersectObjects(PIPE.children, true).find(h => h.object.userData.node);
+      if (hit) selectNode(hit.object.userData.node);
+    });
+
+    /* ============================================================
+       FRAME UPDATES (habitat)
+       ============================================================ */
+    const TIP_BLUE = new THREE.Color(0xb0e0ff), TIP_SOOT = new THREE.Color(0xff9a3c);
+    const COOL = new THREE.Color(0x6fb6ff), HOT = new THREE.Color(0xff8a3a), tmpC = new THREE.Color();
+    const _fw = new THREE.Vector3();
+
+    function updateFlame(dt, t) {
+      FS.power = lerp(FS.power, FS.target, 1 - Math.exp(-dt * (FS.target > FS.power ? 2.5 : 1.6)));
+      const pw = FS.power, MR = FS.model.results;
+      const flick = 1 + (Math.sin(t * 23) * 0.5 + Math.sin(t * 37.3) * 0.3) * FS.flicker * 0.08;
+      const ease = 1 - Math.exp(-dt * 4), grow = 0.6 + 0.4 * clamp(pw, 0, 1);
+      for (const [m, k] of SHELLS) {
+        const u = m.material.uniforms, tgt = FS.radii[k], cur = FS.shown[k];
+        for (let i = 0; i < NTH; i++) { cur[i] += (tgt[i] - cur[i]) * ease; u.uR.value[i] = cur[i] * grow; }
+        u.uTime.value = t; u.uDir.value.copy(FS.dir); u.uFlicker.value = FS.flicker * 0.35; u.uFreq.value = MR.flickerHz * TIME_SCALE * 6.283;
+      }
+      const bluePart = 1 - clamp(FS.soot, 0, 1);
+      shellOuter.material.uniforms.uAlpha.value = pw * 0.6 * (0.5 + bluePart * 0.8);
+      shellBlue.material.uniforms.uAlpha.value = pw * (0.35 + bluePart * 1.5);
+      shellBlue.material.uniforms.uTip.value.copy(TIP_BLUE).lerp(TIP_SOOT, clamp(FS.soot * 1.3, 0, 1));
+      coreSoot.material.uniforms.uAlpha.value = pw * FS.soot * 2.2;
+      coreHot.material.uniforms.uAlpha.value = pw * (0.08 + FS.soot * 0.9);
+      FL.visible = pw > 0.005;
+      flameLight.color.copy(tmpC.copy(COOL).lerp(HOT, clamp(FS.soot, 0, 1)));
+      flameLight.intensity = pw * (14 + FS.soot * 45) * flick;
+      fuel.material.emissiveIntensity = pw * (0.15 + FS.soot * 0.8);
+    }
+
+    function updateEmbers(dt) {
+      const pw = FS.power, MR = FS.model.results;
+      // spawn on the flame sheet, in a random direction
+      EMB.acc += dt * pw * (40 + FS.soot * 220);
+      while (EMB.acc > 1) {
+        EMB.acc -= 1; const i = EMB.next; EMB.next = (EMB.next + 1) % EMB.n;
+        const a = Math.random() * 6.28, u = Math.random() * 2 - 1, s = Math.sqrt(1 - u * u), dx = Math.cos(a) * s, dz = Math.sin(a) * s;
+        const ct = clamp(dx * FS.dir.x + u * FS.dir.y, -1, 1), x = Math.acos(ct) / Math.PI * (NTH - 1), i0 = Math.floor(x), i1 = Math.min(i0 + 1, NTH - 1);
+        const rr = lerp(FS.shown.blue[i0], FS.shown.blue[i1], x - i0);
+        EMB.pos.set([dx * rr, u * rr, dz * rr], i * 3); EMB.life[i] = 1;
+      }
+      // advect with the model's convective velocity plus a random walk at the film diffusivity
+      const dtp = dt * TIME_SCALE, Uv = MR.convectiveVelocity * SCENE_PER_M * dtp;
+      const walk = Math.sqrt(2 * FS.model.properties.film.D * dtp) * SCENE_PER_M;
+      for (let i = 0; i < EMB.n; i++) {
+        const j = i * 3;
+        if (EMB.life[i] <= 0) { EMB.col[j] = EMB.col[j + 1] = EMB.col[j + 2] = 0; continue; }
+        EMB.life[i] -= dt * (0.45 + Math.random() * 0.2);
+        EMB.pos[j] += FS.dir.x * Uv + gauss(Math.random) * walk;
+        EMB.pos[j + 1] += FS.dir.y * Uv + gauss(Math.random) * walk;
+        EMB.pos[j + 2] += gauss(Math.random) * walk;
+        const L = Math.max(EMB.life[i], 0), hotness = L * L;
+        EMB.col[j] = hotness + 0.05 * L; EMB.col[j + 1] = hotness * 0.45; EMB.col[j + 2] = hotness * 0.12 * (1 - FS.soot) + 0.02 * L;
+      }
+      EMB.g.attributes.position.needsUpdate = EMB.g.attributes.color.needsUpdate = true;
+    }
+
+    function updateAir(dt, t) {
+      const MR = FS.model.results, pw = FS.power;
+      const flowV = TEL.flow * 0.05 + 0.02, fw = FL.getWorldPosition(_fw), lift = MR.buoyantShare * Math.sqrt(MR.gravityG);
+      const smoke = clamp(TEL.smoke * 3, 0, 1), dim = (0.35 + 0.65 * Math.min(1, TEL.flow / 10)) * 0.55;
+      for (let i = 0; i < AIR.n; i++) {
+        const j = i * 3, P = AIR.pos;
+        P[j] += dt * flowV * (0.8 + 0.4 * Math.sin(AIR.ph[i]));
+        P[j + 1] += Math.sin(t * 0.7 + AIR.ph[i]) * dt * 0.03 + lift * dt * 0.02 * pw * Math.max(0, 1 - Math.hypot(P[j] - fw.x, P[j + 2] - fw.z) / 2);
+        if (P[j] > LEN / 2 - 0.2) P[j] = -LEN / 2 + 0.2;            // wrap back to the vent
+        if (Math.abs(P[j + 1]) > RAD - 0.3) P[j + 1] *= 0.98;     // keep inside the hull
+        const d = Math.hypot(P[j] - fw.x, P[j + 1] - fw.y, P[j + 2] - fw.z), near = Math.exp(-d * d / 1.6) * pw;
+        AIR.col[j] = (0.12 + near * 0.9 + smoke * 0.2) * dim;
+        AIR.col[j + 1] = (0.32 + near * 0.3 - smoke * 0.1) * dim;
+        AIR.col[j + 2] = (0.42 - near * 0.3 - smoke * 0.2) * dim;
+      }
+      AIR.g.attributes.position.needsUpdate = AIR.g.attributes.color.needsUpdate = true;
+    }
+
+    function updateSensors(t) {
+      for (const s of SENSORS) {
+        const l = level(s.id, TEL[s.id]);
+        s.led.material.color.set(l === 'alert' ? 0xff4d5e : l === 'watch' ? 0xffb347 : 0x3ee08f);
+        s.led.scale.setScalar(l === 'alert' ? 1.4 + Math.sin(t * 10) * 0.4 : 1);
+        s.pin.el.classList.toggle('watch', l === 'watch'); s.pin.el.classList.toggle('alert', l === 'alert');
+        s.pin.el.querySelector('.v').textContent = s.fmt(TEL[s.id]) + (s.unit ? ' ' + s.unit : '');
+      }
+      flamePin.el.querySelector('.v').textContent = FS.alive ? FS.shape.split(' (')[0] : 'out';
+    }
+
+    /* ============================================================
+       MAIN LOOP
+       ============================================================ */
+    const clock = new THREE.Clock(); let elapsed = 0, panelT = 0;
+    /* Playback: pause and slow-motion apply to the simulation only (flame, embers,
+       airflow, telemetry, pipeline). Camera, tour and UI tweens stay in real time. */
+    const SIM = { paused: false, speed: 1 };
+    const simCtl = $('simctl'), pauseBtn = $('pause'), speedIn = $('speed'), speedV = $('speedv');
+    function setPaused(p) {
+      SIM.paused = p; simCtl.classList.toggle('paused', p);
+      pauseBtn.textContent = p ? '▶' : '❚❚'; pauseBtn.setAttribute('aria-label', p ? 'Resume simulation' : 'Pause simulation');
+      speedV.textContent = p ? 'PAUSED' : SIM.speed.toFixed(2).replace(/0$/, '') + '×';
+    }
+    function setSpeed(v) {
+      SIM.speed = clamp(+v, 0.1, 1); speedIn.value = SIM.speed;
+      speedIn.style.setProperty('--p', ((SIM.speed - 0.1) / 0.9 * 100) + '%');
+      setPaused(SIM.paused);
+    }
+    pauseBtn.addEventListener('click', () => setPaused(!SIM.paused));
+    speedIn.addEventListener('input', () => setSpeed(speedIn.value));
+    addEventListener('keydown', e => {
+      if (e.code !== 'Space' || /INPUT|SELECT|TEXTAREA|BUTTON/.test(document.activeElement?.tagName)) return;
+      e.preventDefault(); setPaused(!SIM.paused);
+    });
+    setSpeed(1);
+    function animate() {
+      requestAnimationFrame(animate);
+      const rdt = Math.min(clock.getDelta(), 0.05);          // real time: camera, tour, UI
+      const dt = SIM.paused ? 0 : rdt * SIM.speed; elapsed += dt;   // simulation time
+      const show = a => S.act === a || transitioning;
+
+      stepScenarioTween(rdt);
+      stepCamera(rdt);
+      stepTour(rdt);
+
+      earth.userData.globe.rotation.y += dt * 0.01; moon.rotation.y += dt * 0.005;
+      earth.visible = moon.visible = S.act === 'habitat' || (transitioning && fly && fly.t < 0.5);
+
+      updateFlame(dt, elapsed);
+      updateEmbers(dt);
+      if (show('habitat')) updateAir(dt, elapsed);
+      stepTelemetry(dt);
+      updateSensors(elapsed);
+      panelT += rdt; if (panelT > 0.25 && S.act === 'habitat') { panelT = 0; updateHabitatPanel(); }
+
+      if (show('pipeline')) updatePipeline(dt);
+
+      updatePins();
+      composer.render();
+    }
+
+    /* ============================================================
+       BOOT
+       ============================================================ */
+    addEventListener('resize', () => {
+      camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); bloom.resolution.set(innerWidth, innerHeight);
+      drawAtlas();
+    });
+    renderer.domElement.addEventListener('webglcontextlost', e => { e.preventDefault(); const el = $('err'); el.style.display = 'grid'; el.textContent = 'The graphics context was lost. Reload the page to restart the simulation.'; });
+    // Debug / test handle
+    window.__pyra = { S, camera, FS, get transitioning() { return transitioning }, get fly() { return fly }, get t() { return elapsed }, skip() { if (fly) fly.dur = 0.001; }, goAct, applyPreset, selectNode, analyze: currentAnalysis };
+
+    applyPreset('iss', false);
+    camera.position.copy(VIEWS.habitat.pos).add(new THREE.Vector3(10, 8, 18)); controls.target.copy(VIEWS.habitat.tgt);
+    flyTo(VIEWS.habitat.pos, VIEWS.habitat.tgt, 3);
+    renderRight(); syncSliders();
+    animate();
+    setTimeout(() => { const l = $('loading'); l.style.opacity = 0; setTimeout(() => l.remove(), 1000); caption(...CAPS.habitat); }, 400);
+  </script>
+</body>
+
+</html>

@@ -43,5 +43,20 @@
     "value": 250,
     "why": "Keeps the assistant's answers short and easy to check.",
     "confirmed_by": ""
+  },
+  "opportunity_weights": {
+    "value": {
+      "gap_size": {"NO_INDEXED_DATA": 1.0, "INSUFFICIENT": 0.8, "ONE_SIDED": 0.6,
+                   "NOT_COMPARABLE": 0.5, "BOUNDED": 0.3, "DIRECTLY_TESTED": 0.0},
+      "data_cost": {"o2_percent": 1.0, "pressure": 1.0, "flow_speed": 0.8, "gravity": 0.3},
+      "default_relevance": 1.0
+    },
+    "why": "Opportunity score = gap size x mission relevance x data cost factor. Higher data_cost means cheaper to get new data. Starting guesses only.",
+    "confirmed_by": ""
+  },
+  "ml_min_rows": {
+    "value": 50,
+    "why": "Fewer valid rows than this for a target means we do not train a model (Prompt 11).",
+    "confirmed_by": ""
   }
 }

@@ -1,10 +1,10 @@
 """The commands. Run from the project folder:
 
     python -m pyra build                 build data/pyra.db from data/factsheets/verified
-    python -m pyra build --dummy         build data/dummy.db from the DUMMY samples instead
     python -m pyra check                 run the data-quality checks on the database
     python -m pyra validate FILE...      check fact sheets without loading them (use on drafts)
     python -m pyra spotcheck             print 10 random numbers to check by hand against the paper
+    python -m pyra serve                 start the web app on http://127.0.0.1:8000
 """
 
 import argparse
@@ -20,7 +20,7 @@ def show(label, items):
 
 
 def cmd_build(args):
-    folder, db_path = (paths.SAMPLES, paths.DUMMY_DATABASE) if args.dummy else (paths.VERIFIED, paths.DATABASE)
+    folder, db_path = paths.VERIFIED, paths.DATABASE
     conn = db.create(db_path)
     results = load_folder(conn, folder)
     if not results:
@@ -39,9 +39,9 @@ def cmd_build(args):
 
 def open_database(args):
     """The built database, or None (with a hint) if it hasn't been built yet."""
-    db_path = paths.DUMMY_DATABASE if args.dummy else paths.DATABASE
+    db_path = paths.DATABASE
     if not db_path.exists():
-        print(f"{db_path} doesn't exist yet. Run: python -m pyra build{' --dummy' if args.dummy else ''}")
+        print(f"{db_path} doesn't exist yet. Run: python -m pyra build")
         return None
     return db.connect(db_path)
 
@@ -84,6 +84,12 @@ def cmd_spotcheck(args):
     return 0
 
 
+def cmd_serve(args):
+    # Imported here so the data commands keep working without the web modules.
+    from .server import serve
+    serve(args.port, args.planner)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="python -m pyra", description="PYRA data foundation")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -92,13 +98,17 @@ def main(argv=None):
                                   ("check", cmd_check, "run data-quality checks"),
                                   ("spotcheck", cmd_spotcheck, "print random numbers to verify")]:
         sub = commands.add_parser(name, help=help_text)
-        sub.add_argument("--dummy", action="store_true", help="use the DUMMY sample data")
         sub.set_defaults(func=func)
     commands.choices["spotcheck"].add_argument("-n", type=int, default=10, help="how many rows")
 
     validate = commands.add_parser("validate", help="check fact sheets without loading them")
     validate.add_argument("files", nargs="+")
     validate.set_defaults(func=cmd_validate)
+
+    serve = commands.add_parser("serve", help="start the web app")
+    serve.add_argument("--port", type=int, default=8000)
+    serve.add_argument("--planner", default="auto", choices=("auto", "offline", "claude", "groq"))
+    serve.set_defaults(func=cmd_serve)
 
     args = parser.parse_args(argv)
     return args.func(args)

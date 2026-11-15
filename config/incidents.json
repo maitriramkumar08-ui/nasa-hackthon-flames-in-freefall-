@@ -1,0 +1,53 @@
+{
+  "_note": "Past spaceflight fires used by the Incident Analyst agent (pyra/agents). Each one is broken into the same fire chain links. The text is a short summary of the cited NASA page; none of it has been checked by the team yet (verified_by is empty). Open the source, confirm every line, add access_date and put your name in verified_by, the same way as sources/sources.csv. The 'features' block is what the agent compares with a scenario, and it is our own reading of the source (INTERPRETATION).",
+  "incidents": [
+    {
+      "id": "apollo1", "name": "Apollo 1", "year": 1967,
+      "setting": "ground test on the launch pad",
+      "outcome": "Three crew members were lost.",
+      "source": "https://sma.nasa.gov/sma-disciplines/accllp/apollo-1",
+      "access_date": "", "verified_by": "",
+      "chain": {
+        "oxidizer": "Pure oxygen cabin above sea-level pressure",
+        "fuel": "Nylon netting, hook-and-loop fasteners and foam pads",
+        "ignition": "Probable electrical arc from damaged wiring",
+        "detection": "Crew voice call",
+        "suppression": "None effective",
+        "escape": "Inward-opening hatch could not be opened against cabin pressure"
+      },
+      "features": {"gravity": "normal gravity", "oxygen_enriched": true, "material_classes": ["fabric", "plastic"]}
+    },
+    {
+      "id": "apollo13", "name": "Apollo 13", "year": 1970,
+      "setting": "in flight to the Moon",
+      "outcome": "An oxygen tank failed; the crew returned using the lunar module.",
+      "source": "https://sma.nasa.gov/sma-disciplines/accllp/apollo-13",
+      "access_date": "", "verified_by": "",
+      "chain": {
+        "oxidizer": "High-pressure oxygen tank",
+        "fuel": "Teflon wire insulation inside the tank",
+        "ignition": "Heater switches damaged before launch; insulation burned when the tank fans ran",
+        "detection": "A bang and a pressure drop",
+        "suppression": "Not possible",
+        "escape": "Lunar module used as a lifeboat"
+      },
+      "features": {"gravity": "microgravity", "oxygen_enriched": true, "material_classes": ["plastic"]}
+    },
+    {
+      "id": "mir", "name": "Mir", "year": 1997,
+      "setting": "on orbit, space station Mir",
+      "outcome": "The fire was put out; no lasting harm to the crew.",
+      "source": "https://www.nasa.gov/history/25-years-ago-fire-aboard-space-station-mir/",
+      "access_date": "", "verified_by": "",
+      "chain": {
+        "oxidizer": "Solid-fuel oxygen generator canister",
+        "fuel": "Canister contents; a contaminant was the likely cause",
+        "ignition": "The canister failed when it was activated",
+        "detection": "Crew saw it; smoke filled the station",
+        "suppression": "Extinguishers; the flame went out on its own",
+        "escape": "The flame blocked the route to one docked return vehicle"
+      },
+      "features": {"gravity": "microgravity", "oxygen_enriched": false, "material_classes": []}
+    }
+  ]
+}

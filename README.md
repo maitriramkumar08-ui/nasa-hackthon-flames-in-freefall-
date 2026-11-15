@@ -6,142 +6,90 @@ PYRA shows what NASA's microgravity combustion data actually tells you about fir
 habitat, how close the nearest evidence is, and where there is no evidence at all.
 It does not predict fires and it does not label materials safe or unsafe.
 
-## The problem
+## How to run it
 
-Fire behaves differently in microgravity. Without buoyancy there is no rising hot plume
-to carry smoke away and pull fresh air in, so flames spread, starve and self-extinguish
-on terms that Earth-based flammability testing does not reproduce.
+You need Windows PowerShell and Python 3.11 or newer. The web app uses only the standard
+library, so there is nothing to install.
 
-The data that describes this is small. A handful of investigations — BASS-II, FLEX,
-Saffire, SPICE, ACME — is most of what has ever been measured, and each covers a narrow
-band of oxygen, pressure, flow and fuel. Meanwhile the questions being asked are moving
-away from that band: Artemis and Gateway raise oxygen fractions and lower pressures, and
-a spacesuit sits near 100% oxygen at about 30 kPa.
-
-So the dangerous failure is not a missing model. It is a confident answer produced by
-extrapolating a 1 g bench test, or a single microgravity run, into conditions nobody has
-ever tested. PYRA is built to make that specific mistake hard to commit by accident.
-
-## What it does
-
-It reads the NASA evidence, records the conditions each investigation actually covered,
-and then, for any scenario you ask about, tells you one of three things: this is covered
-by evidence, this is near evidence and here is how far off, or nobody has tested this.
-
-The third answer is the one most tools will not give you, and it is the one that matters.
-
-## Try it
-
-From the repository root, with Python 3.11 or newer:
-
-```bash
-python tools/psi_evidence_report.py
+```powershell
+.\run.ps1
 ```
 
-That checks every supplied NASA file against its recorded SHA-256, reads the
-investigation metadata straight out of the PSI archives, and then reports, scenario by
-scenario, exactly which variable stops the evidence from reaching it.
+That builds `data/pyra.db` if it is missing, loads keys from `.env`, starts the server and
+opens the browser at **http://127.0.0.1:8000**. Press Ctrl+C to stop it.
 
-Today it answers "no evidence" for all five habitat scenarios, and names the missing
-axis for each. That is a real result about the state of the data, not a placeholder.
+If PowerShell blocks the script, run
+`powershell -ExecutionPolicy Bypass -File .\run.ps1` instead.
 
-## What makes it different
+| Option | What it does |
+| --- | --- |
+| `-Port 9000` | Serve on another port (default 8000) |
+| `-Planner auto\|offline\|claude\|groq` | Who drives the research assistant (default `auto`) |
+| `-Build` | Rebuild `data/pyra.db` from `data/factsheets/verified/` first |
+| `-Check` | Run the data-quality checks, then exit |
+| `-Tests` | Run the Python tests and the flame model tests, then exit |
+| `-TestAgent` | Run the research agent tests, then exit |
+| `-NoBrowser` | Do not open the browser |
+| `-Help` | Show these options |
 
-Most tools in this space answer every question. PYRA's distinguishing feature is that it
-refuses to, and says precisely why.
+### Adding data
 
-That refusal is enforced by a library we wrote for this problem, **pyrakit**, which lives
-in `pyra_library/pyra-repo/pyra/`. It is the reusable part of the project, usable outside
-this repository, and it contains four ideas we have not seen combined elsewhere:
+PYRA only shows verified evidence. Until `data/factsheets/verified/` holds fact sheets,
+the evidence views are empty. To add data, put verified sheets there and run
+`.\run.ps1 -Build`. The process for checking a sheet is in `docs/WORKFLOW.md`.
 
-- **A scenario-aware claim gate.** Asking "is this model validated?" is the wrong
-  question. `require_in_envelope(card, scenario)` asks whether the recorded evidence
-  reaches *these conditions*, axis by axis, with unit conversion. A model validated at
-  1 g is refused for a microgravity scenario, and the refusal names the axis and the
-  distance.
-- **Status that can only weaken.** Every value carries an epistemic status, and combining
-  them takes the weakest. A simulation fed a hypothetical input yields a hypothetical
-  result; it cannot quietly become evidence further down a calculation.
-- **Provenance with tamper detection.** Values carry a content hash and a lineage graph,
-  so a number that was edited after the fact fails verification instead of passing
-  silently.
-- **An engine bridge that does not trust the engine.** An external solver runs as a
-  separate process over a documented JSON contract. Its output is structurally validated
-  — units parsed, series lengths matched against the time base — before anything plots it.
+### Language model (optional)
 
-The honest framing: PYRA is the evidence and validation layer, not the solver. A solver
-can be plugged in; what PYRA adds is the discipline around it.
+The app works offline with fixed rules and templates. To let a model write the wording,
+copy `.env.example` to `.env` and set `GROQ_API_KEY` (or `ANTHROPIC_API_KEY` after
+`pip install anthropic`). Every sentence a model writes is checked against PYRA's rules,
+and numbers always come from code. Set `PYRA_AGENTS_OFFLINE=1` to force offline mode.
 
-## Educational impact
+## What is in the app
 
-The same machinery teaches the reasoning it enforces.
+| Tab | What it shows |
+| --- | --- |
+| Explore | Scenario, Coverage Map, coverage by axis, ranked investigations, research gaps, side-by-side compare |
+| Ops | Crew and Controller views over one SIMULATED cabin telemetry stream |
+| Builder | Early-design check of a cabin atmosphere and materials list against the evidence |
+| Agents | A supervised team of eight evidence agents, with a human approval step |
+| Assistant | A research agent that picks PYRA's tools and writes a cited, rule-checked answer |
+| 3D demo | Habitat, Evidence Atlas and Data Pipeline in 3D, with an ILLUSTRATIVE flame model |
 
-Fire safety is usually taught with formulas. The harder lesson — that a number means
-nothing without its units, its uncertainty, its source and the conditions it was measured
-under — is normally learned late, by being wrong in public. PYRA makes that lesson
-structural: a beginner who opens the Fire Playground sees every view labelled by where it
-came from, and cannot confuse a drawing with a solver result, because the window says
-which it is.
+The header also has an Export menu (CSV, JSON, PDF report), an AI assistant side panel,
+and a Round table page where the crew agents respond to a SIMULATED cabin alert.
 
-The learning path runs from changing one setting in a window, through units and evidence
-status, to measured PSI data, and ends at uncertainty-aware comparison against real
-experiments. Each step is runnable, and the beginner interface is the same library the
-advanced path uses — not a simplified toy that has to be unlearned.
+Every value is labelled by where it came from: MEASURED, DERIVED, HYPOTHETICAL,
+SIMULATED, PLACEHOLDER, ILLUSTRATIVE or INTERPRETATION.
 
-```python
-import pyrakit as pk
-
-run = pk.run_fire_test(fuel="PMMA", oxygen_fraction=0.21, gravity_g=0.0)
-print(run.summary())
-```
-
-That prints its own scope limits alongside its numbers, every time.
-
-## The NASA data
-
-Nine supplied files in `datasets/`, covering five investigations, all checksum-verified:
-
-| Investigation | PSI study | DOI |
-| --- | --- | --- |
-| Burning and Suppression of Solids-II | PSI-25 | 10.60555/4qc4-de67 |
-| Flame Extinguishment Experiment | PSI-69 | 10.60555/mbq8-0451 |
-| Spacecraft Fire Safety Experiment-I | PSI-98 | 10.60555/0t15-1z43 |
-| Smoke Point In Co-flow Experiment | PSI-107 | 10.60555/9kbh-e962 |
-| ACME chamber / PSI-159 raw setpoints | PSI-159 | see `datasets/manifest.csv` |
-
-`sources/sources.csv` tracks 23 documentary sources. Four have been checked against the
-NTRS records and the supplied archives; the log is in `sources/verification_log.md`.
-One of those checks rejected a source: NTRS 20170002628 is a July 2016 status
-presentation with no abstract, so it cannot report Saffire I-III results, and it is
-marked accordingly rather than quietly used.
-
-Nineteen sources remain unverified. That number is published here deliberately. A
-project about where evidence runs out has to apply the same standard to its own source
-list.
-
-## Layout
+## Repository layout
 
 | Path | What it is |
 | --- | --- |
-| `pyra/` | The application: fact-sheet ingestion, SQLite build, ranking, gap engine, retrieval |
-| `pyra_library/pyra-repo/pyra/` | **pyrakit**, the reusable library, with its own tests and docs |
+| `run.ps1` | The one launcher for the project |
+| `pyra/` | The application: fact-sheet loading, SQLite build, ranking, gap engine, retrieval, web server |
+| `pyra/agents/` | The evidence agent team behind the Agents tab |
+| `pyra/web/` | The web page, its scripts and styles |
+| `demo/` | The 3D flame demo, served at `/demo/` |
+| `config/` | Alert limits, design rules, environment presets and incidents |
+| `data/factsheets/` | Fact sheets: `drafts/` to check, `verified/` to load |
 | `datasets/` | The supplied NASA files, unmodified, with checksums |
 | `sources/` | The documentary source list and its verification log |
+| `pyra_library/pyra-repo/pyra/` | **pyrakit**, the reusable evidence and validation library |
 | `tools/` | Checkers and the evidence report |
-| `docs/WORKFLOW.md` | Contributor process: verifying sources, building the database |
+| `tests/` | Unit tests. `tests/fixtures/` holds test-only sheets marked NOT REAL DATA |
+| `docs/` | Rules and the contributor workflow |
+| `ember/` | The earlier LangGraph prototype the agent team was ported from |
 
-Note that `pyra/` (the application) and `pyrakit` (the library) are different packages
-with different jobs. The library was renamed from `pyra` to `pyrakit` precisely so the
-two can never be confused by an import.
+The `pyra/` application and the `pyrakit` library are separate packages. The library was
+renamed so that the two can never be confused by an import.
 
 ## What PYRA will not claim
 
 - It does not predict whether a material will burn in a given habitat.
 - It does not certify anything as safe.
-- Its built-in simulation is a simplified oxygen balance for teaching, clearly labelled
-  as such, and is not a flame solver.
-- A result marked `SIMULATED` is a model output. It is not evidence, and PYRA will not
-  let it be presented as evidence.
+- A result marked SIMULATED or ILLUSTRATIVE is a model output, not evidence, and PYRA will
+  not let it be presented as evidence.
 
 Where the evidence does not reach, the honest answer is that nobody knows yet. PYRA is
 built to give that answer clearly instead of hiding it behind a number.

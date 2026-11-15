@@ -8,7 +8,7 @@ from pyra import evidence
 class TestEvidence(unittest.TestCase):
 
     def setUp(self):
-        self.corpus = evidence.load(evidence.dummy_conn())
+        self.corpus = helpers.sample_corpus()
 
     def test_shapes(self):
         acronyms = [i["acronym"] for i in self.corpus["investigations"]]

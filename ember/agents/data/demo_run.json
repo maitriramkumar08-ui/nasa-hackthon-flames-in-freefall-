@@ -1,0 +1,4015 @@
+{
+ "mission": "lunar",
+ "events": [
+  {
+   "type": "run_start",
+   "thread_id": "demo",
+   "llm": "replay (recorded offline run)",
+   "goal": "Full fire-safety assessment",
+   "mode": "full",
+   "scenario": {
+    "mission": "lunar",
+    "pilot_mode": "approve"
+   },
+   "seq": 0
+  },
+  {
+   "type": "node_start",
+   "agent": "supervisor",
+   "t": 1794710324.0171468,
+   "dt": 0.011,
+   "seq": 1
+  },
+  {
+   "type": "message",
+   "agent": "supervisor",
+   "data": {
+    "agent": "supervisor",
+    "kind": "thought",
+    "text": "Goal: Full fire-safety assessment. Route: librarian -> mission_profiler -> physicist -> risk_ranker -> incident_analyst -> gap_hunter -> safety_officer -> reporter.",
+    "t": 1794710324.0174348
+   },
+   "dt": 0.011,
+   "seq": 2
+  },
+  {
+   "type": "message",
+   "agent": "supervisor",
+   "data": {
+    "agent": "supervisor",
+    "kind": "handoff",
+    "text": "Handing over to librarian: load the NASA evidence first so every agent cites the same records",
+    "t": 1794710324.017462,
+    "data": {
+     "to": "librarian"
+    }
+   },
+   "dt": 0.012,
+   "seq": 3
+  },
+  {
+   "type": "node_end",
+   "agent": "supervisor",
+   "update": {
+    "route": [
+     "mission_profiler",
+     "physicist",
+     "risk_ranker",
+     "incident_analyst",
+     "gap_hunter",
+     "safety_officer"
+    ],
+    "next": "librarian"
+   },
+   "t": 1794710324.017537,
+   "dt": 0.012,
+   "seq": 4
+  },
+  {
+   "type": "node_start",
+   "agent": "librarian",
+   "t": 1794710324.0182014,
+   "dt": 0.012,
+   "seq": 5
+  },
+  {
+   "type": "message",
+   "agent": "librarian",
+   "data": {
+    "agent": "librarian",
+    "kind": "thought",
+    "text": "Loading the NASA PSI combustion investigations and filtering out anything that is not combustion science.",
+    "t": 1794710324.0182216
+   },
+   "dt": 0.012,
+   "seq": 6
+  },
+  {
+   "type": "message",
+   "agent": "librarian",
+   "data": {
+    "agent": "librarian",
+    "kind": "tool",
+    "text": "load_psi()",
+    "t": 1794710324.018236,
+    "data": {
+     "tool": "load_psi"
+    }
+   },
+   "dt": 0.012,
+   "seq": 7
+  },
+  {
+   "type": "message",
+   "agent": "librarian",
+   "data": {
+    "agent": "librarian",
+    "kind": "result",
+    "text": "load_psi done in 0 ms",
+    "t": 1794710324.018821,
+    "data": {
+     "tool": "load_psi",
+     "result": {
+      "records": "...",
+      "dropped": "...",
+      "counts": {
+       "total": 25,
+       "kept": 23,
+       "dropped": 2,
+       "microgravity": 18,
+       "ground": 5,
+       "partial_gravity": 0,
+       "verified": 3
+      },
+      "by_topic": {
+       "cool_flame": 6,
+       "extinction": 9,
+       "soot": 4,
+       "spread": 5,
+       "smoke": 3,
+       "detection": 3,
+       "flammability": 6,
+       "stability": 2,
+       "ignition": 3,
+       "suppression": 1
+      },
+      "sources": [
+       "https://psi.nasa.gov/physci/repo/search?q=combustion&data_source=psi&data_type=investigation"
+      ]
+     }
+    }
+   },
+   "dt": 0.013,
+   "seq": 8
+  },
+  {
+   "type": "message",
+   "agent": "librarian",
+   "data": {
+    "agent": "librarian",
+    "kind": "thought",
+    "text": "Dropped PSI-181 (Structure and Properties of Pb-Sn and Pb-free Sn-Ag-Cu Solde): Materials Science, not combustion.",
+    "t": 1794710324.0188522
+   },
+   "dt": 0.013,
+   "seq": 9
+  },
+  {
+   "type": "message",
+   "agent": "librarian",
+   "data": {
+    "agent": "librarian",
+    "kind": "thought",
+    "text": "Dropped PSI-108 (Surface Tension Driven Convection Experiment-1): Fluid Physics, not combustion.",
+    "t": 1794710324.0188618
+   },
+   "dt": 0.013,
+   "seq": 10
+  },
+  {
+   "type": "message",
+   "agent": "librarian",
+   "data": {
+    "agent": "librarian",
+    "kind": "llm",
+    "text": "23 of 25 PSI records are combustion investigations: 18 flown in microgravity, 5 ground studies that analyse flight data, and none in partial gravity.",
+    "t": 1794710324.0188713
+   },
+   "dt": 0.013,
+   "seq": 11
+  },
+  {
+   "type": "message",
+   "agent": "librarian",
+   "data": {
+    "agent": "librarian",
+    "kind": "handoff",
+    "text": "Handing over to mission_profiler: the corpus is ready; next we need the mission conditions",
+    "t": 1794710324.0188785,
+    "data": {
+     "to": "mission_profiler"
+    }
+   },
+   "dt": 0.013,
+   "seq": 12
+  },
+  {
+   "type": "node_end",
+   "agent": "librarian",
+   "update": {
+    "corpus": {
+     "records": [
+      {
+       "id": "PSI-117",
+       "acronym": "Cool-flame CFD",
+       "title": "Effect of External Thermo-Convective Perturbation on Cool Flame Dynamics: A Multidimensional Multi-Physics CFD Analysis",
+       "area": "Combustion Science",
+       "type": "ground",
+       "topics": [
+        "cool_flame",
+        "extinction"
+       ],
+       "phase": "droplet",
+       "uses": [
+        "PSI-69"
+       ],
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-117",
+       "atmospheres": [],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "earth"
+      },
+      {
+       "id": "PSI-159",
+       "acronym": "ACME CFI-G",
+       "title": "Advanced Combustion via Microgravity Experiments / Cool Flames Investigation with Gases",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "cool_flame"
+       ],
+       "phase": "gas",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-159",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-10",
+       "acronym": "ACME Flame Design",
+       "title": "Advanced Combustion via Microgravity Experiments / Flame Design",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "soot",
+        "extinction"
+       ],
+       "phase": "gas",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-10",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-62",
+       "acronym": "BASS modeling",
+       "title": "Concurrent Flame Spread Modeling using Flamelet Generated Manifolds in Microgravity with Comparison to BASS Experiments",
+       "area": "Combustion Science",
+       "type": "ground",
+       "topics": [
+        "spread"
+       ],
+       "phase": "solid",
+       "uses": [
+        "PSI-26"
+       ],
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-62",
+       "atmospheres": [],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "earth"
+      },
+      {
+       "id": "PSI-60",
+       "acronym": "SPICE analysis",
+       "title": "Computational and Experimental Analysis of SPICE Data Sets",
+       "area": "Combustion Science",
+       "type": "ground",
+       "topics": [
+        "soot"
+       ],
+       "phase": "gas",
+       "uses": [
+        "PSI-107"
+       ],
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-60",
+       "atmospheres": [],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "earth"
+      },
+      {
+       "id": "PSI-142",
+       "acronym": "Cool-flame counterflow",
+       "title": "Quantitative Studies of Cool Flame Transitions at Radiation / Stretch Extinction Using Counterflow Flames",
+       "area": "Combustion Science",
+       "type": "ground",
+       "topics": [
+        "cool_flame",
+        "extinction"
+       ],
+       "phase": "gas",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-142",
+       "atmospheres": [],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "earth"
+      },
+      {
+       "id": "PSI-101",
+       "acronym": "SAME-R",
+       "title": "Smoke Aerosol Measurement Experiment-Reflight",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "smoke",
+        "detection"
+       ],
+       "phase": "solid",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-101",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-115",
+       "acronym": "SAME modeling",
+       "title": "Utilization of the Smoke Aerosol Measurement Experiment Data for Advanced Modeling",
+       "area": "Combustion Science",
+       "type": "ground",
+       "topics": [
+        "smoke",
+        "detection"
+       ],
+       "phase": "solid",
+       "uses": [
+        "PSI-102",
+        "PSI-101"
+       ],
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-115",
+       "atmospheres": [],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "earth"
+      },
+      {
+       "id": "PSI-98",
+       "acronym": "Saffire-I",
+       "title": "Spacecraft Fire Safety Experiment-I",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "spread",
+        "flammability"
+       ],
+       "phase": "solid",
+       "materials": [
+        "cotton"
+       ],
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "verified": true,
+       "note": "Large-scale fire growth on a ~0.94 m x 0.4 m Sibal cotton-fiberglass fabric in a flow duct aboard Cygnus after it left the ISS; compares low-g limits with NASA's normal-gravity screening test.",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-98",
+       "atmosphere_assumed": false,
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-39",
+       "acronym": "CFI",
+       "title": "Cool Flames Investigation",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "cool_flame"
+       ],
+       "phase": "droplet",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-39",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-102",
+       "acronym": "SAME",
+       "title": "Smoke and Aerosol Measurement Experiment",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "smoke",
+        "detection"
+       ],
+       "phase": "solid",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-102",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-106",
+       "acronym": "SLICE",
+       "title": "Structure and Liftoff In Combustion Experiment",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "stability"
+       ],
+       "phase": "gas",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-106",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-99",
+       "acronym": "Saffire-II",
+       "title": "Spacecraft Fire Experiment-II",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "ignition",
+        "flammability"
+       ],
+       "phase": "solid",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+       "atmosphere_assumed": false,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-107",
+       "acronym": "SPICE",
+       "title": "Smoke Point In Co-flow Experiment",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "soot"
+       ],
+       "phase": "gas",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-107",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-100",
+       "acronym": "Saffire-III",
+       "title": "Spacecraft Fire Experiment-III",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "spread",
+        "flammability"
+       ],
+       "phase": "solid",
+       "materials": [
+        "cotton"
+       ],
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-100",
+       "atmosphere_assumed": false,
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-21",
+       "acronym": "ACME CLD",
+       "title": "Advanced Combustion via Microgravity Experiments / Coflow Laminar Diffusion Flame",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "soot"
+       ],
+       "phase": "gas",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-21",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-25",
+       "acronym": "BASS-II",
+       "title": "Burning and Suppression of Solids - II",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "ignition",
+        "spread",
+        "extinction",
+        "flammability"
+       ],
+       "phase": "solid",
+       "materials": [
+        "pmma",
+        "cotton"
+       ],
+       "atmospheres": [
+        "14.7/21",
+        "14.7/vitiated"
+       ],
+       "verified": true,
+       "note": "Ignition, growth, spread and extinction of solid fuels in low-velocity forced flow; varies flow speed and direction, oxygen (by nitrogen vitiation) and geometry; aims to bridge NASA-STD-6001 Test 1 and real microgravity flammability.",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+       "atmosphere_assumed": false,
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-20",
+       "acronym": "ACME BRE",
+       "title": "Advanced Combustion via Microgravity Experiments - Burning Rate Emulator",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "flammability",
+        "extinction"
+       ],
+       "phase": "gas",
+       "atmospheres": [
+        "14.7/21",
+        "10.2/26.5",
+        "8.2/34"
+       ],
+       "verified": true,
+       "note": "Gaseous fuels on porous burners emulating condensed fuels; examines the NASA-considered atmospheres 14.7 psia/21%, 10.2 psia/26.5% and 8.2 psia/34% O2, including extinction limits.",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-20",
+       "atmosphere_assumed": false,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-68",
+       "acronym": "FLEX-2",
+       "title": "Flame Extinguishment Experiment - 2",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "cool_flame",
+        "extinction"
+       ],
+       "phase": "droplet",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-68",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-22",
+       "acronym": "ACME E-FIELD",
+       "title": "Advanced Combustion via Microgravity Experiments - Electric-Field Effects on Laminar Diffusion Flames",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "stability"
+       ],
+       "phase": "gas",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-22",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-23",
+       "acronym": "ACME s-Flame",
+       "title": "Advanced Combustion via Microgravity Experiments - Structure and Response of Spherical Diffusion Flames",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "extinction"
+       ],
+       "phase": "gas",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-23",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-69",
+       "acronym": "FLEX",
+       "title": "Flame Extinguishment Experiment",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "suppression",
+        "extinction",
+        "cool_flame"
+       ],
+       "phase": "droplet",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-69",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-26",
+       "acronym": "BASS",
+       "title": "Burning and Suppression of Solids",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "ignition",
+        "spread",
+        "extinction",
+        "flammability"
+       ],
+       "phase": "solid",
+       "materials": [
+        "pmma",
+        "cotton"
+       ],
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-26",
+       "atmosphere_assumed": false,
+       "gravity": "micro"
+      }
+     ],
+     "dropped": [
+      {
+       "id": "PSI-181",
+       "title": "Structure and Properties of Pb-Sn and Pb-free Sn-Ag-Cu Solders Produced in Terrestrial vs. Microgravity Environments",
+       "reason": "Materials Science, not combustion"
+      },
+      {
+       "id": "PSI-108",
+       "title": "Surface Tension Driven Convection Experiment-1",
+       "reason": "Fluid Physics, not combustion"
+      }
+     ],
+     "counts": {
+      "total": 25,
+      "kept": 23,
+      "dropped": 2,
+      "microgravity": 18,
+      "ground": 5,
+      "partial_gravity": 0,
+      "verified": 3
+     },
+     "by_topic": {
+      "cool_flame": 6,
+      "extinction": 9,
+      "soot": 4,
+      "spread": 5,
+      "smoke": 3,
+      "detection": 3,
+      "flammability": 6,
+      "stability": 2,
+      "ignition": 3,
+      "suppression": 1
+     },
+     "sources": [
+      "https://psi.nasa.gov/physci/repo/search?q=combustion&data_source=psi&data_type=investigation"
+     ]
+    }
+   },
+   "t": 1794710324.0188894,
+   "dt": 0.013,
+   "seq": 13
+  },
+  {
+   "type": "node_start",
+   "agent": "supervisor",
+   "t": 1794710324.019395,
+   "dt": 0.013,
+   "seq": 14
+  },
+  {
+   "type": "message",
+   "agent": "supervisor",
+   "data": {
+    "agent": "supervisor",
+    "kind": "handoff",
+    "text": "Handing over to mission_profiler: set gravity, atmosphere and ventilation for the chosen mission",
+    "t": 1794710324.0194123,
+    "data": {
+     "to": "mission_profiler"
+    }
+   },
+   "dt": 0.013,
+   "seq": 15
+  },
+  {
+   "type": "node_end",
+   "agent": "supervisor",
+   "update": {
+    "route": [
+     "physicist",
+     "risk_ranker",
+     "incident_analyst",
+     "gap_hunter",
+     "safety_officer"
+    ],
+    "next": "mission_profiler"
+   },
+   "t": 1794710324.0194268,
+   "dt": 0.013,
+   "seq": 16
+  },
+  {
+   "type": "node_start",
+   "agent": "mission_profiler",
+   "t": 1794710324.0203638,
+   "dt": 0.014,
+   "seq": 17
+  },
+  {
+   "type": "message",
+   "agent": "mission_profiler",
+   "data": {
+    "agent": "mission_profiler",
+    "kind": "thought",
+    "text": "Building the environment profile for mission 'lunar'.",
+    "t": 1794710324.02039
+   },
+   "dt": 0.014,
+   "seq": 18
+  },
+  {
+   "type": "message",
+   "agent": "mission_profiler",
+   "data": {
+    "agent": "mission_profiler",
+    "kind": "tool",
+    "text": "mission_profile(mission_id='lunar', fan_m_s=None)",
+    "t": 1794710324.0204067,
+    "data": {
+     "tool": "mission_profile"
+    }
+   },
+   "dt": 0.014,
+   "seq": 19
+  },
+  {
+   "type": "message",
+   "agent": "mission_profiler",
+   "data": {
+    "agent": "mission_profiler",
+    "kind": "result",
+    "text": "mission_profile done in 0 ms",
+    "t": 1794710324.0204449,
+    "data": {
+     "tool": "mission_profile",
+     "result": {
+      "name": "Lunar surface habitat",
+      "gravity_g": 0.165,
+      "pressure_psia": 8.2,
+      "o2_pct": 34.0,
+      "fan_m_s": 0.1,
+      "comm_delay_min": 0.02,
+      "o2_sources": [
+       "high-pressure O2 tanks",
+       "solid-fuel oxygen generator (backup)"
+      ],
+      "atmosphere_note": "Scenario assumption: 8.2 psia / 34% O2, a NASA-considered exploration atmosphere (PSI-20).",
+      "id": "lunar",
+      "ppo2_psia": 2.79,
+      "gravity_class": "lunar",
+      "atmosphere_key": "8.2/34"
+     }
+    }
+   },
+   "dt": 0.014,
+   "seq": 20
+  },
+  {
+   "type": "message",
+   "agent": "mission_profiler",
+   "data": {
+    "agent": "mission_profiler",
+    "kind": "llm",
+    "text": "Lunar surface habitat: 0.165 g, 8.2 psia at 34% oxygen (O2 partial pressure 2.79 psia), cabin flow 0.1 m/s. Scenario assumption: 8.2 psia / 34% O2, a NASA-considered exploration atmosphere (PSI-20).",
+    "t": 1794710324.0205085
+   },
+   "dt": 0.015,
+   "seq": 21
+  },
+  {
+   "type": "message",
+   "agent": "mission_profiler",
+   "data": {
+    "agent": "mission_profiler",
+    "kind": "thought",
+    "text": "Oxygen fraction is 34%, above sea-level air. Materials that are safe on the ISS may burn here.",
+    "t": 1794710324.020521
+   },
+   "dt": 0.015,
+   "seq": 22
+  },
+  {
+   "type": "node_end",
+   "agent": "mission_profiler",
+   "update": {
+    "mission": {
+     "name": "Lunar surface habitat",
+     "gravity_g": 0.165,
+     "pressure_psia": 8.2,
+     "o2_pct": 34.0,
+     "fan_m_s": 0.1,
+     "comm_delay_min": 0.02,
+     "o2_sources": [
+      "high-pressure O2 tanks",
+      "solid-fuel oxygen generator (backup)"
+     ],
+     "atmosphere_note": "Scenario assumption: 8.2 psia / 34% O2, a NASA-considered exploration atmosphere (PSI-20).",
+     "id": "lunar",
+     "ppo2_psia": 2.79,
+     "gravity_class": "lunar",
+     "atmosphere_key": "8.2/34"
+    }
+   },
+   "t": 1794710324.0205328,
+   "dt": 0.015,
+   "seq": 23
+  },
+  {
+   "type": "node_start",
+   "agent": "supervisor",
+   "t": 1794710324.0208843,
+   "dt": 0.015,
+   "seq": 24
+  },
+  {
+   "type": "message",
+   "agent": "supervisor",
+   "data": {
+    "agent": "supervisor",
+    "kind": "handoff",
+    "text": "Handing over to physicist: work out whether buoyancy or the fans control the flame",
+    "t": 1794710324.0208986,
+    "data": {
+     "to": "physicist"
+    }
+   },
+   "dt": 0.015,
+   "seq": 25
+  },
+  {
+   "type": "node_end",
+   "agent": "supervisor",
+   "update": {
+    "route": [
+     "risk_ranker",
+     "incident_analyst",
+     "gap_hunter",
+     "safety_officer"
+    ],
+    "next": "physicist"
+   },
+   "t": 1794710324.0209126,
+   "dt": 0.015,
+   "seq": 26
+  },
+  {
+   "type": "node_start",
+   "agent": "physicist",
+   "t": 1794710324.02171,
+   "dt": 0.016,
+   "seq": 27
+  },
+  {
+   "type": "message",
+   "agent": "physicist",
+   "data": {
+    "agent": "physicist",
+    "kind": "thought",
+    "text": "Comparing the buoyancy-driven flow a flame would make at this gravity with the cabin fan flow.",
+    "t": 1794710324.0217285
+   },
+   "dt": 0.016,
+   "seq": 28
+  },
+  {
+   "type": "message",
+   "agent": "physicist",
+   "data": {
+    "agent": "physicist",
+    "kind": "tool",
+    "text": "flame_regime(gravity_g=0.165, fan_m_s=0.1)",
+    "t": 1794710324.0217423,
+    "data": {
+     "tool": "flame_regime"
+    }
+   },
+   "dt": 0.016,
+   "seq": 29
+  },
+  {
+   "type": "message",
+   "agent": "physicist",
+   "data": {
+    "agent": "physicist",
+    "kind": "result",
+    "text": "flame_regime done in 0 ms",
+    "t": 1794710324.0217757,
+    "data": {
+     "tool": "flame_regime",
+     "result": {
+      "buoyant_velocity_m_s": 0.575,
+      "earth_buoyant_velocity_m_s": 1.415,
+      "fan_m_s": 0.1,
+      "mixing_ratio": 0.17,
+      "regime": "buoyant",
+      "regime_text": "Buoyancy dominates, as on Earth, but the induced flow is weaker, so flames are taller and slower than in 1 g.",
+      "earth_test_relevance": "high",
+      "fan_shutdown_effect": "limited: buoyancy alone still drives about 0.57 m/s of flow toward the flame",
+      "assumptions": {
+       "flame_length_m": 0.05,
+       "flame_temp_k": 1500.0,
+       "ambient_temp_k": 295.0
+      }
+     }
+    }
+   },
+   "dt": 0.016,
+   "seq": 30
+  },
+  {
+   "type": "message",
+   "agent": "physicist",
+   "data": {
+    "agent": "physicist",
+    "kind": "llm",
+    "text": "Buoyant flow is about 0.575 m/s against 1.415 m/s on Earth, so fan-to-buoyancy ratio is 0.17: buoyant regime. Buoyancy dominates, as on Earth, but the induced flow is weaker, so flames are taller and slower than in 1 g. Relevance of the normal-gravity upward-burning screening test: high.",
+    "t": 1794710324.0217981
+   },
+   "dt": 0.016,
+   "seq": 31
+  },
+  {
+   "type": "message",
+   "agent": "physicist",
+   "data": {
+    "agent": "physicist",
+    "kind": "handoff",
+    "text": "Handing over to risk_ranker: regime known; rank materials at these conditions",
+    "t": 1794710324.0218058,
+    "data": {
+     "to": "risk_ranker"
+    }
+   },
+   "dt": 0.016,
+   "seq": 32
+  },
+  {
+   "type": "node_end",
+   "agent": "physicist",
+   "update": {
+    "physics": {
+     "buoyant_velocity_m_s": 0.575,
+     "earth_buoyant_velocity_m_s": 1.415,
+     "fan_m_s": 0.1,
+     "mixing_ratio": 0.17,
+     "regime": "buoyant",
+     "regime_text": "Buoyancy dominates, as on Earth, but the induced flow is weaker, so flames are taller and slower than in 1 g.",
+     "earth_test_relevance": "high",
+     "fan_shutdown_effect": "limited: buoyancy alone still drives about 0.57 m/s of flow toward the flame",
+     "assumptions": {
+      "flame_length_m": 0.05,
+      "flame_temp_k": 1500.0,
+      "ambient_temp_k": 295.0
+     },
+     "summary": "Buoyant flow is about 0.575 m/s against 1.415 m/s on Earth, so fan-to-buoyancy ratio is 0.17: buoyant regime. Buoyancy dominates, as on Earth, but the induced flow is weaker, so flames are taller and slower than in 1 g. Relevance of the normal-gravity upward-burning screening test: high."
+    }
+   },
+   "t": 1794710324.0218167,
+   "dt": 0.016,
+   "seq": 33
+  },
+  {
+   "type": "node_start",
+   "agent": "supervisor",
+   "t": 1794710324.0221207,
+   "dt": 0.016,
+   "seq": 34
+  },
+  {
+   "type": "message",
+   "agent": "supervisor",
+   "data": {
+    "agent": "supervisor",
+    "kind": "handoff",
+    "text": "Handing over to risk_ranker: rank cabin materials; the Skeptic reviews each pass until it is honest",
+    "t": 1794710324.022135,
+    "data": {
+     "to": "risk_ranker"
+    }
+   },
+   "dt": 0.016,
+   "seq": 35
+  },
+  {
+   "type": "node_end",
+   "agent": "supervisor",
+   "update": {
+    "route": [
+     "incident_analyst",
+     "gap_hunter",
+     "safety_officer"
+    ],
+    "next": "risk_ranker"
+   },
+   "t": 1794710324.022151,
+   "dt": 0.016,
+   "seq": 36
+  },
+  {
+   "type": "node_start",
+   "agent": "risk_ranker",
+   "t": 1794710324.023068,
+   "dt": 0.017,
+   "seq": 37
+  },
+  {
+   "type": "message",
+   "agent": "risk_ranker",
+   "data": {
+    "agent": "risk_ranker",
+    "kind": "thought",
+    "text": "Pass 1: ranking 10 materials by oxygen margin to their flammability limit.",
+    "t": 1794710324.0230906
+   },
+   "dt": 0.017,
+   "seq": 38
+  },
+  {
+   "type": "message",
+   "agent": "risk_ranker",
+   "data": {
+    "agent": "risk_ranker",
+    "kind": "tool",
+    "text": "rank_materials(strict=False)",
+    "t": 1794710324.023106,
+    "data": {
+     "tool": "rank_materials"
+    }
+   },
+   "dt": 0.017,
+   "seq": 39
+  },
+  {
+   "type": "message",
+   "agent": "risk_ranker",
+   "data": {
+    "agent": "risk_ranker",
+    "kind": "result",
+    "text": "rank_materials done in 0 ms",
+    "t": 1794710324.023231,
+    "data": {
+     "tool": "rank_materials",
+     "result": "..."
+    }
+   },
+   "dt": 0.017,
+   "seq": 40
+  },
+  {
+   "type": "message",
+   "agent": "risk_ranker",
+   "data": {
+    "agent": "risk_ranker",
+    "kind": "llm",
+    "text": "8 of 10 materials burn or could burn at 34% O2 in this regime; highest risk: Cotton fabric (margin +14.2 points).",
+    "t": 1794710324.0232713
+   },
+   "dt": 0.017,
+   "seq": 41
+  },
+  {
+   "type": "message",
+   "agent": "risk_ranker",
+   "data": {
+    "agent": "risk_ranker",
+    "kind": "handoff",
+    "text": "Handing over to skeptic: review this ranking before anyone relies on it",
+    "t": 1794710324.0232797,
+    "data": {
+     "to": "skeptic"
+    }
+   },
+   "dt": 0.017,
+   "seq": 42
+  },
+  {
+   "type": "node_end",
+   "agent": "risk_ranker",
+   "update": {
+    "risk": {
+     "iteration": 1,
+     "items": [
+      {
+       "material": "cotton",
+       "name": "Cotton fabric",
+       "use": "clothing, towels",
+       "loi_1g": 18.5,
+       "eff_limit": 19.8,
+       "margin": 14.2,
+       "band": 1.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "measured",
+       "evidence": [
+        "PSI-98",
+        "PSI-100",
+        "PSI-25",
+        "PSI-26"
+       ],
+       "why": "Cabin O2 34% vs estimated limit 19.8% (1 g LOI 18.5, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "nylon",
+       "name": "Nylon (hook-and-loop)",
+       "use": "fasteners, netting",
+       "loi_1g": 24.0,
+       "eff_limit": 25.3,
+       "margin": 8.7,
+       "band": 2.5,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "extrapolated",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 25.3% (1 g LOI 24, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "paper",
+       "name": "Paper / cellulose",
+       "use": "checklists, packaging",
+       "loi_1g": 18.0,
+       "eff_limit": 19.3,
+       "margin": 14.7,
+       "band": 2.5,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "extrapolated",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 19.3% (1 g LOI 18, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "pmma",
+       "name": "PMMA (acrylic)",
+       "use": "windows, covers",
+       "loi_1g": 17.5,
+       "eff_limit": 18.8,
+       "margin": 15.2,
+       "band": 1.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "measured",
+       "evidence": [
+        "PSI-25",
+        "PSI-26"
+       ],
+       "why": "Cabin O2 34% vs estimated limit 18.8% (1 g LOI 17.5, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "polyester",
+       "name": "Polyester fabric",
+       "use": "straps, clothing",
+       "loi_1g": 21.0,
+       "eff_limit": 22.3,
+       "margin": 11.7,
+       "band": 2.5,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "extrapolated",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 22.3% (1 g LOI 21, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "polyethylene",
+       "name": "Polyethylene film",
+       "use": "bags, stowage",
+       "loi_1g": 17.5,
+       "eff_limit": 18.8,
+       "margin": 15.2,
+       "band": 2.5,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "extrapolated",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 18.8% (1 g LOI 17.5, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "silicone",
+       "name": "Silicone rubber",
+       "use": "seals, tubing",
+       "loi_1g": 28.0,
+       "eff_limit": 29.3,
+       "margin": 4.7,
+       "band": 2.5,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "extrapolated",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 29.3% (1 g LOI 28, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "nomex",
+       "name": "Nomex (aramid)",
+       "use": "bags, covers",
+       "loi_1g": 29.0,
+       "eff_limit": 30.3,
+       "margin": 3.7,
+       "band": 2.5,
+       "verdict": "burns",
+       "score": 99,
+       "confidence": "extrapolated",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 30.3% (1 g LOI 29, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "kapton",
+       "name": "Kapton (polyimide)",
+       "use": "wire insulation",
+       "loi_1g": 37.0,
+       "eff_limit": 38.3,
+       "margin": -4.3,
+       "band": 2.5,
+       "verdict": "near limit",
+       "score": 35,
+       "confidence": "extrapolated",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 38.3% (1 g LOI 37, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "ptfe",
+       "name": "PTFE (Teflon)",
+       "use": "wire insulation, liners",
+       "loi_1g": 95.0,
+       "eff_limit": 96.3,
+       "margin": -62.3,
+       "band": 2.5,
+       "verdict": "unlikely",
+       "score": 0,
+       "confidence": "extrapolated",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 96.3% (1 g LOI 95, regime shift +0, pressure +1.3)"
+      }
+     ],
+     "history": [
+      {
+       "iteration": 1,
+       "strict": false,
+       "burns_or_could": 8,
+       "measured": 2
+      }
+     ],
+     "strict": false
+    },
+    "risk_iterations": 1
+   },
+   "t": 1794710324.0232913,
+   "dt": 0.017,
+   "seq": 43
+  },
+  {
+   "type": "node_start",
+   "agent": "skeptic",
+   "t": 1794710324.0237007,
+   "dt": 0.018,
+   "seq": 44
+  },
+  {
+   "type": "message",
+   "agent": "skeptic",
+   "data": {
+    "agent": "skeptic",
+    "kind": "thought",
+    "text": "Checking every 'measured' label against the PSI records for lunar gravity and 8.2/34 psia/% O2.",
+    "t": 1794710324.0237162
+   },
+   "dt": 0.018,
+   "seq": 45
+  },
+  {
+   "type": "message",
+   "agent": "skeptic",
+   "data": {
+    "agent": "skeptic",
+    "kind": "tool",
+    "text": "skeptic_review()",
+    "t": 1794710324.023729,
+    "data": {
+     "tool": "skeptic_review"
+    }
+   },
+   "dt": 0.018,
+   "seq": 46
+  },
+  {
+   "type": "message",
+   "agent": "skeptic",
+   "data": {
+    "agent": "skeptic",
+    "kind": "result",
+    "text": "skeptic_review done in 0 ms",
+    "t": 1794710324.023774,
+    "data": {
+     "tool": "skeptic_review",
+     "result": "..."
+    }
+   },
+   "dt": 0.018,
+   "seq": 47
+  },
+  {
+   "type": "message",
+   "agent": "skeptic",
+   "data": {
+    "agent": "skeptic",
+    "kind": "warning",
+    "text": "Cotton fabric is labelled measured, but no PSI investigation tested it at partial gravity.",
+    "t": 1794710324.0237963
+   },
+   "dt": 0.018,
+   "seq": 48
+  },
+  {
+   "type": "message",
+   "agent": "skeptic",
+   "data": {
+    "agent": "skeptic",
+    "kind": "warning",
+    "text": "PMMA (acrylic) is labelled measured, but no PSI investigation tested it at partial gravity.",
+    "t": 1794710324.0238047
+   },
+   "dt": 0.018,
+   "seq": 49
+  },
+  {
+   "type": "message",
+   "agent": "skeptic",
+   "data": {
+    "agent": "skeptic",
+    "kind": "llm",
+    "text": "Rejected: 2 claim(s) present extrapolations as measurements. Sending the ranking back.",
+    "t": 1794710324.0238123
+   },
+   "dt": 0.018,
+   "seq": 50
+  },
+  {
+   "type": "message",
+   "agent": "skeptic",
+   "data": {
+    "agent": "skeptic",
+    "kind": "handoff",
+    "text": "Handing over to risk_ranker: relabel extrapolated claims and widen their bands",
+    "t": 1794710324.0238187,
+    "data": {
+     "to": "risk_ranker"
+    }
+   },
+   "dt": 0.018,
+   "seq": 51
+  },
+  {
+   "type": "node_end",
+   "agent": "skeptic",
+   "update": {
+    "review": {
+     "iteration": 1,
+     "approved": false,
+     "issues": [
+      {
+       "code": "EXTRAPOLATION",
+       "severity": "block",
+       "material": "cotton",
+       "text": "Cotton fabric is labelled measured, but no PSI investigation tested it at partial gravity.",
+       "fix": "Relabel as extrapolated or no data and widen the uncertainty band."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "nylon",
+       "text": "Nylon (hook-and-loop) has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "paper",
+       "text": "Paper / cellulose has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "EXTRAPOLATION",
+       "severity": "block",
+       "material": "pmma",
+       "text": "PMMA (acrylic) is labelled measured, but no PSI investigation tested it at partial gravity.",
+       "fix": "Relabel as extrapolated or no data and widen the uncertainty band."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "polyester",
+       "text": "Polyester fabric has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "polyethylene",
+       "text": "Polyethylene film has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "silicone",
+       "text": "Silicone rubber has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "nomex",
+       "text": "Nomex (aramid) has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "kapton",
+       "text": "Kapton (polyimide) has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "ptfe",
+       "text": "PTFE (Teflon) has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "PARTIAL_GRAVITY",
+       "severity": "warn",
+       "material": null,
+       "text": "No PSI combustion investigation ran in partial gravity; every number here interpolates between orbit and Earth.",
+       "fix": "State this on every slide and hand the gap to the Gap Hunter."
+      }
+     ]
+    }
+   },
+   "t": 1794710324.023828,
+   "dt": 0.018,
+   "seq": 52
+  },
+  {
+   "type": "node_start",
+   "agent": "risk_ranker",
+   "t": 1794710324.0242226,
+   "dt": 0.018,
+   "seq": 53
+  },
+  {
+   "type": "message",
+   "agent": "risk_ranker",
+   "data": {
+    "agent": "risk_ranker",
+    "kind": "thought",
+    "text": "Pass 2: applying the Skeptic's 11 issue(s). A claim is 'measured' only if PSI tested that material at this gravity and atmosphere.",
+    "t": 1794710324.0242379
+   },
+   "dt": 0.018,
+   "seq": 54
+  },
+  {
+   "type": "message",
+   "agent": "risk_ranker",
+   "data": {
+    "agent": "risk_ranker",
+    "kind": "tool",
+    "text": "rank_materials(strict=True)",
+    "t": 1794710324.0242496,
+    "data": {
+     "tool": "rank_materials"
+    }
+   },
+   "dt": 0.018,
+   "seq": 55
+  },
+  {
+   "type": "message",
+   "agent": "risk_ranker",
+   "data": {
+    "agent": "risk_ranker",
+    "kind": "result",
+    "text": "rank_materials done in 0 ms",
+    "t": 1794710324.0243435,
+    "data": {
+     "tool": "rank_materials",
+     "result": "..."
+    }
+   },
+   "dt": 0.018,
+   "seq": 56
+  },
+  {
+   "type": "message",
+   "agent": "risk_ranker",
+   "data": {
+    "agent": "risk_ranker",
+    "kind": "llm",
+    "text": "8 of 10 materials burn or could burn at 34% O2 in this regime; highest risk: Cotton fabric (margin +14.2 points).",
+    "t": 1794710324.0243776
+   },
+   "dt": 0.018,
+   "seq": 57
+  },
+  {
+   "type": "message",
+   "agent": "risk_ranker",
+   "data": {
+    "agent": "risk_ranker",
+    "kind": "handoff",
+    "text": "Handing over to skeptic: review this ranking before anyone relies on it",
+    "t": 1794710324.0243852,
+    "data": {
+     "to": "skeptic"
+    }
+   },
+   "dt": 0.018,
+   "seq": 58
+  },
+  {
+   "type": "node_end",
+   "agent": "risk_ranker",
+   "update": {
+    "risk": {
+     "iteration": 2,
+     "items": [
+      {
+       "material": "cotton",
+       "name": "Cotton fabric",
+       "use": "clothing, towels",
+       "loi_1g": 18.5,
+       "eff_limit": 19.8,
+       "margin": 14.2,
+       "band": 4.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "no data",
+       "evidence": [
+        "PSI-98",
+        "PSI-100",
+        "PSI-25",
+        "PSI-26"
+       ],
+       "why": "Cabin O2 34% vs estimated limit 19.8% (1 g LOI 18.5, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "nomex",
+       "name": "Nomex (aramid)",
+       "use": "bags, covers",
+       "loi_1g": 29.0,
+       "eff_limit": 30.3,
+       "margin": 3.7,
+       "band": 4.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "no data",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 30.3% (1 g LOI 29, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "nylon",
+       "name": "Nylon (hook-and-loop)",
+       "use": "fasteners, netting",
+       "loi_1g": 24.0,
+       "eff_limit": 25.3,
+       "margin": 8.7,
+       "band": 4.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "no data",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 25.3% (1 g LOI 24, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "paper",
+       "name": "Paper / cellulose",
+       "use": "checklists, packaging",
+       "loi_1g": 18.0,
+       "eff_limit": 19.3,
+       "margin": 14.7,
+       "band": 4.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "no data",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 19.3% (1 g LOI 18, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "pmma",
+       "name": "PMMA (acrylic)",
+       "use": "windows, covers",
+       "loi_1g": 17.5,
+       "eff_limit": 18.8,
+       "margin": 15.2,
+       "band": 4.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "no data",
+       "evidence": [
+        "PSI-25",
+        "PSI-26"
+       ],
+       "why": "Cabin O2 34% vs estimated limit 18.8% (1 g LOI 17.5, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "polyester",
+       "name": "Polyester fabric",
+       "use": "straps, clothing",
+       "loi_1g": 21.0,
+       "eff_limit": 22.3,
+       "margin": 11.7,
+       "band": 4.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "no data",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 22.3% (1 g LOI 21, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "polyethylene",
+       "name": "Polyethylene film",
+       "use": "bags, stowage",
+       "loi_1g": 17.5,
+       "eff_limit": 18.8,
+       "margin": 15.2,
+       "band": 4.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "no data",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 18.8% (1 g LOI 17.5, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "silicone",
+       "name": "Silicone rubber",
+       "use": "seals, tubing",
+       "loi_1g": 28.0,
+       "eff_limit": 29.3,
+       "margin": 4.7,
+       "band": 4.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "no data",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 29.3% (1 g LOI 28, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "kapton",
+       "name": "Kapton (polyimide)",
+       "use": "wire insulation",
+       "loi_1g": 37.0,
+       "eff_limit": 38.3,
+       "margin": -4.3,
+       "band": 4.0,
+       "verdict": "near limit",
+       "score": 47,
+       "confidence": "no data",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 38.3% (1 g LOI 37, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "ptfe",
+       "name": "PTFE (Teflon)",
+       "use": "wire insulation, liners",
+       "loi_1g": 95.0,
+       "eff_limit": 96.3,
+       "margin": -62.3,
+       "band": 4.0,
+       "verdict": "unlikely",
+       "score": 0,
+       "confidence": "no data",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 96.3% (1 g LOI 95, regime shift +0, pressure +1.3)"
+      }
+     ],
+     "history": [
+      {
+       "iteration": 1,
+       "strict": false,
+       "burns_or_could": 8,
+       "measured": 2
+      },
+      {
+       "iteration": 2,
+       "strict": true,
+       "burns_or_could": 8,
+       "measured": 0
+      }
+     ],
+     "strict": true
+    },
+    "risk_iterations": 2
+   },
+   "t": 1794710324.024395,
+   "dt": 0.018,
+   "seq": 59
+  },
+  {
+   "type": "node_start",
+   "agent": "skeptic",
+   "t": 1794710324.0254476,
+   "dt": 0.019,
+   "seq": 60
+  },
+  {
+   "type": "message",
+   "agent": "skeptic",
+   "data": {
+    "agent": "skeptic",
+    "kind": "thought",
+    "text": "Checking every 'measured' label against the PSI records for lunar gravity and 8.2/34 psia/% O2.",
+    "t": 1794710324.0254948
+   },
+   "dt": 0.02,
+   "seq": 61
+  },
+  {
+   "type": "message",
+   "agent": "skeptic",
+   "data": {
+    "agent": "skeptic",
+    "kind": "tool",
+    "text": "skeptic_review()",
+    "t": 1794710324.0255098,
+    "data": {
+     "tool": "skeptic_review"
+    }
+   },
+   "dt": 0.02,
+   "seq": 62
+  },
+  {
+   "type": "message",
+   "agent": "skeptic",
+   "data": {
+    "agent": "skeptic",
+    "kind": "result",
+    "text": "skeptic_review done in 0 ms",
+    "t": 1794710324.0255556,
+    "data": {
+     "tool": "skeptic_review",
+     "result": "..."
+    }
+   },
+   "dt": 0.02,
+   "seq": 63
+  },
+  {
+   "type": "message",
+   "agent": "skeptic",
+   "data": {
+    "agent": "skeptic",
+    "kind": "llm",
+    "text": "Approved: every claim matches what was actually tested.",
+    "t": 1794710324.0255804
+   },
+   "dt": 0.02,
+   "seq": 64
+  },
+  {
+   "type": "node_end",
+   "agent": "skeptic",
+   "update": {
+    "review": {
+     "iteration": 2,
+     "approved": true,
+     "issues": [
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "nomex",
+       "text": "Nomex (aramid) has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "nylon",
+       "text": "Nylon (hook-and-loop) has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "paper",
+       "text": "Paper / cellulose has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "polyester",
+       "text": "Polyester fabric has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "polyethylene",
+       "text": "Polyethylene film has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "silicone",
+       "text": "Silicone rubber has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "kapton",
+       "text": "Kapton (polyimide) has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "ptfe",
+       "text": "PTFE (Teflon) has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "PARTIAL_GRAVITY",
+       "severity": "warn",
+       "material": null,
+       "text": "No PSI combustion investigation ran in partial gravity; every number here interpolates between orbit and Earth.",
+       "fix": "State this on every slide and hand the gap to the Gap Hunter."
+      }
+     ]
+    }
+   },
+   "t": 1794710324.0255878,
+   "dt": 0.02,
+   "seq": 65
+  },
+  {
+   "type": "node_start",
+   "agent": "supervisor",
+   "t": 1794710324.0259857,
+   "dt": 0.02,
+   "seq": 66
+  },
+  {
+   "type": "message",
+   "agent": "supervisor",
+   "data": {
+    "agent": "supervisor",
+    "kind": "handoff",
+    "text": "Handing over to incident_analyst: check the mission against Apollo 1, Apollo 13 and Mir",
+    "t": 1794710324.026004,
+    "data": {
+     "to": "incident_analyst"
+    }
+   },
+   "dt": 0.02,
+   "seq": 67
+  },
+  {
+   "type": "node_end",
+   "agent": "supervisor",
+   "update": {
+    "route": [
+     "gap_hunter",
+     "safety_officer"
+    ],
+    "next": "incident_analyst"
+   },
+   "t": 1794710324.026017,
+   "dt": 0.02,
+   "seq": 68
+  },
+  {
+   "type": "node_start",
+   "agent": "incident_analyst",
+   "t": 1794710324.0264132,
+   "dt": 0.02,
+   "seq": 69
+  },
+  {
+   "type": "message",
+   "agent": "incident_analyst",
+   "data": {
+    "agent": "incident_analyst",
+    "kind": "thought",
+    "text": "Breaking each historical fire into oxidizer, fuel, ignition, detection, suppression and escape, then looking for the same links in this mission.",
+    "t": 1794710324.0264277
+   },
+   "dt": 0.02,
+   "seq": 70
+  },
+  {
+   "type": "message",
+   "agent": "incident_analyst",
+   "data": {
+    "agent": "incident_analyst",
+    "kind": "tool",
+    "text": "match_incidents()",
+    "t": 1794710324.0264392,
+    "data": {
+     "tool": "match_incidents"
+    }
+   },
+   "dt": 0.02,
+   "seq": 71
+  },
+  {
+   "type": "message",
+   "agent": "incident_analyst",
+   "data": {
+    "agent": "incident_analyst",
+    "kind": "result",
+    "text": "match_incidents done in 0 ms",
+    "t": 1794710324.0265088,
+    "data": {
+     "tool": "match_incidents",
+     "result": "..."
+    }
+   },
+   "dt": 0.021,
+   "seq": 72
+  },
+  {
+   "type": "message",
+   "agent": "incident_analyst",
+   "data": {
+    "agent": "incident_analyst",
+    "kind": "thought",
+    "text": "Apollo 1 (1967) match high: Oxygen-enriched cabin (34% O2); Soft goods that can burn at mission conditions: Cotton fabric, Nomex (aramid), Nylon (hook-and-loop).",
+    "t": 1794710324.026545
+   },
+   "dt": 0.021,
+   "seq": 73
+  },
+  {
+   "type": "message",
+   "agent": "incident_analyst",
+   "data": {
+    "agent": "incident_analyst",
+    "kind": "thought",
+    "text": "Apollo 13 (1970) match medium: High-pressure oxygen tanks with internal heaters/fans or valves.",
+    "t": 1794710324.0265539
+   },
+   "dt": 0.021,
+   "seq": 74
+  },
+  {
+   "type": "message",
+   "agent": "incident_analyst",
+   "data": {
+    "agent": "incident_analyst",
+    "kind": "thought",
+    "text": "Mir (1997) match medium: Solid-fuel oxygen generators carried as backup.",
+    "t": 1794710324.0265608
+   },
+   "dt": 0.021,
+   "seq": 75
+  },
+  {
+   "type": "message",
+   "agent": "incident_analyst",
+   "data": {
+    "agent": "incident_analyst",
+    "kind": "llm",
+    "text": "The closest historical pattern is Apollo 1 (1967), with 2 matching link(s).",
+    "t": 1794710324.0265872
+   },
+   "dt": 0.021,
+   "seq": 76
+  },
+  {
+   "type": "node_end",
+   "agent": "incident_analyst",
+   "update": {
+    "incidents": {
+     "cases": [
+      {
+       "id": "apollo1",
+       "name": "Apollo 1",
+       "year": 1967,
+       "outcome": "Three crew members lost during a ground test.",
+       "source": "https://sma.nasa.gov/sma-disciplines/accllp/apollo-1",
+       "chain": {
+        "oxidizer": "100% oxygen cabin above sea-level pressure",
+        "fuel": "Nylon netting, hook-and-loop, foam pads",
+        "ignition": "Probable electrical arc from damaged wiring",
+        "detection": "Crew voice call",
+        "suppression": "None effective",
+        "escape": "Inward-opening hatch could not be opened against cabin pressure"
+       },
+       "match": "high",
+       "match_reasons": [
+        "Oxygen-enriched cabin (34% O2)",
+        "Soft goods that can burn at mission conditions: Cotton fabric, Nomex (aramid), Nylon (hook-and-loop)"
+       ]
+      },
+      {
+       "id": "apollo13",
+       "name": "Apollo 13",
+       "year": 1970,
+       "outcome": "Oxygen tank failure; crew survived using the lunar module.",
+       "source": "https://sma.nasa.gov/sma-disciplines/accllp/apollo-13",
+       "chain": {
+        "oxidizer": "High-pressure oxygen tank",
+        "fuel": "Teflon wire insulation inside the tank",
+        "ignition": "Heater switches damaged before launch; insulation burned when the tank fans ran",
+        "detection": "Bang and pressure drop",
+        "suppression": "Not possible",
+        "escape": "Lunar module used as lifeboat"
+       },
+       "match": "medium",
+       "match_reasons": [
+        "High-pressure oxygen tanks with internal heaters/fans or valves"
+       ]
+      },
+      {
+       "id": "mir",
+       "name": "Mir",
+       "year": 1997,
+       "outcome": "Fire put out; no lasting harm to the crew.",
+       "source": "https://www.nasa.gov/history/25-years-ago-fire-aboard-space-station-mir/",
+       "chain": {
+        "oxidizer": "Solid-fuel oxygen generator canister",
+        "fuel": "Canister contents; latex glove material was the likely contaminant",
+        "ignition": "Canister failed on activation; flame about three feet long",
+        "detection": "Crew saw it; smoke filled the station",
+        "suppression": "Foam extinguishers; the flame went out on its own",
+        "escape": "Flame blocked the route to the docked Soyuz"
+       },
+       "match": "medium",
+       "match_reasons": [
+        "Solid-fuel oxygen generators carried as backup"
+       ]
+      }
+     ],
+     "closest": "apollo1"
+    }
+   },
+   "t": 1794710324.0265949,
+   "dt": 0.021,
+   "seq": 77
+  },
+  {
+   "type": "node_start",
+   "agent": "supervisor",
+   "t": 1794710324.0268953,
+   "dt": 0.021,
+   "seq": 78
+  },
+  {
+   "type": "message",
+   "agent": "supervisor",
+   "data": {
+    "agent": "supervisor",
+    "kind": "handoff",
+    "text": "Handing over to gap_hunter: find what NASA has not tested yet and design the next experiment",
+    "t": 1794710324.026908,
+    "data": {
+     "to": "gap_hunter"
+    }
+   },
+   "dt": 0.021,
+   "seq": 79
+  },
+  {
+   "type": "node_end",
+   "agent": "supervisor",
+   "update": {
+    "route": [
+     "safety_officer"
+    ],
+    "next": "gap_hunter"
+   },
+   "t": 1794710324.0269196,
+   "dt": 0.021,
+   "seq": 80
+  },
+  {
+   "type": "node_start",
+   "agent": "gap_hunter",
+   "t": 1794710324.0272505,
+   "dt": 0.021,
+   "seq": 81
+  },
+  {
+   "type": "message",
+   "agent": "gap_hunter",
+   "data": {
+    "agent": "gap_hunter",
+    "kind": "thought",
+    "text": "Building the gravity x atmosphere x topic coverage matrix from the flight investigations.",
+    "t": 1794710324.0272636
+   },
+   "dt": 0.021,
+   "seq": 82
+  },
+  {
+   "type": "message",
+   "agent": "gap_hunter",
+   "data": {
+    "agent": "gap_hunter",
+    "kind": "tool",
+    "text": "coverage_matrix()",
+    "t": 1794710324.0272737,
+    "data": {
+     "tool": "coverage_matrix"
+    }
+   },
+   "dt": 0.021,
+   "seq": 83
+  },
+  {
+   "type": "message",
+   "agent": "gap_hunter",
+   "data": {
+    "agent": "gap_hunter",
+    "kind": "result",
+    "text": "coverage_matrix done in 0 ms",
+    "t": 1794710324.0274177,
+    "data": {
+     "tool": "coverage_matrix",
+     "result": "..."
+    }
+   },
+   "dt": 0.021,
+   "seq": 84
+  },
+  {
+   "type": "message",
+   "agent": "gap_hunter",
+   "data": {
+    "agent": "gap_hunter",
+    "kind": "tool",
+    "text": "rank_gaps()",
+    "t": 1794710324.027459,
+    "data": {
+     "tool": "rank_gaps"
+    }
+   },
+   "dt": 0.021,
+   "seq": 85
+  },
+  {
+   "type": "message",
+   "agent": "gap_hunter",
+   "data": {
+    "agent": "gap_hunter",
+    "kind": "result",
+    "text": "rank_gaps done in 0 ms",
+    "t": 1794710324.0275664,
+    "data": {
+     "tool": "rank_gaps",
+     "result": "..."
+    }
+   },
+   "dt": 0.022,
+   "seq": 86
+  },
+  {
+   "type": "message",
+   "agent": "gap_hunter",
+   "data": {
+    "agent": "gap_hunter",
+    "kind": "tool",
+    "text": "design_experiment()",
+    "t": 1794710324.0275898,
+    "data": {
+     "tool": "design_experiment"
+    }
+   },
+   "dt": 0.022,
+   "seq": 87
+  },
+  {
+   "type": "message",
+   "agent": "gap_hunter",
+   "data": {
+    "agent": "gap_hunter",
+    "kind": "result",
+    "text": "design_experiment done in 0 ms",
+    "t": 1794710324.0276163,
+    "data": {
+     "tool": "design_experiment",
+     "result": "..."
+    }
+   },
+   "dt": 0.022,
+   "seq": 88
+  },
+  {
+   "type": "message",
+   "agent": "gap_hunter",
+   "data": {
+    "agent": "gap_hunter",
+    "kind": "llm",
+    "text": "Only 12 of 96 condition cells have a flight investigation. Top gap for this mission: flammability at lunar gravity and 8.2/34 psia/% O2. Proposed: Flammability of cabin materials at lunar gravity, 8.2 psia / 34% O2.",
+    "t": 1794710324.0276465
+   },
+   "dt": 0.022,
+   "seq": 89
+  },
+  {
+   "type": "node_end",
+   "agent": "gap_hunter",
+   "update": {
+    "gaps": {
+     "matrix": {
+      "micro|14.7/21|ignition": 3,
+      "micro|14.7/21|spread": 4,
+      "micro|14.7/21|flammability": 6,
+      "micro|14.7/21|suppression": 1,
+      "micro|14.7/21|extinction": 7,
+      "micro|14.7/21|smoke": 2,
+      "micro|14.7/21|detection": 2,
+      "micro|14.7/21|cool_flame": 4,
+      "micro|10.2/26.5|ignition": 0,
+      "micro|10.2/26.5|spread": 0,
+      "micro|10.2/26.5|flammability": 1,
+      "micro|10.2/26.5|suppression": 0,
+      "micro|10.2/26.5|extinction": 1,
+      "micro|10.2/26.5|smoke": 0,
+      "micro|10.2/26.5|detection": 0,
+      "micro|10.2/26.5|cool_flame": 0,
+      "micro|8.2/34|ignition": 0,
+      "micro|8.2/34|spread": 0,
+      "micro|8.2/34|flammability": 1,
+      "micro|8.2/34|suppression": 0,
+      "micro|8.2/34|extinction": 1,
+      "micro|8.2/34|smoke": 0,
+      "micro|8.2/34|detection": 0,
+      "micro|8.2/34|cool_flame": 0,
+      "lunar|14.7/21|ignition": 0,
+      "lunar|14.7/21|spread": 0,
+      "lunar|14.7/21|flammability": 0,
+      "lunar|14.7/21|suppression": 0,
+      "lunar|14.7/21|extinction": 0,
+      "lunar|14.7/21|smoke": 0,
+      "lunar|14.7/21|detection": 0,
+      "lunar|14.7/21|cool_flame": 0,
+      "lunar|10.2/26.5|ignition": 0,
+      "lunar|10.2/26.5|spread": 0,
+      "lunar|10.2/26.5|flammability": 0,
+      "lunar|10.2/26.5|suppression": 0,
+      "lunar|10.2/26.5|extinction": 0,
+      "lunar|10.2/26.5|smoke": 0,
+      "lunar|10.2/26.5|detection": 0,
+      "lunar|10.2/26.5|cool_flame": 0,
+      "lunar|8.2/34|ignition": 0,
+      "lunar|8.2/34|spread": 0,
+      "lunar|8.2/34|flammability": 0,
+      "lunar|8.2/34|suppression": 0,
+      "lunar|8.2/34|extinction": 0,
+      "lunar|8.2/34|smoke": 0,
+      "lunar|8.2/34|detection": 0,
+      "lunar|8.2/34|cool_flame": 0,
+      "mars|14.7/21|ignition": 0,
+      "mars|14.7/21|spread": 0,
+      "mars|14.7/21|flammability": 0,
+      "mars|14.7/21|suppression": 0,
+      "mars|14.7/21|extinction": 0,
+      "mars|14.7/21|smoke": 0,
+      "mars|14.7/21|detection": 0,
+      "mars|14.7/21|cool_flame": 0,
+      "mars|10.2/26.5|ignition": 0,
+      "mars|10.2/26.5|spread": 0,
+      "mars|10.2/26.5|flammability": 0,
+      "mars|10.2/26.5|suppression": 0,
+      "mars|10.2/26.5|extinction": 0,
+      "mars|10.2/26.5|smoke": 0,
+      "mars|10.2/26.5|detection": 0,
+      "mars|10.2/26.5|cool_flame": 0,
+      "mars|8.2/34|ignition": 0,
+      "mars|8.2/34|spread": 0,
+      "mars|8.2/34|flammability": 0,
+      "mars|8.2/34|suppression": 0,
+      "mars|8.2/34|extinction": 0,
+      "mars|8.2/34|smoke": 0,
+      "mars|8.2/34|detection": 0,
+      "mars|8.2/34|cool_flame": 0,
+      "earth|14.7/21|ignition": 0,
+      "earth|14.7/21|spread": 0,
+      "earth|14.7/21|flammability": 0,
+      "earth|14.7/21|suppression": 0,
+      "earth|14.7/21|extinction": 0,
+      "earth|14.7/21|smoke": 0,
+      "earth|14.7/21|detection": 0,
+      "earth|14.7/21|cool_flame": 0,
+      "earth|10.2/26.5|ignition": 0,
+      "earth|10.2/26.5|spread": 0,
+      "earth|10.2/26.5|flammability": 0,
+      "earth|10.2/26.5|suppression": 0,
+      "earth|10.2/26.5|extinction": 0,
+      "earth|10.2/26.5|smoke": 0,
+      "earth|10.2/26.5|detection": 0,
+      "earth|10.2/26.5|cool_flame": 0,
+      "earth|8.2/34|ignition": 0,
+      "earth|8.2/34|spread": 0,
+      "earth|8.2/34|flammability": 0,
+      "earth|8.2/34|suppression": 0,
+      "earth|8.2/34|extinction": 0,
+      "earth|8.2/34|smoke": 0,
+      "earth|8.2/34|detection": 0,
+      "earth|8.2/34|cool_flame": 0
+     },
+     "covered": 12,
+     "cells": 96,
+     "mission_cell": {
+      "ignition": [],
+      "spread": [],
+      "flammability": [],
+      "suppression": [],
+      "extinction": [],
+      "smoke": [],
+      "detection": [],
+      "cool_flame": []
+     },
+     "gaps": [
+      {
+       "gravity": "lunar",
+       "atmosphere": "8.2/34",
+       "topic": "flammability",
+       "records": [],
+       "score": 100
+      },
+      {
+       "gravity": "lunar",
+       "atmosphere": "8.2/34",
+       "topic": "ignition",
+       "records": [],
+       "score": 100
+      },
+      {
+       "gravity": "lunar",
+       "atmosphere": "8.2/34",
+       "topic": "spread",
+       "records": [],
+       "score": 100
+      },
+      {
+       "gravity": "lunar",
+       "atmosphere": "8.2/34",
+       "topic": "suppression",
+       "records": [],
+       "score": 90
+      },
+      {
+       "gravity": "lunar",
+       "atmosphere": "8.2/34",
+       "topic": "detection",
+       "records": [],
+       "score": 80
+      },
+      {
+       "gravity": "lunar",
+       "atmosphere": "8.2/34",
+       "topic": "extinction",
+       "records": [],
+       "score": 80
+      }
+     ],
+     "proposal": {
+      "title": "Flammability of cabin materials at lunar gravity, 8.2 psia / 34% O2",
+      "platform": "Parabolic flight at the target gravity (about 20 s per parabola) for ignition and early spread; sustained spread needs a rotating rig or surface tests.",
+      "materials": [
+       "cotton",
+       "nomex",
+       "nylon"
+      ],
+      "atmosphere": "8.2/34",
+      "gravity": "lunar",
+      "flows_m_s": [
+       0.0,
+       0.05,
+       0.1,
+       0.2
+      ],
+      "measurements": [
+       "visible and IR video (flame front position)",
+       "radiometer",
+       "CO and CO2",
+       "smoke particle counter"
+      ],
+      "answers": "Replaces interpolated limits for 3 ranked material(s) with measured ones.",
+      "gap_score": 100
+     }
+    }
+   },
+   "t": 1794710324.027666,
+   "dt": 0.022,
+   "seq": 90
+  },
+  {
+   "type": "node_start",
+   "agent": "supervisor",
+   "t": 1794710324.0280023,
+   "dt": 0.022,
+   "seq": 91
+  },
+  {
+   "type": "message",
+   "agent": "supervisor",
+   "data": {
+    "agent": "supervisor",
+    "kind": "handoff",
+    "text": "Handing over to safety_officer: turn findings into recommendations for human approval",
+    "t": 1794710324.0280151,
+    "data": {
+     "to": "safety_officer"
+    }
+   },
+   "dt": 0.022,
+   "seq": 92
+  },
+  {
+   "type": "node_end",
+   "agent": "supervisor",
+   "update": {
+    "route": [],
+    "next": "safety_officer"
+   },
+   "t": 1794710324.0280297,
+   "dt": 0.022,
+   "seq": 93
+  },
+  {
+   "type": "node_start",
+   "agent": "safety_officer",
+   "t": 1794710324.028384,
+   "dt": 0.022,
+   "seq": 94
+  },
+  {
+   "type": "message",
+   "agent": "safety_officer",
+   "data": {
+    "agent": "safety_officer",
+    "kind": "tool",
+    "text": "recommendations()",
+    "t": 1794710324.028399,
+    "data": {
+     "tool": "recommendations"
+    }
+   },
+   "dt": 0.022,
+   "seq": 95
+  },
+  {
+   "type": "message",
+   "agent": "safety_officer",
+   "data": {
+    "agent": "safety_officer",
+    "kind": "result",
+    "text": "recommendations done in 0 ms",
+    "t": 1794710324.0284364,
+    "data": {
+     "tool": "recommendations",
+     "result": "..."
+    }
+   },
+   "dt": 0.022,
+   "seq": 96
+  },
+  {
+   "type": "message",
+   "agent": "safety_officer",
+   "data": {
+    "agent": "safety_officer",
+    "kind": "thought",
+    "text": "5 recommendations ready. Waiting for a human to approve them before they go in the report.",
+    "t": 1794710324.0285041
+   },
+   "dt": 0.023,
+   "seq": 97
+  },
+  {
+   "type": "interrupt",
+   "agent": "safety_officer",
+   "data": {
+    "actions": [
+     {
+      "id": "R1",
+      "priority": "P1",
+      "title": "Re-screen soft goods at the mission atmosphere",
+      "text": "Test Cotton fabric, Nomex (aramid), Nylon (hook-and-loop), Paper / cellulose at 8.2/34 psia/% O2 before flight, or replace them.",
+      "evidence": [
+       "PSI-100",
+       "PSI-25",
+       "PSI-26",
+       "PSI-98"
+      ]
+     },
+     {
+      "id": "R2",
+      "priority": "P2",
+      "title": "Do not rely on fan shutdown alone",
+      "text": "At 0.165 g buoyancy still supplies about 0.57 m/s of flow; pair shutdown with isolation and suppression.",
+      "evidence": [
+       "PSI-25"
+      ]
+     },
+     {
+      "id": "R3",
+      "priority": "P1",
+      "title": "Detect smoke where the air goes, and sense gases too",
+      "text": "Smoke does not rise without gravity; put detectors in the ventilation path and add CO/CO2 sensing, because cool flames and smoldering give little light.",
+      "evidence": [
+       "PSI-102",
+       "PSI-101",
+       "PSI-69",
+       "PSI-68"
+      ]
+     },
+     {
+      "id": "R5",
+      "priority": "P2",
+      "title": "Audit electrical parts inside oxygen tanks",
+      "text": "Check heater, fan and switch ratings against every power source used on the ground and in flight.",
+      "evidence": [
+       "Apollo 13 1970"
+      ]
+     },
+     {
+      "id": "R4",
+      "priority": "P1",
+      "title": "Treat oxygen generators as ignition hazards",
+      "text": "Inspect canisters for contamination, activate them away from escape routes, and keep the path to the return vehicle clear.",
+      "evidence": [
+       "Mir 1997"
+      ]
+     }
+    ],
+    "question": "Approve these fire-safety recommendations?"
+   },
+   "seq": 98
+  },
+  {
+   "type": "message",
+   "agent": "safety_officer",
+   "data": {
+    "agent": "safety_officer",
+    "kind": "result",
+    "text": "Human decision: 5 approved, 0 rejected.",
+    "t": 1794710324.0322063
+   },
+   "dt": 0.026,
+   "seq": 99
+  },
+  {
+   "type": "node_end",
+   "agent": "safety_officer",
+   "update": {
+    "actions": {
+     "recommendations": [
+      {
+       "id": "R1",
+       "priority": "P1",
+       "title": "Re-screen soft goods at the mission atmosphere",
+       "text": "Test Cotton fabric, Nomex (aramid), Nylon (hook-and-loop), Paper / cellulose at 8.2/34 psia/% O2 before flight, or replace them.",
+       "evidence": [
+        "PSI-100",
+        "PSI-25",
+        "PSI-26",
+        "PSI-98"
+       ],
+       "status": "approved"
+      },
+      {
+       "id": "R2",
+       "priority": "P2",
+       "title": "Do not rely on fan shutdown alone",
+       "text": "At 0.165 g buoyancy still supplies about 0.57 m/s of flow; pair shutdown with isolation and suppression.",
+       "evidence": [
+        "PSI-25"
+       ],
+       "status": "approved"
+      },
+      {
+       "id": "R3",
+       "priority": "P1",
+       "title": "Detect smoke where the air goes, and sense gases too",
+       "text": "Smoke does not rise without gravity; put detectors in the ventilation path and add CO/CO2 sensing, because cool flames and smoldering give little light.",
+       "evidence": [
+        "PSI-102",
+        "PSI-101",
+        "PSI-69",
+        "PSI-68"
+       ],
+       "status": "approved"
+      },
+      {
+       "id": "R5",
+       "priority": "P2",
+       "title": "Audit electrical parts inside oxygen tanks",
+       "text": "Check heater, fan and switch ratings against every power source used on the ground and in flight.",
+       "evidence": [
+        "Apollo 13 1970"
+       ],
+       "status": "approved"
+      },
+      {
+       "id": "R4",
+       "priority": "P1",
+       "title": "Treat oxygen generators as ignition hazards",
+       "text": "Inspect canisters for contamination, activate them away from escape routes, and keep the path to the return vehicle clear.",
+       "evidence": [
+        "Mir 1997"
+       ],
+       "status": "approved"
+      }
+     ],
+     "pilot_mode": "approve",
+     "approved_ids": [
+      "R1",
+      "R2",
+      "R3",
+      "R5",
+      "R4"
+     ],
+     "rejected_ids": []
+    }
+   },
+   "t": 1794710324.032219,
+   "dt": 0.026,
+   "seq": 100
+  },
+  {
+   "type": "node_start",
+   "agent": "supervisor",
+   "t": 1794710324.0330453,
+   "dt": 0.027,
+   "seq": 101
+  },
+  {
+   "type": "message",
+   "agent": "supervisor",
+   "data": {
+    "agent": "supervisor",
+    "kind": "handoff",
+    "text": "Handing over to reporter: every agent has reported; write the briefing",
+    "t": 1794710324.0330715,
+    "data": {
+     "to": "reporter"
+    }
+   },
+   "dt": 0.027,
+   "seq": 102
+  },
+  {
+   "type": "node_end",
+   "agent": "supervisor",
+   "update": {
+    "route": [],
+    "next": "reporter"
+   },
+   "t": 1794710324.0330863,
+   "dt": 0.027,
+   "seq": 103
+  },
+  {
+   "type": "node_start",
+   "agent": "reporter",
+   "t": 1794710324.033583,
+   "dt": 0.028,
+   "seq": 104
+  },
+  {
+   "type": "message",
+   "agent": "reporter",
+   "data": {
+    "agent": "reporter",
+    "kind": "result",
+    "text": "Lunar surface habitat: 8 of 10 cabin materials burn or could burn at 34% O2; none of those claims rests on a NASA test at these conditions.",
+    "t": 1794710324.0336418
+   },
+   "dt": 0.028,
+   "seq": 105
+  },
+  {
+   "type": "node_end",
+   "agent": "reporter",
+   "update": {
+    "report": {
+     "headline": "Lunar surface habitat: 8 of 10 cabin materials burn or could burn at 34% O2; none of those claims rests on a NASA test at these conditions.",
+     "sections": [
+      {
+       "agent": "librarian",
+       "title": "Evidence base",
+       "bullets": [
+        "23 combustion investigations from NASA PSI (18 flight, 5 ground).",
+        "2 non-combustion record(s) removed; 0 partial-gravity investigations exist."
+       ]
+      },
+      {
+       "agent": "mission_profiler",
+       "title": "Mission",
+       "bullets": [
+        "Lunar surface habitat: 0.165 g, 8.2 psia, 34% O2, fan 0.1 m/s.",
+        "Scenario assumption: 8.2 psia / 34% O2, a NASA-considered exploration atmosphere (PSI-20)."
+       ]
+      },
+      {
+       "agent": "physicist",
+       "title": "Flame regime",
+       "bullets": [
+        "Buoyant flow is about 0.575 m/s against 1.415 m/s on Earth, so fan-to-buoyancy ratio is 0.17: buoyant regime. Buoyancy dominates, as on Earth, but the induced flow is weaker, so flames are taller and slower than in 1 g. Relevance of the normal-gravity upward-burning screening test: high.",
+        "Fan shutdown effect: limited: buoyancy alone still drives about 0.57 m/s of flow toward the flame."
+       ]
+      },
+      {
+       "agent": "risk_ranker",
+       "title": "Material risk",
+       "bullets": [
+        "Cotton fabric: burns (margin +14.2 +/- 4 pts, no data)",
+        "Nomex (aramid): burns (margin +3.7 +/- 4 pts, no data)",
+        "Nylon (hook-and-loop): burns (margin +8.7 +/- 4 pts, no data)",
+        "Paper / cellulose: burns (margin +14.7 +/- 4 pts, no data)",
+        "PMMA (acrylic): burns (margin +15.2 +/- 4 pts, no data)",
+        "Skeptic approved the final ranking."
+       ]
+      },
+      {
+       "agent": "incident_analyst",
+       "title": "Lessons from past fires",
+       "bullets": [
+        "Apollo 1 (1967): high match. Oxygen-enriched cabin (34% O2); Soft goods that can burn at mission conditions: Cotton fabric, Nomex (aramid), Nylon (hook-and-loop)",
+        "Apollo 13 (1970): medium match. High-pressure oxygen tanks with internal heaters/fans or valves",
+        "Mir (1997): medium match. Solid-fuel oxygen generators carried as backup"
+       ]
+      },
+      {
+       "agent": "gap_hunter",
+       "title": "What has not been tested",
+       "bullets": [
+        "12 of 96 condition cells have flight data.",
+        "Next experiment: Flammability of cabin materials at lunar gravity, 8.2 psia / 34% O2.",
+        "Parabolic flight at the target gravity (about 20 s per parabola) for ignition and early spread; sustained spread needs a rotating rig or surface tests.",
+        "Replaces interpolated limits for 3 ranked material(s) with measured ones."
+       ]
+      },
+      {
+       "agent": "safety_officer",
+       "title": "Recommendations",
+       "bullets": [
+        "[P1] Re-screen soft goods at the mission atmosphere (approved)",
+        "[P2] Do not rely on fan shutdown alone (approved)",
+        "[P1] Detect smoke where the air goes, and sense gases too (approved)",
+        "[P2] Audit electrical parts inside oxygen tanks (approved)",
+        "[P1] Treat oxygen generators as ignition hazards (approved)"
+       ]
+      }
+     ],
+     "kpis": {
+      "psi_records": 23,
+      "mission": "Lunar surface habitat",
+      "regime": "buoyant",
+      "materials_at_risk": 8,
+      "materials_ranked": 10,
+      "measured_claims": 0,
+      "hot_measured": 0,
+      "review_passes": 2,
+      "coverage_pct": 12,
+      "recommendations": 5,
+      "approved": 5
+     }
+    }
+   },
+   "t": 1794710324.0336545,
+   "dt": 0.028,
+   "seq": 106
+  },
+  {
+   "type": "done",
+   "state": {
+    "goal": "Full fire-safety assessment",
+    "mode": "full",
+    "agents": [],
+    "scenario": {
+     "mission": "lunar",
+     "pilot_mode": "approve"
+    },
+    "route": [],
+    "done": [
+     "librarian",
+     "mission_profiler",
+     "physicist",
+     "risk_ranker",
+     "skeptic",
+     "risk_ranker",
+     "skeptic",
+     "incident_analyst",
+     "gap_hunter",
+     "safety_officer"
+    ],
+    "next": "reporter",
+    "corpus": {
+     "records": [
+      {
+       "id": "PSI-117",
+       "acronym": "Cool-flame CFD",
+       "title": "Effect of External Thermo-Convective Perturbation on Cool Flame Dynamics: A Multidimensional Multi-Physics CFD Analysis",
+       "area": "Combustion Science",
+       "type": "ground",
+       "topics": [
+        "cool_flame",
+        "extinction"
+       ],
+       "phase": "droplet",
+       "uses": [
+        "PSI-69"
+       ],
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-117",
+       "atmospheres": [],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "earth"
+      },
+      {
+       "id": "PSI-159",
+       "acronym": "ACME CFI-G",
+       "title": "Advanced Combustion via Microgravity Experiments / Cool Flames Investigation with Gases",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "cool_flame"
+       ],
+       "phase": "gas",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-159",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-10",
+       "acronym": "ACME Flame Design",
+       "title": "Advanced Combustion via Microgravity Experiments / Flame Design",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "soot",
+        "extinction"
+       ],
+       "phase": "gas",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-10",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-62",
+       "acronym": "BASS modeling",
+       "title": "Concurrent Flame Spread Modeling using Flamelet Generated Manifolds in Microgravity with Comparison to BASS Experiments",
+       "area": "Combustion Science",
+       "type": "ground",
+       "topics": [
+        "spread"
+       ],
+       "phase": "solid",
+       "uses": [
+        "PSI-26"
+       ],
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-62",
+       "atmospheres": [],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "earth"
+      },
+      {
+       "id": "PSI-60",
+       "acronym": "SPICE analysis",
+       "title": "Computational and Experimental Analysis of SPICE Data Sets",
+       "area": "Combustion Science",
+       "type": "ground",
+       "topics": [
+        "soot"
+       ],
+       "phase": "gas",
+       "uses": [
+        "PSI-107"
+       ],
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-60",
+       "atmospheres": [],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "earth"
+      },
+      {
+       "id": "PSI-142",
+       "acronym": "Cool-flame counterflow",
+       "title": "Quantitative Studies of Cool Flame Transitions at Radiation / Stretch Extinction Using Counterflow Flames",
+       "area": "Combustion Science",
+       "type": "ground",
+       "topics": [
+        "cool_flame",
+        "extinction"
+       ],
+       "phase": "gas",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-142",
+       "atmospheres": [],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "earth"
+      },
+      {
+       "id": "PSI-101",
+       "acronym": "SAME-R",
+       "title": "Smoke Aerosol Measurement Experiment-Reflight",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "smoke",
+        "detection"
+       ],
+       "phase": "solid",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-101",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-115",
+       "acronym": "SAME modeling",
+       "title": "Utilization of the Smoke Aerosol Measurement Experiment Data for Advanced Modeling",
+       "area": "Combustion Science",
+       "type": "ground",
+       "topics": [
+        "smoke",
+        "detection"
+       ],
+       "phase": "solid",
+       "uses": [
+        "PSI-102",
+        "PSI-101"
+       ],
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-115",
+       "atmospheres": [],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "earth"
+      },
+      {
+       "id": "PSI-98",
+       "acronym": "Saffire-I",
+       "title": "Spacecraft Fire Safety Experiment-I",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "spread",
+        "flammability"
+       ],
+       "phase": "solid",
+       "materials": [
+        "cotton"
+       ],
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "verified": true,
+       "note": "Large-scale fire growth on a ~0.94 m x 0.4 m Sibal cotton-fiberglass fabric in a flow duct aboard Cygnus after it left the ISS; compares low-g limits with NASA's normal-gravity screening test.",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-98",
+       "atmosphere_assumed": false,
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-39",
+       "acronym": "CFI",
+       "title": "Cool Flames Investigation",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "cool_flame"
+       ],
+       "phase": "droplet",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-39",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-102",
+       "acronym": "SAME",
+       "title": "Smoke and Aerosol Measurement Experiment",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "smoke",
+        "detection"
+       ],
+       "phase": "solid",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-102",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-106",
+       "acronym": "SLICE",
+       "title": "Structure and Liftoff In Combustion Experiment",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "stability"
+       ],
+       "phase": "gas",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-106",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-99",
+       "acronym": "Saffire-II",
+       "title": "Spacecraft Fire Experiment-II",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "ignition",
+        "flammability"
+       ],
+       "phase": "solid",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-99",
+       "atmosphere_assumed": false,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-107",
+       "acronym": "SPICE",
+       "title": "Smoke Point In Co-flow Experiment",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "soot"
+       ],
+       "phase": "gas",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-107",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-100",
+       "acronym": "Saffire-III",
+       "title": "Spacecraft Fire Experiment-III",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "spread",
+        "flammability"
+       ],
+       "phase": "solid",
+       "materials": [
+        "cotton"
+       ],
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-100",
+       "atmosphere_assumed": false,
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-21",
+       "acronym": "ACME CLD",
+       "title": "Advanced Combustion via Microgravity Experiments / Coflow Laminar Diffusion Flame",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "soot"
+       ],
+       "phase": "gas",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-21",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-25",
+       "acronym": "BASS-II",
+       "title": "Burning and Suppression of Solids - II",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "ignition",
+        "spread",
+        "extinction",
+        "flammability"
+       ],
+       "phase": "solid",
+       "materials": [
+        "pmma",
+        "cotton"
+       ],
+       "atmospheres": [
+        "14.7/21",
+        "14.7/vitiated"
+       ],
+       "verified": true,
+       "note": "Ignition, growth, spread and extinction of solid fuels in low-velocity forced flow; varies flow speed and direction, oxygen (by nitrogen vitiation) and geometry; aims to bridge NASA-STD-6001 Test 1 and real microgravity flammability.",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-25",
+       "atmosphere_assumed": false,
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-20",
+       "acronym": "ACME BRE",
+       "title": "Advanced Combustion via Microgravity Experiments - Burning Rate Emulator",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "flammability",
+        "extinction"
+       ],
+       "phase": "gas",
+       "atmospheres": [
+        "14.7/21",
+        "10.2/26.5",
+        "8.2/34"
+       ],
+       "verified": true,
+       "note": "Gaseous fuels on porous burners emulating condensed fuels; examines the NASA-considered atmospheres 14.7 psia/21%, 10.2 psia/26.5% and 8.2 psia/34% O2, including extinction limits.",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-20",
+       "atmosphere_assumed": false,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-68",
+       "acronym": "FLEX-2",
+       "title": "Flame Extinguishment Experiment - 2",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "cool_flame",
+        "extinction"
+       ],
+       "phase": "droplet",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-68",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-22",
+       "acronym": "ACME E-FIELD",
+       "title": "Advanced Combustion via Microgravity Experiments - Electric-Field Effects on Laminar Diffusion Flames",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "stability"
+       ],
+       "phase": "gas",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-22",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-23",
+       "acronym": "ACME s-Flame",
+       "title": "Advanced Combustion via Microgravity Experiments - Structure and Response of Spherical Diffusion Flames",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "extinction"
+       ],
+       "phase": "gas",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-23",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-69",
+       "acronym": "FLEX",
+       "title": "Flame Extinguishment Experiment",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "suppression",
+        "extinction",
+        "cool_flame"
+       ],
+       "phase": "droplet",
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-69",
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "atmosphere_assumed": true,
+       "materials": [],
+       "gravity": "micro"
+      },
+      {
+       "id": "PSI-26",
+       "acronym": "BASS",
+       "title": "Burning and Suppression of Solids",
+       "area": "Combustion Science",
+       "type": "microgravity",
+       "topics": [
+        "ignition",
+        "spread",
+        "extinction",
+        "flammability"
+       ],
+       "phase": "solid",
+       "materials": [
+        "pmma",
+        "cotton"
+       ],
+       "atmospheres": [
+        "14.7/21"
+       ],
+       "url": "https://psi.nasa.gov/physci/repo/data/investigations/PSI-26",
+       "atmosphere_assumed": false,
+       "gravity": "micro"
+      }
+     ],
+     "dropped": [
+      {
+       "id": "PSI-181",
+       "title": "Structure and Properties of Pb-Sn and Pb-free Sn-Ag-Cu Solders Produced in Terrestrial vs. Microgravity Environments",
+       "reason": "Materials Science, not combustion"
+      },
+      {
+       "id": "PSI-108",
+       "title": "Surface Tension Driven Convection Experiment-1",
+       "reason": "Fluid Physics, not combustion"
+      }
+     ],
+     "counts": {
+      "total": 25,
+      "kept": 23,
+      "dropped": 2,
+      "microgravity": 18,
+      "ground": 5,
+      "partial_gravity": 0,
+      "verified": 3
+     },
+     "by_topic": {
+      "cool_flame": 6,
+      "extinction": 9,
+      "soot": 4,
+      "spread": 5,
+      "smoke": 3,
+      "detection": 3,
+      "flammability": 6,
+      "stability": 2,
+      "ignition": 3,
+      "suppression": 1
+     },
+     "sources": [
+      "https://psi.nasa.gov/physci/repo/search?q=combustion&data_source=psi&data_type=investigation"
+     ]
+    },
+    "mission": {
+     "name": "Lunar surface habitat",
+     "gravity_g": 0.165,
+     "pressure_psia": 8.2,
+     "o2_pct": 34.0,
+     "fan_m_s": 0.1,
+     "comm_delay_min": 0.02,
+     "o2_sources": [
+      "high-pressure O2 tanks",
+      "solid-fuel oxygen generator (backup)"
+     ],
+     "atmosphere_note": "Scenario assumption: 8.2 psia / 34% O2, a NASA-considered exploration atmosphere (PSI-20).",
+     "id": "lunar",
+     "ppo2_psia": 2.79,
+     "gravity_class": "lunar",
+     "atmosphere_key": "8.2/34"
+    },
+    "physics": {
+     "buoyant_velocity_m_s": 0.575,
+     "earth_buoyant_velocity_m_s": 1.415,
+     "fan_m_s": 0.1,
+     "mixing_ratio": 0.17,
+     "regime": "buoyant",
+     "regime_text": "Buoyancy dominates, as on Earth, but the induced flow is weaker, so flames are taller and slower than in 1 g.",
+     "earth_test_relevance": "high",
+     "fan_shutdown_effect": "limited: buoyancy alone still drives about 0.57 m/s of flow toward the flame",
+     "assumptions": {
+      "flame_length_m": 0.05,
+      "flame_temp_k": 1500.0,
+      "ambient_temp_k": 295.0
+     },
+     "summary": "Buoyant flow is about 0.575 m/s against 1.415 m/s on Earth, so fan-to-buoyancy ratio is 0.17: buoyant regime. Buoyancy dominates, as on Earth, but the induced flow is weaker, so flames are taller and slower than in 1 g. Relevance of the normal-gravity upward-burning screening test: high."
+    },
+    "risk": {
+     "iteration": 2,
+     "items": [
+      {
+       "material": "cotton",
+       "name": "Cotton fabric",
+       "use": "clothing, towels",
+       "loi_1g": 18.5,
+       "eff_limit": 19.8,
+       "margin": 14.2,
+       "band": 4.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "no data",
+       "evidence": [
+        "PSI-98",
+        "PSI-100",
+        "PSI-25",
+        "PSI-26"
+       ],
+       "why": "Cabin O2 34% vs estimated limit 19.8% (1 g LOI 18.5, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "nomex",
+       "name": "Nomex (aramid)",
+       "use": "bags, covers",
+       "loi_1g": 29.0,
+       "eff_limit": 30.3,
+       "margin": 3.7,
+       "band": 4.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "no data",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 30.3% (1 g LOI 29, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "nylon",
+       "name": "Nylon (hook-and-loop)",
+       "use": "fasteners, netting",
+       "loi_1g": 24.0,
+       "eff_limit": 25.3,
+       "margin": 8.7,
+       "band": 4.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "no data",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 25.3% (1 g LOI 24, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "paper",
+       "name": "Paper / cellulose",
+       "use": "checklists, packaging",
+       "loi_1g": 18.0,
+       "eff_limit": 19.3,
+       "margin": 14.7,
+       "band": 4.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "no data",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 19.3% (1 g LOI 18, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "pmma",
+       "name": "PMMA (acrylic)",
+       "use": "windows, covers",
+       "loi_1g": 17.5,
+       "eff_limit": 18.8,
+       "margin": 15.2,
+       "band": 4.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "no data",
+       "evidence": [
+        "PSI-25",
+        "PSI-26"
+       ],
+       "why": "Cabin O2 34% vs estimated limit 18.8% (1 g LOI 17.5, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "polyester",
+       "name": "Polyester fabric",
+       "use": "straps, clothing",
+       "loi_1g": 21.0,
+       "eff_limit": 22.3,
+       "margin": 11.7,
+       "band": 4.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "no data",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 22.3% (1 g LOI 21, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "polyethylene",
+       "name": "Polyethylene film",
+       "use": "bags, stowage",
+       "loi_1g": 17.5,
+       "eff_limit": 18.8,
+       "margin": 15.2,
+       "band": 4.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "no data",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 18.8% (1 g LOI 17.5, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "silicone",
+       "name": "Silicone rubber",
+       "use": "seals, tubing",
+       "loi_1g": 28.0,
+       "eff_limit": 29.3,
+       "margin": 4.7,
+       "band": 4.0,
+       "verdict": "burns",
+       "score": 100,
+       "confidence": "no data",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 29.3% (1 g LOI 28, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "kapton",
+       "name": "Kapton (polyimide)",
+       "use": "wire insulation",
+       "loi_1g": 37.0,
+       "eff_limit": 38.3,
+       "margin": -4.3,
+       "band": 4.0,
+       "verdict": "near limit",
+       "score": 47,
+       "confidence": "no data",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 38.3% (1 g LOI 37, regime shift +0, pressure +1.3)"
+      },
+      {
+       "material": "ptfe",
+       "name": "PTFE (Teflon)",
+       "use": "wire insulation, liners",
+       "loi_1g": 95.0,
+       "eff_limit": 96.3,
+       "margin": -62.3,
+       "band": 4.0,
+       "verdict": "unlikely",
+       "score": 0,
+       "confidence": "no data",
+       "evidence": [],
+       "why": "Cabin O2 34% vs estimated limit 96.3% (1 g LOI 95, regime shift +0, pressure +1.3)"
+      }
+     ],
+     "history": [
+      {
+       "iteration": 1,
+       "strict": false,
+       "burns_or_could": 8,
+       "measured": 2
+      },
+      {
+       "iteration": 2,
+       "strict": true,
+       "burns_or_could": 8,
+       "measured": 0
+      }
+     ],
+     "strict": true
+    },
+    "review": {
+     "iteration": 2,
+     "approved": true,
+     "issues": [
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "nomex",
+       "text": "Nomex (aramid) has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "nylon",
+       "text": "Nylon (hook-and-loop) has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "paper",
+       "text": "Paper / cellulose has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "polyester",
+       "text": "Polyester fabric has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "polyethylene",
+       "text": "Polyethylene film has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "silicone",
+       "text": "Silicone rubber has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "kapton",
+       "text": "Kapton (polyimide) has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "NO_EVIDENCE",
+       "severity": "warn",
+       "material": "ptfe",
+       "text": "PTFE (Teflon) has no microgravity record in PSI; its limit comes from a 1 g index only.",
+       "fix": "Keep, but mark for screening at mission conditions."
+      },
+      {
+       "code": "PARTIAL_GRAVITY",
+       "severity": "warn",
+       "material": null,
+       "text": "No PSI combustion investigation ran in partial gravity; every number here interpolates between orbit and Earth.",
+       "fix": "State this on every slide and hand the gap to the Gap Hunter."
+      }
+     ]
+    },
+    "risk_iterations": 2,
+    "incidents": {
+     "cases": [
+      {
+       "id": "apollo1",
+       "name": "Apollo 1",
+       "year": 1967,
+       "outcome": "Three crew members lost during a ground test.",
+       "source": "https://sma.nasa.gov/sma-disciplines/accllp/apollo-1",
+       "chain": {
+        "oxidizer": "100% oxygen cabin above sea-level pressure",
+        "fuel": "Nylon netting, hook-and-loop, foam pads",
+        "ignition": "Probable electrical arc from damaged wiring",
+        "detection": "Crew voice call",
+        "suppression": "None effective",
+        "escape": "Inward-opening hatch could not be opened against cabin pressure"
+       },
+       "match": "high",
+       "match_reasons": [
+        "Oxygen-enriched cabin (34% O2)",
+        "Soft goods that can burn at mission conditions: Cotton fabric, Nomex (aramid), Nylon (hook-and-loop)"
+       ]
+      },
+      {
+       "id": "apollo13",
+       "name": "Apollo 13",
+       "year": 1970,
+       "outcome": "Oxygen tank failure; crew survived using the lunar module.",
+       "source": "https://sma.nasa.gov/sma-disciplines/accllp/apollo-13",
+       "chain": {
+        "oxidizer": "High-pressure oxygen tank",
+        "fuel": "Teflon wire insulation inside the tank",
+        "ignition": "Heater switches damaged before launch; insulation burned when the tank fans ran",
+        "detection": "Bang and pressure drop",
+        "suppression": "Not possible",
+        "escape": "Lunar module used as lifeboat"
+       },
+       "match": "medium",
+       "match_reasons": [
+        "High-pressure oxygen tanks with internal heaters/fans or valves"
+       ]
+      },
+      {
+       "id": "mir",
+       "name": "Mir",
+       "year": 1997,
+       "outcome": "Fire put out; no lasting harm to the crew.",
+       "source": "https://www.nasa.gov/history/25-years-ago-fire-aboard-space-station-mir/",
+       "chain": {
+        "oxidizer": "Solid-fuel oxygen generator canister",
+        "fuel": "Canister contents; latex glove material was the likely contaminant",
+        "ignition": "Canister failed on activation; flame about three feet long",
+        "detection": "Crew saw it; smoke filled the station",
+        "suppression": "Foam extinguishers; the flame went out on its own",
+        "escape": "Flame blocked the route to the docked Soyuz"
+       },
+       "match": "medium",
+       "match_reasons": [
+        "Solid-fuel oxygen generators carried as backup"
+       ]
+      }
+     ],
+     "closest": "apollo1"
+    },
+    "gaps": {
+     "matrix": {
+      "micro|14.7/21|ignition": 3,
+      "micro|14.7/21|spread": 4,
+      "micro|14.7/21|flammability": 6,
+      "micro|14.7/21|suppression": 1,
+      "micro|14.7/21|extinction": 7,
+      "micro|14.7/21|smoke": 2,
+      "micro|14.7/21|detection": 2,
+      "micro|14.7/21|cool_flame": 4,
+      "micro|10.2/26.5|ignition": 0,
+      "micro|10.2/26.5|spread": 0,
+      "micro|10.2/26.5|flammability": 1,
+      "micro|10.2/26.5|suppression": 0,
+      "micro|10.2/26.5|extinction": 1,
+      "micro|10.2/26.5|smoke": 0,
+      "micro|10.2/26.5|detection": 0,
+      "micro|10.2/26.5|cool_flame": 0,
+      "micro|8.2/34|ignition": 0,
+      "micro|8.2/34|spread": 0,
+      "micro|8.2/34|flammability": 1,
+      "micro|8.2/34|suppression": 0,
+      "micro|8.2/34|extinction": 1,
+      "micro|8.2/34|smoke": 0,
+      "micro|8.2/34|detection": 0,
+      "micro|8.2/34|cool_flame": 0,
+      "lunar|14.7/21|ignition": 0,
+      "lunar|14.7/21|spread": 0,
+      "lunar|14.7/21|flammability": 0,
+      "lunar|14.7/21|suppression": 0,
+      "lunar|14.7/21|extinction": 0,
+      "lunar|14.7/21|smoke": 0,
+      "lunar|14.7/21|detection": 0,
+      "lunar|14.7/21|cool_flame": 0,
+      "lunar|10.2/26.5|ignition": 0,
+      "lunar|10.2/26.5|spread": 0,
+      "lunar|10.2/26.5|flammability": 0,
+      "lunar|10.2/26.5|suppression": 0,
+      "lunar|10.2/26.5|extinction": 0,
+      "lunar|10.2/26.5|smoke": 0,
+      "lunar|10.2/26.5|detection": 0,
+      "lunar|10.2/26.5|cool_flame": 0,
+      "lunar|8.2/34|ignition": 0,
+      "lunar|8.2/34|spread": 0,
+      "lunar|8.2/34|flammability": 0,
+      "lunar|8.2/34|suppression": 0,
+      "lunar|8.2/34|extinction": 0,
+      "lunar|8.2/34|smoke": 0,
+      "lunar|8.2/34|detection": 0,
+      "lunar|8.2/34|cool_flame": 0,
+      "mars|14.7/21|ignition": 0,
+      "mars|14.7/21|spread": 0,
+      "mars|14.7/21|flammability": 0,
+      "mars|14.7/21|suppression": 0,
+      "mars|14.7/21|extinction": 0,
+      "mars|14.7/21|smoke": 0,
+      "mars|14.7/21|detection": 0,
+      "mars|14.7/21|cool_flame": 0,
+      "mars|10.2/26.5|ignition": 0,
+      "mars|10.2/26.5|spread": 0,
+      "mars|10.2/26.5|flammability": 0,
+      "mars|10.2/26.5|suppression": 0,
+      "mars|10.2/26.5|extinction": 0,
+      "mars|10.2/26.5|smoke": 0,
+      "mars|10.2/26.5|detection": 0,
+      "mars|10.2/26.5|cool_flame": 0,
+      "mars|8.2/34|ignition": 0,
+      "mars|8.2/34|spread": 0,
+      "mars|8.2/34|flammability": 0,
+      "mars|8.2/34|suppression": 0,
+      "mars|8.2/34|extinction": 0,
+      "mars|8.2/34|smoke": 0,
+      "mars|8.2/34|detection": 0,
+      "mars|8.2/34|cool_flame": 0,
+      "earth|14.7/21|ignition": 0,
+      "earth|14.7/21|spread": 0,
+      "earth|14.7/21|flammability": 0,
+      "earth|14.7/21|suppression": 0,
+      "earth|14.7/21|extinction": 0,
+      "earth|14.7/21|smoke": 0,
+      "earth|14.7/21|detection": 0,
+      "earth|14.7/21|cool_flame": 0,
+      "earth|10.2/26.5|ignition": 0,
+      "earth|10.2/26.5|spread": 0,
+      "earth|10.2/26.5|flammability": 0,
+      "earth|10.2/26.5|suppression": 0,
+      "earth|10.2/26.5|extinction": 0,
+      "earth|10.2/26.5|smoke": 0,
+      "earth|10.2/26.5|detection": 0,
+      "earth|10.2/26.5|cool_flame": 0,
+      "earth|8.2/34|ignition": 0,
+      "earth|8.2/34|spread": 0,
+      "earth|8.2/34|flammability": 0,
+      "earth|8.2/34|suppression": 0,
+      "earth|8.2/34|extinction": 0,
+      "earth|8.2/34|smoke": 0,
+      "earth|8.2/34|detection": 0,
+      "earth|8.2/34|cool_flame": 0
+     },
+     "covered": 12,
+     "cells": 96,
+     "mission_cell": {
+      "ignition": [],
+      "spread": [],
+      "flammability": [],
+      "suppression": [],
+      "extinction": [],
+      "smoke": [],
+      "detection": [],
+      "cool_flame": []
+     },
+     "gaps": [
+      {
+       "gravity": "lunar",
+       "atmosphere": "8.2/34",
+       "topic": "flammability",
+       "records": [],
+       "score": 100
+      },
+      {
+       "gravity": "lunar",
+       "atmosphere": "8.2/34",
+       "topic": "ignition",
+       "records": [],
+       "score": 100
+      },
+      {
+       "gravity": "lunar",
+       "atmosphere": "8.2/34",
+       "topic": "spread",
+       "records": [],
+       "score": 100
+      },
+      {
+       "gravity": "lunar",
+       "atmosphere": "8.2/34",
+       "topic": "suppression",
+       "records": [],
+       "score": 90
+      },
+      {
+       "gravity": "lunar",
+       "atmosphere": "8.2/34",
+       "topic": "detection",
+       "records": [],
+       "score": 80
+      },
+      {
+       "gravity": "lunar",
+       "atmosphere": "8.2/34",
+       "topic": "extinction",
+       "records": [],
+       "score": 80
+      }
+     ],
+     "proposal": {
+      "title": "Flammability of cabin materials at lunar gravity, 8.2 psia / 34% O2",
+      "platform": "Parabolic flight at the target gravity (about 20 s per parabola) for ignition and early spread; sustained spread needs a rotating rig or surface tests.",
+      "materials": [
+       "cotton",
+       "nomex",
+       "nylon"
+      ],
+      "atmosphere": "8.2/34",
+      "gravity": "lunar",
+      "flows_m_s": [
+       0.0,
+       0.05,
+       0.1,
+       0.2
+      ],
+      "measurements": [
+       "visible and IR video (flame front position)",
+       "radiometer",
+       "CO and CO2",
+       "smoke particle counter"
+      ],
+      "answers": "Replaces interpolated limits for 3 ranked material(s) with measured ones.",
+      "gap_score": 100
+     }
+    },
+    "actions": {
+     "recommendations": [
+      {
+       "id": "R1",
+       "priority": "P1",
+       "title": "Re-screen soft goods at the mission atmosphere",
+       "text": "Test Cotton fabric, Nomex (aramid), Nylon (hook-and-loop), Paper / cellulose at 8.2/34 psia/% O2 before flight, or replace them.",
+       "evidence": [
+        "PSI-100",
+        "PSI-25",
+        "PSI-26",
+        "PSI-98"
+       ],
+       "status": "approved"
+      },
+      {
+       "id": "R2",
+       "priority": "P2",
+       "title": "Do not rely on fan shutdown alone",
+       "text": "At 0.165 g buoyancy still supplies about 0.57 m/s of flow; pair shutdown with isolation and suppression.",
+       "evidence": [
+        "PSI-25"
+       ],
+       "status": "approved"
+      },
+      {
+       "id": "R3",
+       "priority": "P1",
+       "title": "Detect smoke where the air goes, and sense gases too",
+       "text": "Smoke does not rise without gravity; put detectors in the ventilation path and add CO/CO2 sensing, because cool flames and smoldering give little light.",
+       "evidence": [
+        "PSI-102",
+        "PSI-101",
+        "PSI-69",
+        "PSI-68"
+       ],
+       "status": "approved"
+      },
+      {
+       "id": "R5",
+       "priority": "P2",
+       "title": "Audit electrical parts inside oxygen tanks",
+       "text": "Check heater, fan and switch ratings against every power source used on the ground and in flight.",
+       "evidence": [
+        "Apollo 13 1970"
+       ],
+       "status": "approved"
+      },
+      {
+       "id": "R4",
+       "priority": "P1",
+       "title": "Treat oxygen generators as ignition hazards",
+       "text": "Inspect canisters for contamination, activate them away from escape routes, and keep the path to the return vehicle clear.",
+       "evidence": [
+        "Mir 1997"
+       ],
+       "status": "approved"
+      }
+     ],
+     "pilot_mode": "approve",
+     "approved_ids": [
+      "R1",
+      "R2",
+      "R3",
+      "R5",
+      "R4"
+     ],
+     "rejected_ids": []
+    },
+    "approvals": [
+     {
+      "decision": "approve",
+      "ids": [],
+      "agent": "safety_officer"
+     }
+    ],
+    "report": {
+     "headline": "Lunar surface habitat: 8 of 10 cabin materials burn or could burn at 34% O2; none of those claims rests on a NASA test at these conditions.",
+     "sections": [
+      {
+       "agent": "librarian",
+       "title": "Evidence base",
+       "bullets": [
+        "23 combustion investigations from NASA PSI (18 flight, 5 ground).",
+        "2 non-combustion record(s) removed; 0 partial-gravity investigations exist."
+       ]
+      },
+      {
+       "agent": "mission_profiler",
+       "title": "Mission",
+       "bullets": [
+        "Lunar surface habitat: 0.165 g, 8.2 psia, 34% O2, fan 0.1 m/s.",
+        "Scenario assumption: 8.2 psia / 34% O2, a NASA-considered exploration atmosphere (PSI-20)."
+       ]
+      },
+      {
+       "agent": "physicist",
+       "title": "Flame regime",
+       "bullets": [
+        "Buoyant flow is about 0.575 m/s against 1.415 m/s on Earth, so fan-to-buoyancy ratio is 0.17: buoyant regime. Buoyancy dominates, as on Earth, but the induced flow is weaker, so flames are taller and slower than in 1 g. Relevance of the normal-gravity upward-burning screening test: high.",
+        "Fan shutdown effect: limited: buoyancy alone still drives about 0.57 m/s of flow toward the flame."
+       ]
+      },
+      {
+       "agent": "risk_ranker",
+       "title": "Material risk",
+       "bullets": [
+        "Cotton fabric: burns (margin +14.2 +/- 4 pts, no data)",
+        "Nomex (aramid): burns (margin +3.7 +/- 4 pts, no data)",
+        "Nylon (hook-and-loop): burns (margin +8.7 +/- 4 pts, no data)",
+        "Paper / cellulose: burns (margin +14.7 +/- 4 pts, no data)",
+        "PMMA (acrylic): burns (margin +15.2 +/- 4 pts, no data)",
+        "Skeptic approved the final ranking."
+       ]
+      },
+      {
+       "agent": "incident_analyst",
+       "title": "Lessons from past fires",
+       "bullets": [
+        "Apollo 1 (1967): high match. Oxygen-enriched cabin (34% O2); Soft goods that can burn at mission conditions: Cotton fabric, Nomex (aramid), Nylon (hook-and-loop)",
+        "Apollo 13 (1970): medium match. High-pressure oxygen tanks with internal heaters/fans or valves",
+        "Mir (1997): medium match. Solid-fuel oxygen generators carried as backup"
+       ]
+      },
+      {
+       "agent": "gap_hunter",
+       "title": "What has not been tested",
+       "bullets": [
+        "12 of 96 condition cells have flight data.",
+        "Next experiment: Flammability of cabin materials at lunar gravity, 8.2 psia / 34% O2.",
+        "Parabolic flight at the target gravity (about 20 s per parabola) for ignition and early spread; sustained spread needs a rotating rig or surface tests.",
+        "Replaces interpolated limits for 3 ranked material(s) with measured ones."
+       ]
+      },
+      {
+       "agent": "safety_officer",
+       "title": "Recommendations",
+       "bullets": [
+        "[P1] Re-screen soft goods at the mission atmosphere (approved)",
+        "[P2] Do not rely on fan shutdown alone (approved)",
+        "[P1] Detect smoke where the air goes, and sense gases too (approved)",
+        "[P2] Audit electrical parts inside oxygen tanks (approved)",
+        "[P1] Treat oxygen generators as ignition hazards (approved)"
+       ]
+      }
+     ],
+     "kpis": {
+      "psi_records": 23,
+      "mission": "Lunar surface habitat",
+      "regime": "buoyant",
+      "materials_at_risk": 8,
+      "materials_ranked": 10,
+      "measured_claims": 0,
+      "hot_measured": 0,
+      "review_passes": 2,
+      "coverage_pct": 12,
+      "recommendations": 5,
+      "approved": 5
+     }
+    }
+   },
+   "seq": 107
+  }
+ ]
+}

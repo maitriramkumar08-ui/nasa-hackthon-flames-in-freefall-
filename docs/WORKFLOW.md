@@ -67,7 +67,6 @@ python -m pyra build                  # rebuild data/pyra.db from data/factsheet
 python -m pyra check                  # data-quality checks (impossible values, duplicates, missing sources)
 python -m pyra spotcheck              # 10 random numbers to check by hand against the paper
 python -m pyra validate FILE...       # check sheets without loading them
-python -m pyra build --dummy          # same as build, but uses the DUMMY samples (also: check/spotcheck --dummy)
 ```
 
 The database is rebuilt from the sheets every time, so never edit it by hand (it's git-ignored).
@@ -83,7 +82,7 @@ The database is rebuilt from the sheets every time, so never edit it by hand (it
 | `pyra/loader.py` | Puts checked sheets into the tables, one transaction per sheet |
 | `pyra/quality.py` | Data-quality checks. Each check is one SQL query, so adding one is one entry |
 | `pyra/cli.py` | The commands above |
-| `data/samples/` | 3 sheets marked `DUMMY - NOT REAL DATA`, for trying things out and for tests |
+| `tests/fixtures/` | Test-only sheets and eval docs, all marked `NOT REAL DATA`. The app never loads them |
 
 What the loader guarantees:
 - No source (url or NTRS id) and no second checker means the sheet is rejected.

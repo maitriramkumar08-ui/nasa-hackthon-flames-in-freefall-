@@ -8,7 +8,7 @@ from types import SimpleNamespace
 from unittest import mock
 
 import helpers  # noqa: F401  (puts the project on sys.path)
-from pyra import agent, evidence, server
+from pyra import agent, assistant, evidence, server
 
 SCENARIO = {"o2_percent": 30, "pressure": 70, "gravity_g": 0.16, "flow_speed": 10}
 GOOD = ("MEASURED:\nDUMMY-A reports flame spread went up with flow [S1].\n\nINTERPRETATION:\nFlow matters here.\n\n"
@@ -46,7 +46,7 @@ class Looping(Scripted):
 class AgentTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.corpus = evidence.load(evidence.dummy_conn())
+        cls.corpus = helpers.sample_corpus()
 
     def test_offline_answer_passes_its_own_checks(self):
         found = agent.run("How does flow change flame spread?", self.corpus, SCENARIO)
@@ -69,6 +69,12 @@ class AgentTest(unittest.TestCase):
         found = agent.run("zebra", self.corpus, planner=planner)
         self.assertTrue(found["answer"].startswith("No data found"))
         self.assertEqual(found["context"], [])
+
+    def test_planner_saying_no_data_is_accepted_with_the_fixed_reply(self):
+        planner = Scripted([assistant.NO_DATA + " Try 'flame 99 percent'.\nConfidence: high."])
+        found = agent.run("flame spread and flow", self.corpus, planner=planner)
+        self.assertTrue(found["passed"], found["problems"])
+        self.assertEqual(found["answer"], assistant.no_data_reply("flame spread and flow"))
 
     def test_bad_answer_gets_one_rewrite(self):
         bad = GOOD.replace("[S1]", "[S9]")
@@ -140,7 +146,7 @@ class ClaudePlannerTest(unittest.TestCase):
         self.planner = agent.ClaudePlanner(model="claude-opus-5-5", client=client)
 
     def test_tool_results_go_back_as_tool_result_blocks(self):
-        found = agent.run("flame spread and flow", evidence.load(evidence.dummy_conn()), planner=self.planner)
+        found = agent.run("flame spread and flow", helpers.sample_corpus(), planner=self.planner)
         self.assertTrue(found["passed"], found["problems"])
         second = self.messages.requests[1]
         self.assertEqual(second["model"], "claude-opus-5-5")
@@ -152,12 +158,86 @@ class ClaudePlannerTest(unittest.TestCase):
     def test_refusal_is_reported_not_shown(self):
         self.messages.create = lambda **request: SimpleNamespace(stop_reason="refusal", content=[])
         with self.assertRaises(agent.PlannerError):
-            agent.run("flame", evidence.load(evidence.dummy_conn()), planner=self.planner)
+            agent.run("flame", helpers.sample_corpus(), planner=self.planner)
+
+
+GROQ_STYLE = ("**MEASURED:**  \n- DUMMY-A reports flame spread went up with flow【S1】.\n\n"
+              "**INTERPRETATION:**  \n- Flow matters here.\n\n**Limits and gaps:**  \n- Only DUMMY data.\n\n"
+              "**Confidence:** low – one passage.")
+
+
+def groq_reply(content=None, tool_calls=None, finish="stop"):
+    message = SimpleNamespace(content=content, tool_calls=tool_calls)
+    return SimpleNamespace(choices=[SimpleNamespace(message=message, finish_reason=finish)])
+
+
+class FakeCompletions:
+    """Stands in for client.chat.completions: first a tool call, then an answer in Groq's habits."""
+
+    def __init__(self, answer=GROQ_STYLE):
+        self.requests, self.answer = [], answer
+
+    def create(self, **request):
+        self.requests.append(dict(request, messages=list(request["messages"])))
+        if len(self.requests) == 1:
+            call = SimpleNamespace(id="c1", function=SimpleNamespace(name="search_evidence",
+                                                                     arguments='{"query": "flame spread flow"}'))
+            return groq_reply(tool_calls=[call], finish="tool_calls")
+        return groq_reply(content=self.answer)
+
+
+class GroqPlannerTest(unittest.TestCase):
+    def setUp(self):
+        errors = {name: type(name, (Exception,), {}) for name in
+                  ("AuthenticationError", "RateLimitError", "APIStatusError", "APIConnectionError")}
+        patcher = mock.patch.dict(sys.modules, {"openai": SimpleNamespace(**errors)})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.completions = FakeCompletions()
+        client = SimpleNamespace(chat=SimpleNamespace(completions=self.completions))
+        self.planner = agent.GroqPlanner(model="openai/gpt-oss-120b", client=client)
+
+    def test_full_width_brackets_and_markdown_still_pass(self):
+        found = agent.run("flame spread and flow", helpers.sample_corpus(), planner=self.planner)
+        self.assertTrue(found["passed"], found["problems"])
+        self.assertFalse(found["revised"])
+        self.assertIn("[S1]", found["answer"])
+        self.assertNotIn("**", found["answer"])
+
+    def test_tool_results_go_back_as_tool_messages(self):
+        agent.run("flame spread and flow", helpers.sample_corpus(), planner=self.planner)
+        second = self.completions.requests[1]["messages"]
+        self.assertEqual(second[2]["tool_calls"][0]["id"], "c1")
+        self.assertEqual((second[3]["role"], second[3]["tool_call_id"]), ("tool", "c1"))
+        self.assertEqual(json.loads(second[3]["content"])["passages"][0]["id"], "S1")
+
+    def test_missing_key_is_a_planner_error(self):
+        with mock.patch.dict("os.environ", {}, clear=True), self.assertRaises(agent.PlannerError):
+            agent.GroqPlanner()
+
+
+class TidyTest(unittest.TestCase):
+    def test_tidy_only_touches_formatting(self):
+        self.assertEqual(assistant.tidy("**Confidence:** low【S1】  \n*MEASURED:*"),
+                         "Confidence: low[S1]\nMEASURED:")
+
+
+class SmokeTest(unittest.TestCase):
+    def test_offline_test_run_passes(self):
+        lines = []
+        self.assertEqual(agent.smoke("offline", out=lines.append, corpus=helpers.sample_corpus()), 0, "\n".join(lines))
+        self.assertIn(f"{len(agent.SMOKE_QUESTIONS)} of {len(agent.SMOKE_QUESTIONS)} answers passed", lines[-1])
+
+    def test_planner_error_is_a_failure_not_a_crash(self):
+        lines = []
+        with mock.patch.object(agent, "make_planner", side_effect=agent.PlannerError("no key")):
+            self.assertEqual(agent.smoke("groq", out=lines.append), 1)
+        self.assertIn("planner error: no key", lines[0])
 
 
 class AgentEndpointTest(unittest.TestCase):
     def setUp(self):
-        httpd = server.make_server(evidence.load(evidence.dummy_conn()), port=0)
+        httpd = server.make_server(helpers.sample_corpus(), port=0)
         threading.Thread(target=httpd.serve_forever, daemon=True).start()
         self.addCleanup(httpd.server_close)
         self.addCleanup(httpd.shutdown)

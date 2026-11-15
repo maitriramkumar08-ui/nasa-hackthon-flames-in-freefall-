@@ -1,3 +1,4 @@
+import helpers
 import json
 import unittest
 
@@ -18,7 +19,7 @@ class TestLoader(TempFiles, unittest.TestCase):
         self.conn = db.create(":memory:")
 
     def test_samples_load_and_share_investigations(self):
-        results = load_folder(self.conn, paths.SAMPLES)
+        results = load_folder(self.conn, helpers.SAMPLES)
         self.assertTrue(all(not errors for errors, _ in results.values()))
         self.assertEqual(count(self.conn, "investigations"), 2)  # two of the sheets are DUMMY-A
         self.assertEqual(count(self.conn, "publications"), 3)

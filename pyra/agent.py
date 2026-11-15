@@ -5,9 +5,11 @@ tools (search, ranking, gaps, compare) do every calculation, and the final
 text goes through assistant.check_answer() before anyone sees it. An answer
 that still breaks a rule after one rewrite is withheld, not shown.
 
-Two planners come with PYRA:
+Three planners come with PYRA:
 
     offline  fixed rules and sentence templates, no language model at all
+    groq     a Groq-hosted model through the openai package (pip install
+             openai) and GROQ_API_KEY, also optional
     claude   Claude through the anthropic package, which is optional
              (pip install anthropic). Without it, or without a key, the
              offline planner is used.
@@ -15,7 +17,7 @@ Two planners come with PYRA:
 Any object with begin(system, user, task), reply(results) and revise(note)
 can drive the loop, which is how the tests run it with a scripted planner.
 
-    python -m pyra.agent --dummy "Which runs used low pressure?"
+    python -m pyra.agent "Which runs used low pressure?"
 """
 
 import argparse
@@ -23,7 +25,9 @@ import json
 import os
 import re
 
-from . import assistant, compare, evidence, gaps, ranking, retrieval
+from . import assistant, compare, evidence, gaps, paths, ranking, retrieval
+
+paths.load_env()
 
 MAX_STEPS = 6
 REVISIONS = 1
@@ -37,7 +41,8 @@ AGENT MODE: in this mode the request holds only SCENARIO, AUDIENCE and QUESTION.
 - search_evidence returns the passages. Call it before answering. Only the [S#] ids it returned may be cited.
 - rank_investigations, analyze_gaps and compare_investigations return DERIVED numbers. Quote them as given, never recompute or round them.
 - Leave out the scenario argument to use the user's own scenario.
-- When you have enough, stop calling tools and write the answer with the headings 'MEASURED:', 'INTERPRETATION:' and 'Limits and gaps:', ending with the Confidence line."""
+- When you have enough, stop calling tools and write the answer with the headings 'MEASURED:', 'INTERPRETATION:' and 'Limits and gaps:', ending with the Confidence line.
+- Plain text only, no markdown. Cite with ASCII square brackets like [S1], and start the last line with exactly 'Confidence: low', 'Confidence: medium' or 'Confidence: high'."""
 
 SCENARIO_SCHEMA = {
     "type": "object",
@@ -192,16 +197,22 @@ def run(question, corpus, scenario=None, audience="student", planner=None, index
         return dict(result, answer=assistant.no_data_reply(question), problems=[], passed=True,
                     revised=False, draft=None, stopped=stopped, context=[])
 
-    text, problems, revised = reply.get("text") or "", [], False
+    text, problems, revised = assistant.tidy(reply.get("text")), [], False
     # A stopped planner still has tool calls waiting for results, so it cannot be asked to rewrite.
     revisions = 0 if stopped else REVISIONS
     for attempt in range(revisions + 1):
+        if text.startswith(assistant.NO_DATA):
+            # Rule 2 tells the model to say exactly this when the passages do not answer the question.
+            # The model's own search suggestions are unchecked, so the fixed reply is shown instead.
+            return dict(result, answer=assistant.no_data_reply(question), problems=[], passed=True,
+                        revised=revised, draft=None, stopped=stopped,
+                        context=sorted(tools.passages.values(), key=lambda hit: -hit["score"]))
         problems = assistant.check_answer(text, list(tools.passages), tools.allowed_text())
         if not problems or attempt == revisions:
             break
         reply, revised = planner.revise("Your answer broke these rules. Rewrite it so none apply:\n- "
                                         + "\n- ".join(problems)), True
-        text = reply.get("text") or ""
+        text = assistant.tidy(reply.get("text"))
     return dict(result, answer=None if problems else text, problems=problems, passed=not problems,
                 revised=revised, draft=text if problems else None, stopped=stopped,
                 context=sorted(tools.passages.values(), key=lambda hit: -hit["score"]))
@@ -302,7 +313,7 @@ class OfflinePlanner:
         found = self.seen.get("gaps")
         if found:
             for axis, result in found["axes"].items():
-                if result["class"] == "NOT_SPECIFIED":
+                if not result["class"]:
                     continue
                 words = f"{AXIS_NAMES.get(axis, axis)} is {GAP_WORDS.get(result['class'], result['class'])}"
                 if result.get("tested_min") is not None and result.get("tested_max") is not None:
@@ -396,6 +407,95 @@ class ClaudePlanner:
         return self._send()
 
 
+# ---------- Groq planner ----------
+
+GROQ_BASE_URL = "https://api.groq.com/openai/v1"
+GROQ_DEFAULT_MODEL = "openai/gpt-oss-120b"
+
+
+class GroqPlanner:
+    """A Groq-hosted model picks the tools and writes the answer, through Groq's OpenAI-compatible API.
+    Needs the openai package and GROQ_API_KEY."""
+
+    name = "groq"
+
+    def __init__(self, model=None, client=None):
+        try:
+            import openai
+        except ImportError:
+            raise PlannerError("The Groq planner needs the openai package (pip install openai). "
+                               "Use the offline planner until it is installed.") from None
+        if client is None and not os.environ.get("GROQ_API_KEY"):
+            raise PlannerError("The Groq planner needs GROQ_API_KEY. Put it in .env or the environment.")
+        self.openai = openai
+        self.client = client or openai.OpenAI(api_key=os.environ["GROQ_API_KEY"], base_url=GROQ_BASE_URL)
+        self.model = model or groq_model()
+        self.name = f"groq ({self.model})"
+        self.tools = [{"type": "function", "function": {"name": spec["name"], "description": spec["description"],
+                                                        "parameters": spec["input_schema"]}}
+                      for spec in TOOL_SPECS]
+
+    def _send(self):
+        errors = self.openai
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model, max_tokens=4096, messages=self.messages, tools=self.tools, tool_choice="auto")
+        except errors.AuthenticationError:
+            raise PlannerError("Groq rejected the key. Check GROQ_API_KEY in .env.") from None
+        except errors.RateLimitError:
+            raise PlannerError("Groq is rate limiting PYRA; wait a minute and retry.") from None
+        except errors.APIStatusError as err:
+            raise PlannerError(f"Groq answered {err.status_code}: {err.message}") from None
+        except errors.APIConnectionError:
+            raise PlannerError("Could not reach the Groq API. Check the network, or use the offline planner.") from None
+        choice = response.choices[0]
+        message = choice.message
+        calls = []
+        for call in message.tool_calls or []:
+            try:
+                given = json.loads(call.function.arguments or "{}")
+            except json.JSONDecodeError:
+                given = {}
+            calls.append({"id": call.id, "name": call.function.name, "input": given if isinstance(given, dict) else {}})
+        entry = {"role": "assistant", "content": message.content or ""}
+        if message.tool_calls:
+            entry["tool_calls"] = [{"id": c.id, "type": "function",
+                                    "function": {"name": c.function.name, "arguments": c.function.arguments or "{}"}}
+                                   for c in message.tool_calls]
+        self.messages.append(entry)
+        text = message.content or ""
+        if choice.finish_reason == "length":
+            text += "\n[cut off at the token limit]"
+        return {"calls": calls, "text": text}
+
+    def begin(self, system, user, task):
+        self.messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
+        return self._send()
+
+    def reply(self, results):
+        for result in results:
+            self.messages.append({"role": "tool", "tool_call_id": result["id"],
+                                  "content": json.dumps(result["output"], default=str)})
+        return self._send()
+
+    def revise(self, note):
+        self.messages.append({"role": "user", "content": note})
+        return self._send()
+
+
+def groq_model():
+    return os.environ.get("GROQ_MODEL", GROQ_DEFAULT_MODEL)
+
+
+def groq_ready():
+    """True when the openai package is installed and GROQ_API_KEY is in the environment."""
+    try:
+        import openai  # noqa: F401
+    except ImportError:
+        return False
+    return bool(os.environ.get("GROQ_API_KEY"))
+
+
 def claude_model():
     return os.environ.get("PYRA_MODEL", DEFAULT_MODEL)
 
@@ -410,32 +510,84 @@ def claude_ready():
 
 
 def make_planner(kind="auto"):
-    """'offline', 'claude', or 'auto' (Claude when claude_ready(), else offline). PYRA_PLANNER overrides auto."""
+    """'offline', 'claude', 'groq', or 'auto' (Claude when claude_ready(), then Groq when groq_ready(),
+    else offline). PYRA_PLANNER overrides auto."""
     if kind == "auto":
-        kind = os.environ.get("PYRA_PLANNER") or ("claude" if claude_ready() else "offline")
+        kind = os.environ.get("PYRA_PLANNER") or (
+            "claude" if claude_ready() else "groq" if groq_ready() else "offline")
     if kind == "offline":
         return OfflinePlanner()
     if kind == "claude":
         return ClaudePlanner()
-    raise ValueError(f"planner must be offline, claude or auto, not {kind!r}")
+    if kind == "groq":
+        return GroqPlanner()
+    raise ValueError(f"planner must be offline, claude, groq or auto, not {kind!r}")
+
+
+SMOKE_QUESTIONS = [
+    ("How does flow change flame spread?", {}),
+    ("Is there evidence for a lunar habitat fire?", {"o2_percent": 30, "pressure": 70, "gravity_g": 0.16}),
+    ("Compare the two closest investigations", {}),
+]
+
+
+def smoke(planner_kind="auto", out=print, corpus=None):
+    """Test run: ask the agent a few fixed questions end to end and report PASS or FAIL for each.
+    Returns 0 when every answer passed the checks, 1 otherwise."""
+    from .server import load_corpus
+    corpus = corpus if corpus is not None else load_corpus()
+    failures = 0
+    for question, scenario in SMOKE_QUESTIONS:
+        try:
+            planner = make_planner(planner_kind)
+            found = run(question, corpus, scenario, planner=planner)
+        except PlannerError as err:
+            out(f"FAIL  {question}\n      planner error: {err}")
+            failures += 1
+            continue
+        tools = ", ".join(step["tool"] + ("!" if step["error"] else "") for step in found["steps"]) or "none"
+        verdict = "PASS" if found["passed"] else "FAIL"
+        out(f"{verdict}  {question}\n      planner {found['planner']}, tools: {tools}"
+            f"{', rewritten once' if found['revised'] else ''}")
+        for problem in found["problems"]:
+            out("      - " + problem)
+        failures += not found["passed"]
+    out(f"\n{len(SMOKE_QUESTIONS) - failures} of {len(SMOKE_QUESTIONS)} answers passed the checks.")
+    return 1 if failures else 0
+
+
+def _console_safe():
+    # Model text can hold characters the Windows console code page cannot print (for example 【).
+    import sys
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(errors="replace")
+        except (AttributeError, ValueError):
+            pass
 
 
 def main(argv=None):
+    _console_safe()
     parser = argparse.ArgumentParser(prog="python -m pyra.agent", description="Ask the PYRA research agent")
-    parser.add_argument("question")
-    parser.add_argument("--dummy", action="store_true", help="use the DUMMY sample data")
+    parser.add_argument("question", nargs="?")
+    parser.add_argument("--smoke", action="store_true",
+                        help="test run: ask a few fixed questions and report PASS/FAIL for each")
     parser.add_argument("--audience", default="student", choices=assistant.AUDIENCES)
-    parser.add_argument("--planner", default="auto", choices=("auto", "offline", "claude"))
+    parser.add_argument("--planner", default="auto", choices=("auto", "offline", "claude", "groq"))
     parser.add_argument("--o2", type=float, help="scenario O2 percent")
     parser.add_argument("--pressure-kpa", type=float, help="scenario pressure in kPa")
     parser.add_argument("--gravity", type=float, help="scenario gravity in g")
     args = parser.parse_args(argv)
+    if args.smoke:
+        return smoke(args.planner)
+    if not args.question:
+        parser.error("give a question, or --smoke for a test run")
 
     from .server import load_corpus
     scenario = {key: value for key, value in [("o2_percent", args.o2), ("pressure", args.pressure_kpa),
                                               ("gravity_g", args.gravity)] if value is not None}
     try:
-        found = run(args.question, load_corpus(args.dummy), scenario, args.audience, make_planner(args.planner))
+        found = run(args.question, load_corpus(), scenario, args.audience, make_planner(args.planner))
     except PlannerError as err:
         raise SystemExit(str(err)) from None
     for step in found["steps"]:

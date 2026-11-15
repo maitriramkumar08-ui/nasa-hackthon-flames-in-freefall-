@@ -1,3 +1,4 @@
+import helpers
 import unittest
 
 from helpers import dummy_sheet
@@ -13,7 +14,7 @@ class TestQuality(unittest.TestCase):
         self.conn = db.create(":memory:")
 
     def test_dummy_samples_are_clean(self):
-        load_folder(self.conn, paths.SAMPLES)
+        load_folder(self.conn, helpers.SAMPLES)
         problems = {name: rows for name, rows in run_checks(self.conn).items() if rows}
         self.assertEqual(problems, {})
 
