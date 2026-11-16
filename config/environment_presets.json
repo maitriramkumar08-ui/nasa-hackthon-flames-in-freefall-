@@ -1,0 +1,44 @@
+{
+  "_note": "Builder environment presets. A preset sets gravity and may pre-fill the cabin atmosphere; the user can change every value, and every value used in a check is HYPOTHETICAL. Each number names the source it should be checked against. None of them has been verified by the team yet (verified_by is empty): open the source, confirm the number, add url + access_date, and put your name in verified_by, the same way as sources/sources.csv. Atmospheres with no source we trust are left null on purpose (rule 1).",
+  "presets": [
+    {
+      "id": "leo_iss", "name": "LEO / ISS",
+      "gravity_g": 0.0,
+      "gravity_source": "Orbital free fall; PYRA treats it as 0 g, the same as 'microgravity' in evidence.GRAVITY_WORDS (DERIVED)",
+      "o2_percent": 21.0, "pressure": 14.7, "pressure_unit": "psi",
+      "atmosphere_source": "ISS nominal cabin atmosphere (sea-level equivalent), NASA ISS ECLSS documentation: needs exact document, url and access date",
+      "verified_by": ""
+    },
+    {
+      "id": "lunar_surface", "name": "Lunar surface",
+      "gravity_g": 0.165,
+      "gravity_source": "NASA NSSDC Moon Fact Sheet, surface gravity 1.62 m/s2 divided by 9.80665 m/s2: needs url and access date",
+      "o2_percent": 34.0, "pressure": 8.2, "pressure_unit": "psi",
+      "atmosphere_source": "NASA Exploration Atmospheres Working Group recommendation (8.2 psia / 34% O2), believed to be NASA/TP-2010-216134: needs the report number, page, url and access date checked. The same values are the Prompt 16 input in the PYRA Master Prompt Pack.",
+      "verified_by": ""
+    },
+    {
+      "id": "mars_transit", "name": "Mars transit",
+      "gravity_g": 0.0,
+      "gravity_source": "Free fall in transit; PYRA treats it as 0 g (DERIVED)",
+      "o2_percent": null, "pressure": null, "pressure_unit": "psi",
+      "atmosphere_source": "no cited value yet",
+      "verified_by": ""
+    },
+    {
+      "id": "mars_surface", "name": "Mars surface",
+      "gravity_g": 0.378,
+      "gravity_source": "NASA NSSDC Mars Fact Sheet, surface gravity 3.71 m/s2 divided by 9.80665 m/s2: needs url and access date",
+      "o2_percent": null, "pressure": null, "pressure_unit": "psi",
+      "atmosphere_source": "no cited value yet",
+      "verified_by": ""
+    },
+    {
+      "id": "custom", "name": "Custom",
+      "gravity_g": null, "gravity_source": "typed by you",
+      "o2_percent": null, "pressure": null, "pressure_unit": "kPa",
+      "atmosphere_source": "typed by you",
+      "verified_by": ""
+    }
+  ]
+}

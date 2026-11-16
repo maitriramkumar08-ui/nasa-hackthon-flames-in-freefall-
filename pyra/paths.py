@@ -8,7 +8,16 @@ SCHEMA_SQL = ROOT / "pyra" / "schema.sql"
 FACTSHEETS = ROOT / "data" / "factsheets"
 DRAFTS = FACTSHEETS / "drafts"        # straight out of Prompt 1, not checked yet
 VERIFIED = FACTSHEETS / "verified"    # passed Prompt 12 and a second person: these get loaded
-SAMPLES = ROOT / "data" / "samples"   # DUMMY data for trying things out and for tests
 
 DATABASE = ROOT / "data" / "pyra.db"
-DUMMY_DATABASE = ROOT / "data" / "dummy.db"
+
+
+def load_env(path=ROOT / ".env"):
+    """KEY=value lines from .env into os.environ, without overriding what is already set."""
+    import os
+    if not path.exists():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if "=" in line and not line.lstrip().startswith("#"):
+            key, value = line.split("=", 1)
+            os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))

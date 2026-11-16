@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EMBER · Flame in Freefall agents</title>
+<style>
+:root{--bg:#07090f;--panel:#0e131d;--line:#1d2636;--ink:#e7ecf3;--dim:#8794a8;--fire:#ff7a2f;--fire2:#ffb347;--blue:#59a8ff;--ok:#3ecf8e;--warn:#f5c542;--bad:#ff5a5f;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1200px 500px at 70% -10%,#1b1020 0,transparent 60%),var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{display:flex;align-items:center;gap:16px;padding:14px 22px;border-bottom:1px solid var(--line)}
+.logo{font-weight:800;letter-spacing:.18em;font-size:20px;background:linear-gradient(90deg,var(--fire2),var(--fire));-webkit-background-clip:text;color:transparent}
+.sub{color:var(--dim);font-size:12.5px}.pill{margin-left:auto;font:12px var(--mono);padding:4px 10px;border:1px solid var(--line);border-radius:99px;color:var(--dim)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;padding:12px 22px;border-bottom:1px solid var(--line);align-items:center}
+select,input,button{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit}
+input{flex:1;min-width:240px}button{cursor:pointer}button.go{background:linear-gradient(90deg,var(--fire),#e0482a);border:0;font-weight:700;padding:8px 18px}
+button:disabled{opacity:.5;cursor:default}
+#pipe{display:flex;gap:6px;padding:14px 22px;overflow-x:auto;align-items:stretch}
+.node{min-width:118px;flex:1;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--panel);position:relative;transition:.25s}
+.node b{display:block;font-size:12.5px}.node small{color:var(--dim);font-size:11px}
+.node.active{border-color:var(--fire);box-shadow:0 0 0 1px var(--fire),0 0 22px #ff7a2f44}.node.done{border-color:#2a5a45}.node.done b::after{content:" ✓";color:var(--ok)}
+.node.loop{border-style:dashed}.node .n{position:absolute;top:6px;right:8px;font:11px var(--mono);color:var(--fire2)}
+main{display:grid;grid-template-columns:minmax(320px,1fr) minmax(420px,1.35fr);gap:14px;padding:0 22px 22px}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.card h3{margin:0;padding:10px 14px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--line)}
+#feed{height:64vh;overflow:auto;padding:8px 10px;font-size:13px}
+.msg{padding:6px 8px;border-left:3px solid var(--line);margin:4px 0;border-radius:4px;background:#0b1019}
+.msg .who{font-weight:700;font-size:11.5px;margin-right:6px}.msg.tool,.msg.result{font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+.msg.warning{border-left-color:var(--warn);background:#1c1806}.msg.handoff{color:var(--dim);font-style:italic}.msg.llm{border-left-color:var(--fire)}
+.tabs{display:flex;border-bottom:1px solid var(--line)}.tabs button{border:0;border-radius:0;background:none;color:var(--dim);padding:10px 14px}
+.tabs button.on{color:var(--ink);box-shadow:inset 0 -2px var(--fire)}
+#view{padding:14px;height:64vh;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}th{color:var(--dim);font-weight:600}
+.v{font-weight:700}.v.burns{color:var(--bad)}.v.could{color:var(--fire2)}.v.near{color:var(--warn)}.v.unlikely{color:var(--ok)}
+.bar{height:8px;border-radius:4px;background:#1a2230;position:relative;min-width:120px}.bar i{position:absolute;top:0;bottom:0;border-radius:4px;background:linear-gradient(90deg,var(--fire2),var(--fire))}
+.bar u{position:absolute;top:-3px;bottom:-3px;border:1px solid #ffffff55;border-radius:4px}
+.conf{font:11px var(--mono);padding:1px 6px;border-radius:99px;border:1px solid var(--line)}.conf.measured{color:var(--ok);border-color:#2a5a45}.conf.no{color:var(--bad);border-color:#5a2a2c}
+.grid{display:grid;grid-template-columns:90px repeat(3,1fr);gap:6px;font-size:12px}.grid div{padding:10px 6px;border-radius:8px;text-align:center}
+.grid .h{color:var(--dim);background:none}.cell{background:#141b27}.cell.me{outline:2px solid var(--fire)}
+.inc{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px}.inc h4{margin:0 0 6px}.chain{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;font-size:11px}
+.chain div{background:#141b27;border-radius:6px;padding:6px}.chain b{display:block;color:var(--dim);font-size:10px;text-transform:uppercase}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;margin-right:4px}.tag.high{background:#5a1f22;color:#ffb3b5}.tag.medium{background:#4a3a10;color:#ffe28a}.tag.low{background:#123a2a;color:#9ef0c9}
+.rec{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}.rec .st{float:right;font:11px var(--mono)}
+.st.approved{color:var(--ok)}.st.rejected{color:var(--bad)}.st.unreviewed{color:var(--dim)}
+.headline{font-size:17px;font-weight:700;margin:0 0 12px;line-height:1.35}.kpis{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.kpi{background:#141b27;border-radius:10px;padding:8px 12px}.kpi b{display:block;font-size:18px;color:var(--fire2)}.kpi small{color:var(--dim)}
+.empty{color:var(--dim);padding:30px;text-align:center}
+dialog{background:var(--panel);color:var(--ink);border:1px solid var(--fire);border-radius:14px;max-width:640px;width:92vw}
+dialog::backdrop{background:#000a}dialog label{display:block;padding:8px;border-bottom:1px solid var(--line)}dialog .row{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+a{color:var(--blue)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">EMBER</div>
+  <div class="sub">Evidence-based Microgravity Burn Expert Reasoners · NASA Space Apps 2026 · Flame in Freefall</div>
+  <div class="pill" id="llm">connecting…</div>
+</header>
+<div class="controls">
+  <select id="mission">
+    <option value="iss">ISS · 14.7 psia / 21% · µg</option>
+    <option value="gateway">Gateway · 10.2 / 26.5% · µg</option>
+    <option value="lunar" selected>Lunar habitat · 8.2 / 34% · 0.165 g</option>
+    <option value="mars_transit">Mars transit · 10.2 / 26.5% · µg · 22 min delay</option>
+    <option value="mars_surface">Mars surface · 8.2 / 34% · 0.38 g</option>
+  </select>
+  <select id="mode">
+    <option value="full">Full assessment</option><option value="risk">Material risk only</option>
+    <option value="gaps">Knowledge gaps</option><option value="lessons">Lessons from past fires</option>
+  </select>
+  <select id="pilot"><option value="approve">Human approves</option><option value="shadow">Shadow (no approval)</option></select>
+  <input id="goal" placeholder="Goal (optional), e.g. Which cabin materials are unsafe in a lunar habitat?">
+  <button class="go" id="run">Run agents</button>
+</div>
+<div id="pipe"></div>
+<main>
+  <section class="card"><h3>Agent trace</h3><div id="feed"><div class="empty">Pick a mission and press Run.</div></div></section>
+  <section class="card">
+    <div class="tabs" id="tabs"></div>
+    <div id="view"><div class="empty">Results appear here as each agent finishes.</div></div>
+  </section>
+</main>
+<dialog id="approve"><h3 style="margin-top:0">Safety Officer needs approval</h3><div id="recs"></div>
+  <div class="row"><button id="rej">Reject all</button><button class="go" id="ok">Approve selected</button></div></dialog>
+<script>
+const COLORS={supervisor:'#8794a8',librarian:'#59a8ff',mission_profiler:'#7ed3ff',physicist:'#b28dff',risk_ranker:'#ff7a2f',skeptic:'#f5c542',incident_analyst:'#ff5a5f',gap_hunter:'#3ecf8e',safety_officer:'#ffb347',reporter:'#e7ecf3'};
+const NODES=[['supervisor','Supervisor','routes'],['librarian','Librarian','NASA PSI'],['mission_profiler','Mission','gravity · O₂'],['physicist','Physicist','flame regime'],['risk_ranker','Risk Ranker','materials'],['skeptic','Skeptic','reviews ⟲'],['incident_analyst','Incidents','Apollo · Mir'],['gap_hunter','Gap Hunter','next experiment'],['safety_officer','Safety Officer','human approval'],['reporter','Reporter','briefing']];
+const TABS=[['report','Briefing'],['risk','Material risk'],['gaps','Gaps'],['incidents','Past fires'],['actions','Recommendations'],['evidence','Evidence']];
+const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let S={}, tab='report', live=false, tid=null, counts={};
+$('#pipe').innerHTML=NODES.map(([id,l,s])=>`<div class="node ${id==='skeptic'?'loop':''}" id="n-${id}"><span class="n"></span><b>${l}</b><small>${s}</small></div>`).join('');
+$('#tabs').innerHTML=TABS.map(([id,l])=>`<button data-t="${id}">${l}</button>`).join('');
+$('#tabs').onclick=e=>{if(e.target.dataset.t){tab=e.target.dataset.t;render()}};
+const label=id=>(NODES.find(n=>n[0]===id)||[id,id])[1];
+
+function reset(){S={};counts={};$('#feed').innerHTML='';document.querySelectorAll('.node').forEach(n=>{n.className=n.className.replace(/ ?(active|done)/g,'');n.querySelector('.n').textContent=''});render()}
+function addMsg(m){const d=document.createElement('div');d.className='msg '+m.kind;d.style.borderLeftColor=m.kind==='warning'?'':COLORS[m.agent];
+  d.innerHTML=`<span class="who" style="color:${COLORS[m.agent]}">${esc(label(m.agent))}</span>${esc(m.text)}`;$('#feed').append(d);$('#feed').scrollTop=1e9}
+const KEY={librarian:'corpus',mission_profiler:'mission',physicist:'physics',risk_ranker:'risk',skeptic:'review',incident_analyst:'incidents',gap_hunter:'gaps',safety_officer:'actions',reporter:'report'};
+function onEvent(ev){
+  if(ev.type==='run_start'){$('#llm').textContent='LLM: '+ev.llm}
+  if(ev.type==='node_start'){document.querySelectorAll('.node.active').forEach(n=>n.classList.remove('active'));const n=$('#n-'+ev.agent);if(n){n.classList.add('active');counts[ev.agent]=(counts[ev.agent]||0)+1;if(counts[ev.agent]>1)n.querySelector('.n').textContent='×'+counts[ev.agent]}}
+  if(ev.type==='message')addMsg(ev.data);
+  if(ev.type==='node_end'){const n=$('#n-'+ev.agent);if(n){n.classList.remove('active');n.classList.add('done')}Object.assign(S,ev.update||{});
+    const k=KEY[ev.agent]==='review'?'risk':KEY[ev.agent];if(TABS.some(t=>t[0]===k))tab=k;else if(k==='corpus')tab='evidence';render()}
+  if(ev.type==='interrupt')askApproval(ev.data);
+  if(ev.type==='done'){Object.assign(S,ev.state||{});tab='report';render();$('#run').disabled=false;document.querySelectorAll('.node.active').forEach(n=>n.classList.remove('active'))}
+  if(ev.type==='error'){addMsg({agent:ev.agent||'supervisor',kind:'warning',text:ev.text});$('#run').disabled=false}
+}
+function askApproval(d){const recs=d.actions||[];$('#recs').innerHTML=recs.map(r=>`<label><input type="checkbox" checked value="${r.id}"> <b>[${r.priority}] ${esc(r.title)}</b><br><small style="color:var(--dim)">${esc(r.text)}</small></label>`).join('');
+  $('#approve').showModal();return new Promise(res=>{const done=dec=>{$('#approve').close();const ids=[...$('#recs').querySelectorAll('input:checked')].map(i=>i.value);res();resume(dec,dec==='approve'?ids:[])};$('#ok').onclick=()=>done('approve');$('#rej').onclick=()=>done('reject')})}
+let replayResume=null;
+async function resume(decision,ids){if(live){await fetch(`/api/resume/${tid}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({decision,ids})})}else if(replayResume)replayResume()}
+
+$('#run').onclick=async()=>{reset();$('#run').disabled=true;const body={goal:$('#goal').value,mode:$('#mode').value,scenario:{mission:$('#mission').value,pilot_mode:$('#pilot').value}};
+  if(live){const r=await(await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})).json();tid=r.thread_id;
+    const es=new EventSource(`/api/stream/${tid}`);es.onmessage=e=>{const ev=JSON.parse(e.data);onEvent(ev);if(ev.type==='done'||ev.type==='error')es.close()}}
+  else replay()};
+async function replay(){const data=await(await fetch('agents/data/demo_run.json')).json();$('#mission').value=data.mission;
+  addMsg({agent:'supervisor',kind:'warning',text:'No agent server found: replaying a recorded offline run ('+data.mission+'). Start it with: python -m agents.server'});
+  for(const ev of data.events){if(ev.type==='done')continue;await new Promise(r=>setTimeout(r,ev.type==='message'?140:60));
+    if(ev.type==='interrupt'){await new Promise(r=>{replayResume=r;askApproval(ev.data)});continue}onEvent(ev)}
+  onEvent(data.events[data.events.length-1])}
+
+function bar(it){const max=20,pos=v=>Math.max(0,Math.min(100,50+v/max*50));return `<div class="bar"><i style="left:${pos(Math.min(0,it.margin))}%;right:${100-pos(Math.max(0,it.margin))}%"></i><u style="left:${pos(it.margin-it.band)}%;right:${100-pos(it.margin+it.band)}%"></u></div>`}
+const vclass=v=>v==='burns'?'burns':v==='could burn'?'could':v==='near limit'?'near':'unlikely';
+const psi=id=>id&&id.startsWith('PSI-')?`<a href="https://psi.nasa.gov/physci/repo/data/investigations/${id}" target="_blank">${id}</a>`:esc(id);
+function render(){document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));const v=$('#view');const none='<div class="empty">This agent has not run yet.</div>';
+  if(tab==='report'){const r=S.report;if(!r){v.innerHTML=S.mission?`<div class="empty">Agents working on ${esc(S.mission.name)}…</div>`:none;return}
+    v.innerHTML=`<p class="headline">${esc(r.headline)}</p><div class="kpis">${Object.entries(r.kpis).map(([k,x])=>`<div class="kpi"><b>${esc(x)}</b><small>${esc(k.replace(/_/g,' '))}</small></div>`).join('')}</div>`+
+    r.sections.map(s=>`<h4 style="margin:12px 0 4px;color:${COLORS[s.agent]}">${esc(s.title)}</h4><ul style="margin:0;padding-left:18px">${s.bullets.map(b=>`<li>${esc(b)}</li>`).join('')}</ul>`).join('')}
+  if(tab==='risk'){const r=S.risk;if(!r){v.innerHTML=none;return}const rev=S.review;
+    v.innerHTML=`<p style="margin-top:0;color:var(--dim)">Pass ${r.iteration}${r.strict?' (after Skeptic review)':''}. Bar = O₂ margin to the estimated flammability limit; outline = uncertainty band. ${S.physics?'Regime: <b>'+esc(S.physics.regime)+'</b>.':''}</p>
+    <table><tr><th>Material</th><th>Verdict</th><th>Margin</th><th></th><th>Confidence</th><th>Nearest NASA tests</th></tr>${r.items.map(i=>`<tr title="${esc(i.why)}"><td>${esc(i.name)}<br><small style="color:var(--dim)">${esc(i.use)}</small></td><td class="v ${vclass(i.verdict)}">${esc(i.verdict)}</td><td>${i.margin>0?'+':''}${i.margin} ± ${i.band}</td><td>${bar(i)}</td><td><span class="conf ${i.confidence==='measured'?'measured':i.confidence==='no data'?'no':''}">${esc(i.confidence)}</span></td><td>${i.evidence.map(psi).join(' ')||'<small style="color:var(--dim)">1 g index only</small>'}</td></tr>`).join('')}</table>
+    ${rev?`<h4>Skeptic ${rev.approved?'<span style="color:var(--ok)">approved</span>':'<span style="color:var(--bad)">rejected</span>'}</h4>${rev.issues.map(i=>`<div class="msg warning"><b>${esc(i.code)}</b> ${esc(i.text)} <i style="color:var(--dim)">Fix: ${esc(i.fix)}</i></div>`).join('')}`:''}
+    ${r.history?`<p style="color:var(--dim)">History: ${r.history.map(h=>`pass ${h.iteration}: ${h.measured} measured, ${h.burns_or_could} burn/could burn`).join(' → ')}</p>`:''}`}
+  if(tab==='gaps'){const g=S.gaps;if(!g){v.innerHTML=none;return}const atms=['14.7/21','10.2/26.5','8.2/34'],gs=['micro','lunar','mars'],topics=['ignition','spread','flammability','suppression','extinction','smoke','detection','cool_flame'];
+    const me=S.mission?`${S.mission.gravity_class}|${S.mission.atmosphere_key}`:'';
+    let h=`<p style="margin-top:0">${g.covered} of ${g.cells} condition cells have a flight investigation. Each cell: topics covered of ${topics.length}.</p><div class="grid"><div class="h"></div>${atms.map(a=>`<div class="h">${a} psia/%O₂</div>`).join('')}`;
+    for(const gr of gs){h+=`<div class="h">${gr}</div>`;for(const a of atms){const n=topics.filter(t=>g.matrix[`${gr}|${a}|${t}`]>0).length;const pct=n/topics.length;
+      h+=`<div class="cell ${me===gr+'|'+a?'me':''}" style="background:rgba(62,207,142,${.08+pct*.6})"><b>${n}/${topics.length}</b>${me===gr+'|'+a?'<br><small>this mission</small>':''}</div>`}}
+    const p=g.proposal;h+=`</div><h4>Top gaps for this mission</h4><table><tr><th>Topic</th><th>Gravity</th><th>Atmosphere</th><th>Score</th></tr>${g.gaps.map(x=>`<tr><td>${esc(x.topic)}</td><td>${esc(x.gravity)}</td><td>${esc(x.atmosphere)}</td><td>${x.score}</td></tr>`).join('')}</table>
+    <h4 style="color:var(--ok)">Proposed experiment</h4><div class="rec"><b>${esc(p.title)}</b><p>${esc(p.platform)}</p><p>Materials: ${p.materials.join(', ')} · flows ${p.flows_m_s.join(', ')} m/s<br>Measure: ${p.measurements.join(', ')}</p><p><i>${esc(p.answers)}</i></p></div>`;v.innerHTML=h}
+  if(tab==='incidents'){const c=S.incidents;if(!c){v.innerHTML=none;return}const L=['oxidizer','fuel','ignition','detection','suppression','escape'];
+    v.innerHTML=c.cases.map(x=>`<div class="inc"><h4>${esc(x.name)} (${x.year}) <span class="tag ${x.match}">${x.match} match</span></h4><div class="chain">${L.map(k=>`<div><b>${k}</b>${esc(x.chain[k])}</div>`).join('')}</div>
+      <p style="margin:8px 0 0">${x.match_reasons.length?'In this mission: '+x.match_reasons.map(esc).join('; '):'<span style="color:var(--dim)">No matching links.</span>'} · <a href="${x.source}" target="_blank">source</a></p></div>`).join('')}
+  if(tab==='actions'){const a=S.actions;if(!a){v.innerHTML=none;return}v.innerHTML=a.recommendations.map(r=>`<div class="rec"><span class="st ${r.status}">${r.status}</span><b>[${r.priority}] ${esc(r.title)}</b><p style="margin:6px 0">${esc(r.text)}</p><small>Evidence: ${r.evidence.map(psi).join(', ')}</small></div>`).join('')}
+  if(tab==='evidence'){const c=S.corpus;if(!c){v.innerHTML=none;return}v.innerHTML=`<p style="margin-top:0">${c.counts.kept} combustion investigations from NASA PSI (${c.counts.microgravity} flight, ${c.counts.ground} ground, ${c.counts.partial_gravity} partial gravity). Tags are EMBER's; ✓ = checked against the PSI page.</p>
+    <table><tr><th>ID</th><th>Investigation</th><th>Type</th><th>Topics</th></tr>${c.records.map(r=>`<tr><td>${psi(r.id)}${r.verified?' ✓':''}</td><td>${esc(r.acronym)}<br><small style="color:var(--dim)">${esc(r.title)}</small></td><td>${r.type}</td><td>${r.topics.join(', ')}</td></tr>`).join('')}</table>`}
+}
+render();
+fetch('/api/health').then(r=>r.ok?r.json():Promise.reject()).then(h=>{live=true;$('#llm').textContent='LLM: '+h.llm}).catch(()=>{$('#llm').textContent='replay mode (no server)'});
+</script>
+</body>
+</html>

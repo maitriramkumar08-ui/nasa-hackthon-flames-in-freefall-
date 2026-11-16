@@ -1,11 +1,11 @@
 """Check how often search finds the right page for a set of hand-written questions.
 
-    python tools/eval_retrieval.py                 DUMMY questions and docs, k = 6
+    python tools/eval_retrieval.py                 the test-only questions and docs, k = 6
     python tools/eval_retrieval.py -k 3 --questions my.json --docs papers/
 
 Each question lists the pages that should come back, as "file name#page".
 recall@k is the share of those pages found in the top k results, averaged
-over the questions. The bundled set is DUMMY, so its score only shows the
+over the questions. The bundled set is test-only (NOT REAL DATA), so its score only shows the
 pipeline runs; real numbers need real questions about real papers.
 """
 
@@ -19,7 +19,7 @@ sys.path.insert(0, str(ROOT))
 
 from pyra import retrieval  # noqa: E402
 
-EVAL = ROOT / "data" / "eval"
+EVAL = ROOT / "tests" / "fixtures" / "eval"
 
 
 def recall_at_k(index, questions, k):

@@ -138,15 +138,29 @@ def _gaps(gap_result):
     lines = ["## 5. Evidence coverage and gaps", ""]
     lines.append("| Axis | Class | Distance | Nearest value | Tested min | Tested max | Runs within | Label |")
     lines.append("|---|---|---|---|---|---|---|---|")
+    skipped = []
     for axis, gap in gap_result["axes"].items():
+        if gap.get("state") == "NOT_EVALUATED":
+            skipped.append(axis)
+            continue
         unit = UNITS.get(axis, "")
+        if gap.get("kind") == "categorical":
+            tested = ", ".join(f"{c['category']} ({c['investigations']} inv, {c['runs']} runs)"
+                               for c in gap.get("categories", [])) or "none indexed"
+            lines.append(f"| {axis} | {gap['class']} | n/a (categorical) | {_show(gap.get('scenario_value'))} | "
+                         f"{tested} | n/a | {_show(gap.get('runs_within'))} | DERIVED |")
+            continue
         lines.append(f"| {axis} | {gap['class']} | {_show(gap.get('distance'))} | "
                      f"{_show(gap.get('nearest_value'), unit)} | {_show(gap.get('tested_min'), unit)} | "
                      f"{_show(gap.get('tested_max'), unit)} | {_show(gap.get('runs_within'))} | DERIVED |")
     lines.append("")
+    if skipped:
+        lines.append(f"Not evaluated, because the scenario leaves them unset: {', '.join(skipped)} (DERIVED).")
     combination = gap_result["combination"]
-    lines.append(f"Combination of all axes: {combination['class']}, "
-                 f"{_show(combination.get('runs_matching'))} run(s) match every axis at once (DERIVED).")
+    matching = combination.get("runs_matching")
+    count = len(matching) if isinstance(matching, list) else matching
+    lines.append(f"Combination of all set axes: {combination.get('class') or 'NOT_EVALUATED'}, "
+                 f"{_show(count)} run(s) match every set axis at once (DERIVED).")
     for run in gap_result.get("nearest_runs", []):
         source = run.get("source") or {}
         title = source.get("title") if isinstance(source, dict) else source
@@ -165,7 +179,7 @@ def _limitations(gap_result, ranked, corpus):
         for note in (inv or {}).get("notes", {}).get("limitation", []):
             lines.append(f"- {note} [{inv['acronym']}, limitation note]")
     gravity = gap_result["axes"].get("gravity")
-    if gravity and gravity["class"] != "DIRECTLY_TESTED":
+    if gravity and gravity.get("state") != "NOT_EVALUATED" and gravity["class"] != "DIRECTLY_TESTED":
         lines.append("- Microgravity and 1 g results only bound partial-gravity behaviour; "
                      "the scenario gravity is not directly measured (INTERPRETATION).")
     lines.append("- PYRA shows indexed evidence and where it stops; it does not predict fire "
@@ -176,7 +190,7 @@ def _limitations(gap_result, ranked, corpus):
 def _experiments(scen, gap_result):
     lines = ["## 7. Suggested experiments", ""]
     for axis, gap in gap_result["axes"].items():
-        template = EXPERIMENTS.get(gap["class"])
+        template = EXPERIMENTS.get(gap.get("class"))  # NOT_EVALUATED axes have class None: no proposal
         if template is None:
             continue
         unit = UNITS.get(axis, "")

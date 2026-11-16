@@ -6,7 +6,7 @@ ours: fixed rules and fixed sentences, labelled DERIVED. Rule 7 is the reason
 this file exists: numbers from different hardware, scale, fuel phase or
 sensors are not put next to each other without a warning.
 
-    table = compare.compare(corpus, ["DUMMY-A", "DUMMY-B"])
+    table = compare.compare(corpus, ["BASS", "SAFFIRE"])
 """
 
 NOT_PROVIDED = "not provided"

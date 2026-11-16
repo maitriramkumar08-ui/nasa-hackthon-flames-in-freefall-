@@ -76,6 +76,19 @@ def measured_section(text):
     return found.group(1) if found else None
 
 
+ODD_BRACKETS = str.maketrans({"【": "[", "】": "]", "［": "[", "］": "]", "〔": "[", "〕": "]"})
+
+
+def tidy(text):
+    """Undo formatting habits of hosted models that the checks would otherwise reject:
+    full-width brackets around ids (【S1】), markdown bold or italics on headings
+    (**MEASURED:**) and trailing double-space line breaks. The wording is not touched."""
+    text = (text or "").translate(ODD_BRACKETS)
+    text = re.sub(r"\*\*|__", "", text)
+    text = re.sub(r"(?m)^(\s*)\*(?=\S)(.*?)\*(?=\s*$)", r"\1\2", text)
+    return re.sub(r"[ \t]+$", "", text, flags=re.MULTILINE).strip()
+
+
 def _numbers(text):
     return {float(n) for n in NUMBER.findall(CITATION.sub(" ", text))}
 
@@ -132,7 +145,7 @@ def answer(question, context_chunks, scenario=None, audience="student", tool_res
     messages = build_messages(scenario, audience, tool_results, context_chunks, question)
     if ask_model is None:
         return {"text": None, "problems": [], "label": "INTERPRETATION", "messages": messages}
-    text = ask_model(messages["system"], messages["user"])
+    text = tidy(ask_model(messages["system"], messages["user"]))
     allowed = "\n".join([chunk["text"] for chunk in context_chunks]
                         + [json.dumps(tool_results or {}, default=str), json.dumps(scenario or {}, default=str)])
     problems = check_answer(text, [chunk["id"] for chunk in context_chunks], allowed)

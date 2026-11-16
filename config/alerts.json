@@ -18,5 +18,17 @@
     "smoke_level":   {"rise_per_min": 0.05, "label": "PLACEHOLDER", "note": "not sourced"},
     "temperature_c": {"rise_per_min": 1.0,  "label": "PLACEHOLDER", "note": "not sourced"},
     "flow_cm_s":     {"fall_per_min": 1.0,  "label": "PLACEHOLDER", "note": "not sourced"}
+  },
+
+  "co_occurrence": {
+    "_note": "Explicit rules that group channels moving together in one compartment. Each rule is ILLUSTRATIVE (our example, not a detection standard) and every change threshold and window is a PLACEHOLDER. rise/fall is the change from the oldest sample inside window_s to the current one.",
+    "rules": [
+      {"id": "co_smoke_temp_rising", "name": "CO, smoke and temperature rising together",
+       "window_s": 60, "rise": {"co_ppm": 5.0, "smoke_level": 0.05, "temperature_c": 0.5},
+       "label": "ILLUSTRATIVE", "thresholds_label": "PLACEHOLDER", "note": "not sourced"},
+      {"id": "o2_rising_flow_falling", "name": "O2 rising while airflow falls",
+       "window_s": 120, "rise": {"o2_percent": 0.5}, "fall": {"flow_cm_s": 1.0},
+       "label": "ILLUSTRATIVE", "thresholds_label": "PLACEHOLDER", "note": "not sourced"}
+    ]
   }
 }
