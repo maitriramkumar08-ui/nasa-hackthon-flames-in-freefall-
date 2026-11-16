@@ -203,13 +203,112 @@ Each of these is a tight numerical loop with a stable, array-shaped signature:
 - **Sobol and Morris sampling and indices**, which need thousands of model evaluations.
 - **Parameter sweeps** over a scenario grid, parallel via `rayon`.
 
-### What stays Python
+### Why not write everything in Rust?
 
-Schema, provenance, ledger, I/O, adapters, CLI, playground, learning material. These are
-I/O- and correctness-bound. Rust buys nothing and costs build complexity.
+This is the right question to ask, and the answer is not "because Python is easier". It is
+worth separating two claims that sound alike:
 
-The boundary rule: **arrays and plain numbers cross; objects do not.** No PyO3 type
-mirrors a pydantic model.
+- **"All computation happens in Rust."** This is correct and is what this document
+  specifies. No numerical loop should live in Python.
+- **"All code is Rust."** This is a different claim, and the case against it is specific.
+
+#### What the measurements say
+
+Timings from this library on the development machine, median of repeated runs:
+
+| Operation | Time | What dominates |
+| --- | --- | --- |
+| Zone solve, 61 steps | 17.4 us | Arithmetic |
+| `run_fire_test`: solve plus schema validation plus wrapping | 28.1 us | Arithmetic (62%) |
+| `heat_release`, Monte Carlo n=1024 | 2.8 ms | Arithmetic |
+| `heat_release`, Monte Carlo n=65536 | 143 ms | Arithmetic |
+
+Two things follow.
+
+The schema, validation and object-wrapping layer costs about **11 microseconds** per call.
+Rewriting that in Rust saves microseconds that nobody will ever observe, at the cost of
+losing `pydantic` and `pint`. That is a bad trade at any exchange rate.
+
+The Monte Carlo at 65536 samples takes **143 milliseconds** and scales linearly, so a
+million samples would take roughly 2.2 seconds. That is exactly the kind of number that
+makes a learner stop exploring. A 20x speedup turns it into something interactive. **That**
+is where Rust belongs, and the measurement says so without anyone needing an opinion.
+
+The rule that falls out: **Rust where the loop count is large and the signature is
+array-shaped. Python where the work is one-shot and the value is in the metadata.**
+
+#### The ecosystem argument, which is the strongest one
+
+Performance is not the reason Python stays. Dependencies are.
+
+The library currently rests on `pint` for units, `pydantic` for schema, and `numpy` and
+`scipy` for numerics. Section 3 commits to adapting **Cantera** rather than reimplementing
+combustion, and plans adapters for **FDS** via `fdsreader`, plus **SALib** for sensitivity
+and **emcee** for calibration. Section 8 adds **REBOUND**, **poliastro**, **Skyfield** and
+**spiceypy**.
+
+Not one of those has a Rust equivalent of comparable maturity. Several have no Rust
+binding at all. Choosing all-Rust does not mean porting some code; it means either
+rewriting `pint` and `pydantic`, or giving up Cantera and doing combustion ourselves,
+which section 3 explicitly rejects as the project's worst possible use of time.
+
+Rust does have `uom` for units, `serde` for serialisation, `ndarray` for arrays and
+`plotters` for charts, and they are good. But they do not cover a combustion solver, a
+PSI/ISA-Tab reader, an MCMC sampler and a Sobol estimator, which is what this project
+actually needs.
+
+#### The audience argument
+
+This is an educational library for people studying fire safety and combustion. They write
+Python. They work in notebooks. A Rust-only library would be technically excellent and
+almost entirely unused by the people it is for, and "can a student import it and poke at
+it" is a product requirement, not a convenience.
+
+#### The honest counter-argument
+
+If the primary goal is **to learn Rust deeply**, then all-Rust is genuinely the better
+choice for that goal, and the ecosystem argument is beside the point: nobody learns a
+language by writing glue around someone else's solver.
+
+Those two goals do not have to be traded off, and the resolution shapes the design:
+
+**Write the Rust crate as a legitimate standalone library, with the Python bindings as one
+consumer of it rather than its only reason to exist.**
+
+```text
+pyrakit-core/          a real Rust crate; usable from Rust with no Python anywhere
+  src/lib.rs           flame spread, zone, monte carlo, sobol, nbody, geodesics
+  benches/             criterion benchmarks
+  examples/            runnable pure-Rust examples
+
+pyrakit/               Python distribution
+  rust/                thin PyO3 binding layer that depends on pyrakit-core
+  python/pyrakit/      API, schema, provenance, orchestration
+```
+
+Under that split, "all the simulation is in Rust" is literally true, the crate stands on
+its own merits, the Rust is learned properly rather than as binding boilerplate, and
+Python users still get a library they can actually use. The binding layer is deliberately
+thin and boring, which is what a binding layer should be.
+
+#### What is therefore in each language
+
+**Rust, without exception:** flame spread, zone integration, Monte Carlo propagation,
+Sobol and Morris indices, parameter sweeps, N-body force summation, Barnes-Hut traversal,
+geodesic integration.
+
+**Python:** schema and validation, provenance and lineage, the ledger, file readers,
+adapters to external engines, the CLI, the Playground, and all teaching material.
+
+**Neither, by choice:** combustion chemistry, transport properties and detailed kinetics.
+Those come from Cantera, which has decades of validation behind it. Reimplementing them in
+any language would be the single worst use of time available to this project.
+
+### The boundary rule
+
+**Arrays and plain numbers cross; objects do not.** No PyO3 type mirrors a pydantic model.
+Keeping the interface array-shaped is what lets `pyrakit-core` stand alone as a Rust crate
+rather than becoming a pile of binding glue.
 
 ### The cost, stated plainly
 
@@ -468,16 +567,27 @@ package is *also* called `pyra`. The GitHub repository has already been renamed 
 
 Target:
 
-```
-pyrakit/                  (was pyra_library/pyra-repo/pyra/)
-  Cargo.toml
-  pyproject.toml          build-backend = "maturin"
-  rust/src/               the numerical core
-  python/pyrakit/         the Python API
+```text
+pyrakit/                      (was pyra_library/pyra-repo/pyra/)
+  core/                       standalone Rust crate, no Python anywhere
+    Cargo.toml                publishable to crates.io in its own right
+    src/lib.rs                flame, zone, monte carlo, sobol, nbody, geodesics
+    benches/                  criterion benchmarks
+    examples/                 runnable pure-Rust examples
+  bindings/
+    Cargo.toml                thin PyO3 layer depending on core
+    src/lib.rs
+  python/pyrakit/             the Python API
+  pyproject.toml              build-backend = "maturin"
+  rust-toolchain.toml         pinned, so builds are reproducible
   tests/
-    reference/            pure-Python reference implementations, never shipped
+    reference/                pure-Python reference implementations, never shipped
   docs/
 ```
+
+Splitting `core` from `bindings` is what makes "all the simulation is in Rust" literally
+true while keeping the crate worth reading on its own. A reader who has never used Python
+can `cargo run --example` their way through the physics.
 
 ### Module consolidation
 
@@ -542,7 +652,10 @@ something coherent.
 2. **Flatten the directory nesting** to `pyrakit/`, with aliases kept.
 3. **`explain()`.** Pure Python, uses what exists, demonstrates the differentiator aloud.
 4. **`physics/similarity.py`.** Dimensionless groups; real science; justifies the thesis.
-5. **Stand up the Rust core** with `maturin`, one trivial kernel end to end, CI wheels.
+5. **Stand up the Rust core**: create `core/` as a standalone crate with one real kernel
+   and a `criterion` benchmark, then `bindings/` with `maturin` and CI wheels. Proving the
+   crate builds and runs with `cargo` alone, before any Python touches it, is what keeps
+   the split honest.
 6. **Monte Carlo propagation in Rust**, validated against the existing Python results.
 7. **The flame solver**, with analytic checks, a model card and a narrow envelope.
 8. **Sensitivity indices**, which need the solver to be worth sampling.
