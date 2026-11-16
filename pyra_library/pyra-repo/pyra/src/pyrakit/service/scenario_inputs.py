@@ -51,10 +51,13 @@ class ViewSource(Enum):
                 "any setting you change."
             ),
             ViewSource.LEARNING_MODEL: (
-                "Computed by PYRA's well-mixed oxygen balance. Only starting oxygen, air "
-                "exchange, oxygen sink rate and duration affect it. Fuel, gravity, "
-                "pressure and temperature are recorded but do not enter this equation. "
-                "It is not a flame solver and not a safety prediction."
+                "This computationally light model calculates one well-mixed oxygen value "
+                "over time with an exact equation instead of solving a 3D flame field. "
+                "That makes it cheaper to run, but it does not calculate flame shape, heat, "
+                "buoyancy, chemistry or spatial differences. Only starting oxygen, air "
+                "exchange, oxygen sink rate and duration affect the curve; fuel, gravity, "
+                "pressure and temperature are recorded but do not enter the equation. "
+                "It is not a flame solver or a safety prediction."
             ),
             ViewSource.SOLVER: (
                 "Produced by an external simulation engine through a PYRA adapter. Its "

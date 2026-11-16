@@ -19,6 +19,7 @@ from pyrakit.provenance import (
     join,
     sha256_hex,
 )
+from pyrakit.service.fire_visualization import show_fire_simulation
 from pyrakit.service.playground import (
     FireScenario,
     FireTestRun,
@@ -64,6 +65,7 @@ __all__ = [
     "heat_release",
     "measured",
     "scenario",
+    "show_fire_simulation",
     "show_simulation",
     "simulate_decay",
     "simulate_zone",

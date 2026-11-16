@@ -5,4 +5,5 @@ nav:
   - Usage: usage.md
   - API reference: api.md
   - Architecture: architecture.md
+  - Design and ideation: IDEATION.md
   - Mapping guide: mapping_guide.md

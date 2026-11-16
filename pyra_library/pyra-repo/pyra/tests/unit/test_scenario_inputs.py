@@ -120,6 +120,8 @@ def test_each_view_source_states_plainly_what_it_is() -> None:
     assert ViewSource.SCHEMATIC.headline == "Illustration only"
     assert "Nothing here was computed" in ViewSource.SCHEMATIC.explanation
     assert "not a flame solver" in ViewSource.LEARNING_MODEL.explanation
+    assert "cheaper to run" in ViewSource.LEARNING_MODEL.explanation
+    assert "3D flame field" in ViewSource.LEARNING_MODEL.explanation
     assert "validation envelope" in ViewSource.SOLVER.explanation
     assert len({source.headline for source in ViewSource}) == len(ViewSource)
 
