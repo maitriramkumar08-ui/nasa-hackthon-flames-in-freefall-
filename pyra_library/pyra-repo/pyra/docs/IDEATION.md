@@ -313,7 +313,151 @@ measurement.
 
 ---
 
-## 8. Recalibration of the current tree
+## 8. A second domain: celestial simulation
+
+**Status: planned, and deliberately separate from the fire-safety core.**
+
+### Why this is not scope creep, and the condition that keeps it from becoming so
+
+Section 1 argues against broadening to "space exploration" generally, and that argument
+still holds: the fire-safety types assume a combustion scenario and would be ruined by
+being made generic.
+
+Celestial simulation attaches a different way. It does not extend the fire types; it
+*reuses the discipline*. The claim gate, the status algebra and the model card are not
+about fire at all. They are about any model with a limited domain of validity, and
+gravitational solvers have exactly that:
+
+- A **Newtonian N-body** integrator is valid until a close encounter makes the timestep
+  inadequate, or until relativistic corrections matter near a compact object.
+- A **Schwarzschild geodesic** integrator assumes a non-rotating, uncharged, isolated
+  mass, and says nothing correct about a spinning black hole, where the Kerr metric is
+  needed instead.
+- A **Barnes-Hut approximation** with opening angle `theta` is an approximation whose
+  error grows with `theta`; at `theta = 0` it degenerates to the exact O(N^2) sum.
+
+Each of those is a validation envelope. Running a Newtonian integrator through a close
+encounter and presenting the result as truth is the same mistake as extrapolating an
+Earth-gravity flame test to orbit, and PYRA already has the machinery to refuse it.
+
+That is the real argument for this module: **it demonstrates the framework generalises.**
+A reader who sees the same gate refuse both a flame claim and an orbital claim understands
+the idea far better than one who sees it applied once.
+
+**The condition:** this lives as a separate, optional module that *depends on* the core
+and is never imported by it. The dependency arrow points one way, enforced by the same
+layering test that governs everything else. If that rule is ever relaxed, the fire-safety
+core starts carrying gravitational baggage and section 1 was right after all.
+
+### Why it is an excellent fit for the Rust core
+
+Everything in this domain is a tight numerical loop over many bodies or many rays, with a
+stable array-shaped signature. It is the clearest possible justification for section 5,
+and it parallelises cleanly with `rayon`.
+
+### Staged projects, easiest to hardest
+
+**Stage A - Two-body and Kepler orbits.** Closed-form solutions exist, so this is where
+the validation story is strongest. Propagate an orbit, recover the orbital elements, and
+check them against the analytic answer.
+
+**Stage B - N-body with a symplectic integrator.** The educational core of the whole
+module, for one reason: **integrator choice is visible in the physics.** Naive Euler
+spirals bodies outward and manufactures energy from nothing. RK4 is more accurate per step
+but still drifts secularly. A symplectic integrator - leapfrog or velocity-Verlet -
+conserves energy to a bounded oscillation over millions of steps because it preserves
+phase-space volume. Plotting total energy against time for all three is one of the best
+physics lessons available in a few hundred lines, and it is a lesson about *numerical
+method*, not just about gravity.
+
+**Stage C - Barnes-Hut.** Replace the O(N^2) force sum with a quadtree (2-D) or octree
+(3-D), reducing it to O(N log N) and making tens of thousands of bodies interactive. This
+is exactly what `TheSandwichCoder/GravSim` does in its `qtree.rs`. The teaching point is
+the accuracy/speed trade-off made explicit through the opening angle `theta`, which is a
+tunable approximation error and therefore a model-card envelope parameter.
+
+**Stage D - Gravitational lensing by geodesic integration.** Trace rays *backwards* from
+the camera through curved spacetime and see where they came from. In the Schwarzschild
+metric the null geodesic equation, written in terms of `u = 1/r`, is
+
+```text
+d2u/dphi2 + u = 3 G M u^2 / c^2
+```
+
+where the right-hand term is the entire relativistic correction; drop it and a straight
+line comes back. That single term is the whole of light bending, and being able to switch
+it off is the clearest demonstration of general relativity a learner can run.
+
+**Stage E - Accretion disk and realtime rendering.** The visually spectacular end state,
+and where GPU compute becomes necessary. `kavan010/black_hole` reaches this with an OpenGL
+compute shader (`geodesic.comp`) alongside a CPU reference (`CPU-geodesic.cpp`).
+
+### Analytic checks: how to prove the solver is right
+
+Consistent with section 5, correctness comes from analytic truth rather than from a second
+implementation. This domain is unusually rich in exact answers:
+
+| Check | Exact value | Catches |
+| --- | --- | --- |
+| Circular orbit period | Kepler's third law, `T^2 = 4 pi^2 a^3 / GM` | Force law and unit errors |
+| Energy, symplectic integrator | Bounded oscillation, no secular drift | Wrong integrator or timestep |
+| Angular momentum | Conserved exactly for central forces | Asymmetric force accumulation |
+| Photon sphere | `r = 1.5 r_s` | Geodesic integration errors |
+| Innermost stable circular orbit | `r = 3 r_s` | Effective-potential mistakes |
+| Light deflection at the solar limb | 1.75 arcseconds | Magnitude of the relativistic term |
+| Barnes-Hut at `theta = 0` | Identical to the direct O(N^2) sum | Tree traversal bugs |
+| Two-body reduction | N-body with N=2 matches the Kepler solution | Multi-body bookkeeping |
+
+The last one is a particularly good property test: the general solver must reproduce the
+special case it contains.
+
+### References, and what to take from each
+
+| Source | What it is | What to take |
+| --- | --- | --- |
+| **`TheSandwichCoder/GravSim`** | N-body with collisions, pure Rust, separate `render.py` | The closest architectural match to what we want: Rust computes, Python renders. Its `qtree.rs` is a Barnes-Hut quadtree. Note it has no PyO3 and writes output for Python to read; ours should bind directly instead |
+| **`kavan010/black_hole`** | C++17, OpenGL, geodesic ray tracing, accretion disk, spacetime grid | The staged ambition: 2-D lensing, then CPU geodesics, then a GPU compute shader. Keeping a CPU reference beside the GPU version is the same discipline as our reference implementations |
+| **REBOUND** | The N-body integrator used in professional astronomy; C core with Python bindings | **The single best architectural reference for this project.** It is precisely "fast compiled core, ergonomic Python API". Study `WHFast` and `IAS15`, and how it exposes integrator choice as a first-class user decision |
+| **poliastro / astropy** | Orbital mechanics built on `astropy.units` | Unit-safe orbital elements; confirms unit-carrying quantities work at this scale |
+| **Skyfield** | High-precision positions from real ephemerides | Where real data enters, as opposed to synthetic initial conditions |
+| **SPICE / spiceypy** | NASA NAIF's own ephemeris and geometry toolkit | The authoritative NASA source for real body positions. A direct NASA-data tie, as PSI is on the fire side |
+| **Einstein Toolkit** | Research-grade numerical relativity | Only as a reality check on how far a learning project should go. Full numerical relativity is out of scope and should be said so plainly |
+| **`ndarray`, `nalgebra`, `rayon`** | Rust numerics and data parallelism | The computational substrate |
+| **`wgpu`** | Portable GPU compute in Rust | The route to stage E without tying to OpenGL |
+
+### How it would be structured
+
+```text
+pyrakit_celestial/              separate distribution, depends on pyrakit
+  rust/src/
+    nbody.rs                    direct and Barnes-Hut force summation
+    integrators.rs              euler, rk4, leapfrog: all three, to compare
+    geodesic.rs                 Schwarzschild null geodesics
+  python/pyrakit_celestial/
+    bodies.py                   Body and System, built on pyrakit units and Quantity
+    cards.py                    model cards and envelopes for each integrator
+    lessons/                    the energy-drift comparison, the lensing toggle
+```
+
+Each integrator ships a model card. The Newtonian one declares that it is invalid inside
+some multiple of the Schwarzschild radius; the Barnes-Hut one declares its `theta`. Asking
+for a claim outside those limits is refused by the same gate the flame solver uses, which
+is the whole point of putting this inside PYRA rather than writing a standalone simulator.
+
+### Honest warning
+
+This is a larger project than the flame solver, and the flame solver is already the thing
+most likely to consume all available time. Stage A is an afternoon. Stage B is a weekend
+and is where most of the teaching value sits. Stages D and E are substantial projects on
+their own, and `kavan010/black_hole` has 2.7k stars precisely because doing them well is
+hard.
+
+For the hackathon submission specifically, this module is a **liability rather than an
+asset**: the challenge is spacecraft fire safety, and Relevance is judged on tight
+alignment. Build it after submission, or keep it clearly separate and leave it out of the
+entry.
+
+## 9. Recalibration of the current tree
 
 ### The naming problem
 
@@ -365,7 +509,7 @@ cost almost nothing and protect material already written against the old names.
 
 ---
 
-## 9. Risks and open questions
+## 10. Risks and open questions
 
 **The solver is where projects die.** A 1-D flame spread solver is a real numerical
 methods project, and "it runs" is not "it is right". The analytic checks in section 5 are
@@ -389,7 +533,7 @@ gives better plotting. Not urgent until the solver exists.
 
 ---
 
-## 10. Order of work
+## 11. Order of work
 
 Each stage is independently valuable and sets up the next. Stopping after any stage leaves
 something coherent.
@@ -404,3 +548,8 @@ something coherent.
 8. **Sensitivity indices**, which need the solver to be worth sampling.
 
 Stages 1 to 4 need no Rust at all. Stage 5 is the first that cannot be undone cheaply.
+
+The celestial module in section 8 sits outside this sequence entirely. It shares the Rust
+toolchain set up at stage 5 and the model-card machinery that already exists, so the
+cheapest entry point is stage A once stage 5 is done. It should not displace any of the
+eight stages above before the hackathon submission.
